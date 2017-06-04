@@ -13,7 +13,7 @@ from pyjob.platform import SCRIPT_EXT, SCRIPT_HEADER
 def StopWatch():
     """Import the :obj:`StopWatch <pyjob.misc.stopwatch.StopWatch>`"""
     from pyjob.misc.stopwatch import StopWatch
-    return StopWatch
+    return StopWatch()
 
 
 def make_script(cmd, directory=None, prefix="tmp", stem=None, suffix=SCRIPT_EXT):
