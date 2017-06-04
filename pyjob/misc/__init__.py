@@ -7,8 +7,10 @@ __version__ = "0.1"
 import os
 import tempfile
 
+from pyjob.platform import SCRIPT_EXT, SCRIPT_HEADER
 
-def StopWatch()
+
+def StopWatch():
     """Import the :obj:`StopWatch <pyjob.misc.stopwatch.StopWatch>`"""
     from pyjob.misc.stopwatch import StopWatch
     return StopWatch
