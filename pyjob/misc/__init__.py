@@ -5,14 +5,13 @@ __date__ = "03 Jun 2017"
 __version__ = "0.1"
 
 import os
-import sys
 import tempfile
 
-# OS-dependent script headers and extensions
-if sys.platform.startswith('win'):
-    EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', '', '.bat')
-else:
-    EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
+
+def StopWatch()
+    """Import the :obj:`StopWatch <pyjob.misc.stopwatch.StopWatch>`"""
+    from pyjob.misc.stopwatch import StopWatch
+    return StopWatch
 
 
 def make_script(cmd, directory=None, prefix="tmp", stem=None, suffix=SCRIPT_EXT):
