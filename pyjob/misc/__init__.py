@@ -40,7 +40,7 @@ def make_script(cmd, directory=None, prefix="tmp", stem=None, suffix=SCRIPT_EXT)
 
     """
     # Get the script name
-    script = tmp_fname(delete=True, directory=directory, prefix=prefix, stem=stem, suffix=suffix)
+    script = tmp_file(delete=True, directory=directory, prefix=prefix, stem=stem, suffix=suffix)
     # Write the contents to the file
     with open(script, 'w') as f_out:
         content = SCRIPT_HEADER + os.linesep
@@ -78,7 +78,7 @@ def make_python_script(cmd, directory=None, prefix="tmp", stem=None, suffix='.py
 
     """
     # Get the script name
-    script = tmp_fname(delete=True, directory=directory, prefix=prefix, stem=stem, suffix=suffix)
+    script = tmp_file(delete=True, directory=directory, prefix=prefix, stem=stem, suffix=suffix)
     # Write the contents to the file
     with open(script, 'w') as f_out:
         content = "#!/usr/bin/env python" + os.linesep
@@ -108,7 +108,7 @@ def tmp_dir(directory=None, prefix="tmp", suffix=""):
     return tempfile.mkdtemp(dir=directory, prefix=prefix, suffix=suffix)
 
 
-def tmp_fname(delete=False, directory=None, prefix="tmp", stem=None, suffix=""):
+def tmp_file(delete=False, directory=None, prefix="tmp", stem=None, suffix=""):
     """Return a filename for a temporary file
 
     The naming convention of scripts will be ``prefix`` + ``stem`` + ``suffix``.

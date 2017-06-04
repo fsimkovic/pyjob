@@ -12,7 +12,7 @@ import subprocess
 import sys
 import time
 
-from pyjob.misc import tmp_fname
+from pyjob.misc import tmp_file
 from pyjob.platform import platform_factory
 
 logger = logging.getLogger(__name__)

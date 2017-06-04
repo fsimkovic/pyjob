@@ -7,7 +7,7 @@ __version__ = "0.1"
 import logging
 import os
 
-from pyjob.misc import tmp_fname
+from pyjob.misc import tmp_file
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class Platform(object):
 
         """
         # Write all jobs into an array.jobs file
-        array_jobs = tmp_fname(directory=directory, prefix="array_", suffix='.jobs')
+        array_jobs = tmp_file(directory=directory, prefix="array_", suffix='.jobs')
         with open(array_jobs, 'w') as f_out:
             f_out.write(os.linesep.join(scripts) + os.linesep)
         # Create the actual executable script
