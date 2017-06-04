@@ -19,7 +19,7 @@ def platform_factory(qtype):
     qtype = qtype.lower()
     if qtype == "local":
         from pyjob.platform.local import LocalJobServer
-        return = LocalJobServer
+        return LocalJobServer
     elif qtype == "lsf":
         from pyjob.platform.lsf import LoadSharingFacility
         return LoadSharingFacility
