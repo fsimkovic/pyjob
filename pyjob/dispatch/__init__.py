@@ -13,6 +13,7 @@ import sys
 import time
 
 from pyjob.misc import tmp_fname
+from pyjob.platform import platform_factory
 
 logger = logging.getLogger(__name__)
 
@@ -48,18 +49,7 @@ class Job(object):
         self._script = []
 
         # Check immediately if we have a known platform
-        self._qtype = qtype.lower()
-        if self._qtype == "local":
-            from pyjob.platform import LocalJobServer
-            self._platform = LocalJobServer
-        elif self._qtype == "lsf":
-            from pyjob.platform import LoadSharingFacility
-            self._platform = LoadSharingFacility
-        elif self._qtype == "sge":
-            from pyjob.platform import SunGridEngine
-            self._platform = SunGridEngine
-        else:
-            raise ValueError("Unknown platform")
+        self._platform = platform_factory(qtype)
 
     def __repr__(self):
         """Representation of the :obj:`Job`"""

@@ -13,23 +13,19 @@ else:
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
 
 
-def get_LocalJobServer():
-    """Local job management platform"""
-    from pyjob.platform.local import LocalJobServer
-    return LocalJobServer
-LocalJobServer = get_LocalJobServer()
-
-
-def get_LoadSharingFacility():
-    """LoadSharingFacility job management platform"""
-    from pyjob.platform.lsf import LoadSharingFacility
-    return LoadSharingFacility
-LoadSharingFacility = get_LoadSharingFacility()
-
-
-def get_SunGridEngine():
-    """SunGridEngine job management platform"""
-    from pyjob.platform.sge import SunGridEngine
-    return SunGridEngine
-SunGridEngine = get_SunGridEngine()
+# Little factory function to get the right platform without importing all
+def platform_factory(qtype):
+    """Return the correct platform handler"""
+    qtype = qtype.lower()
+    if qtype == "local":
+        from pyjob.platform.local import LocalJobServer
+        return = LocalJobServer
+    elif qtype == "lsf":
+        from pyjob.platform.lsf import LoadSharingFacility
+        return LoadSharingFacility
+    elif qtype == "sge":
+        from pyjob.platform.sge import SunGridEngine
+        return SunGridEngine
+    else:
+        raise ValueError("Unknown platform")
 
