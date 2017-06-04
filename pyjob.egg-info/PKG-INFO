@@ -1,0 +1,18 @@
+Metadata-Version: 1.1
+Name: pyjob
+Version: 0.0.0.dev0
+Summary: Sequence Independent Molecular Replacement Based on Available Database
+Home-page: https://github.com/rigdenlab/SIMBAD
+Author: Felix Simkovic
+Author-email: felixsimkovic@me.com
+License: BSD License
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
