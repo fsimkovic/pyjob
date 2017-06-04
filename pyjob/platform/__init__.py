@@ -13,20 +13,23 @@ else:
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
 
 
-def LocalJobServer():
+def get_LocalJobServer():
     """Local job management platform"""
     from pyjob.platform.local import LocalJobServer
     return LocalJobServer
+LocalJobServer = get_LocalJobServer()
 
 
-def LoadSharingFacility():
+def get_LoadSharingFacility():
     """LoadSharingFacility job management platform"""
     from pyjob.platform.lsf import LoadSharingFacility
     return LoadSharingFacility
+LoadSharingFacility = get_LoadSharingFacility()
 
 
-def SunGridEngine():
+def get_SunGridEngine():
     """SunGridEngine job management platform"""
     from pyjob.platform.sge import SunGridEngine
     return SunGridEngine
+SunGridEngine = get_SunGridEngine()
 
