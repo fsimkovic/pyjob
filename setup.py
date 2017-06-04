@@ -52,7 +52,7 @@ if not PYTHON_EXE:
 AUTHOR = "Felix Simkovic"
 AUTHOR_EMAIL = "felixsimkovic@me.com"
 DESCRIPTION = __doc__.replace("\n", "")
-LICENSE = "BSD License"
+LICENSE = "MIT License"
 LONG_DESCRIPTION = readme()
 PACKAGE_DIR = "pyjob"
 PACKAGE_NAME = "pyjob"
