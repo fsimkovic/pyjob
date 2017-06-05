@@ -8,7 +8,7 @@ import logging
 import os
 import re
 
-from pyjob.dispatch import cexec
+from pyjob import cexec
 from pyjob.platform.platform import Platform
 
 logger = logging.getLogger(__name__)

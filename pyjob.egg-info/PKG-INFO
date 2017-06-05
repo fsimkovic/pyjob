@@ -5,7 +5,7 @@ Summary: Sequence Independent Molecular Replacement Based on Available Database
 Home-page: https://github.com/rigdenlab/SIMBAD
 Author: Felix Simkovic
 Author-email: felixsimkovic@me.com
-License: BSD License
+License: MIT License
 Description: # PyJob
         
         #### Python-controlled job execution across multiple platforms

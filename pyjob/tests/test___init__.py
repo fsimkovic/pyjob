@@ -7,7 +7,7 @@ import os
 import sys
 import unittest
 
-from pyjob.dispatch import cexec
+from pyjob import cexec
 
 
 class Test(unittest.TestCase):
@@ -36,7 +36,7 @@ class Test(unittest.TestCase):
 
     def test_cexec_5(self):
         cmd = [sys.executable, "-c", "import os, sys; print(os.getcwd()); sys.exit(0)"]
-        directory = os.path.join(os.getcwd(), 'pyjob', 'dispatch')
+        directory = os.path.join(os.getcwd(), 'pyjob')
         stdout = cexec(cmd, directory=directory)
         self.assertEqual(directory, stdout)
 

@@ -61,7 +61,6 @@ VERSION = version()
 
 PACKAGES = [
     'pyjob',
-    'pyjob/dispatch',
     'pyjob/misc',
     'pyjob/platform',
 ]

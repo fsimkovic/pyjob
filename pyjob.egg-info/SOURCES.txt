@@ -1,12 +1,13 @@
 setup.py
 pyjob/__init__.py
+pyjob/job.py
+pyjob/script.py
 pyjob/version.py
 pyjob.egg-info/PKG-INFO
 pyjob.egg-info/SOURCES.txt
 pyjob.egg-info/dependency_links.txt
 pyjob.egg-info/not-zip-safe
 pyjob.egg-info/top_level.txt
-pyjob/dispatch/__init__.py
 pyjob/misc/__init__.py
 pyjob/misc/stopwatch.py
 pyjob/platform/__init__.py
