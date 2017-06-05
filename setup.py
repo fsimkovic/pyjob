@@ -3,12 +3,10 @@
 __author__ = "Felix Simkovic"
 __version__ = "1.0"
 
-from distutils.command.build import build
 from distutils.util import convert_path
 from setuptools import setup
 
 import os
-import shutil
 import sys
 
 # ==============================================================
@@ -32,31 +30,17 @@ def version():
 
 
 # ==============================================================
-# Determine the Python executable
-# ==============================================================
-PYTHON_EXE = None
-for arg in sys.argv:
-    if arg[0:20] == "--script-python-path" and len(arg) == 20:
-        option, value = arg, sys.argv[sys.argv.index(arg) + 1]
-        PYTHON_EXE = value
-    elif arg[0:20] == "--script-python-path" and arg[20] == "=":
-        option, value = arg[:20], arg[21:]
-        PYTHON_EXE = value
-
-if not PYTHON_EXE:
-    PYTHON_EXE = sys.executable
-
-# ==============================================================
 # Define all the relevant options
 # ==============================================================
 AUTHOR = "Felix Simkovic"
 AUTHOR_EMAIL = "felixsimkovic@me.com"
 DESCRIPTION = __doc__.replace("\n", "")
+DEPENDENCIES = ["unittest2" if sys.version_info < (2, 6) else ""]
 LICENSE = "MIT License"
 LONG_DESCRIPTION = readme()
 PACKAGE_DIR = "pyjob"
 PACKAGE_NAME = "pyjob"
-URL = "https://github.com/rigdenlab/SIMBAD"
+URL = "https://github.com/fsimkovic/pyjob"
 VERSION = version()
 
 PACKAGES = [
@@ -86,6 +70,7 @@ setup(
     url=URL,
     packages=PACKAGES,
     package_dir={PACKAGE_NAME: PACKAGE_DIR},
+    install_requires=DEPENDENCIES,
     classifiers=CLASSIFIERS,
     test_suite='nose.collector',
     tests_require=['nose >=1.3.7'],
