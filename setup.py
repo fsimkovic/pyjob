@@ -35,7 +35,6 @@ def version():
 AUTHOR = "Felix Simkovic"
 AUTHOR_EMAIL = "felixsimkovic@me.com"
 DESCRIPTION = __doc__.replace("\n", "")
-DEPENDENCIES = ["unittest2" if sys.version_info < (2, 7) else ""]
 LICENSE = "MIT License"
 LONG_DESCRIPTION = readme()
 PACKAGE_DIR = "pyjob"
@@ -54,8 +53,12 @@ CLASSIFIERS = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",
+    "Programming Language :: Python :: 2.6",
     "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.3",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
 ]
 
 # Do the actual setup below
@@ -70,7 +73,6 @@ setup(
     url=URL,
     packages=PACKAGES,
     package_dir={PACKAGE_NAME: PACKAGE_DIR},
-    install_requires=DEPENDENCIES,
     classifiers=CLASSIFIERS,
     test_suite='nose.collector',
     tests_require=['nose >=1.3.7'],

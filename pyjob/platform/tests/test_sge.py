@@ -8,17 +8,20 @@ import inspect
 import os
 import sys
 import time
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+import unittest
 
 from pyjob.misc import make_script
 from pyjob.platform.sge import SunGridEngine
 
 
-@unittest.skipUnless("SGE_ROOT" in os.environ, "not on SunGridEngine platform")
+def skipUnless(condition, reason):
+    if condition:
+        return lambda x: x
+    else:
+        return lambda x: None 
+
+
+@skipUnless("SGE_ROOT" in os.environ, "not on SunGridEngine platform")
 class TestSunGridEngine(unittest.TestCase):
 
     def test_alt_1(self):

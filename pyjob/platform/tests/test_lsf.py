@@ -8,17 +8,20 @@ import inspect
 import os
 import sys
 import time
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+import unittest
 
 from pyjob.misc import make_script
 from pyjob.platform.lsf import LoadSharingFacility
 
 
-@unittest.skipUnless("LSF_BINDIR" in os.environ, "not on LoadSharingFacility platform")
+def skipUnless(condition, reason):
+    if condition:
+        return lambda x: x
+    else:
+        return lambda x: None 
+
+
+@skipUnless("LSF_BINDIR" in os.environ, "not on LoadSharingFacility platform")
 class TestLoadSharingFacility(unittest.TestCase):
 
     def test_stat_1(self):
