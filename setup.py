@@ -35,7 +35,7 @@ def version():
 AUTHOR = "Felix Simkovic"
 AUTHOR_EMAIL = "felixsimkovic@me.com"
 DESCRIPTION = __doc__.replace("\n", "")
-DEPENDENCIES = ["unittest2" if sys.version_info < (2, 6) else ""]
+DEPENDENCIES = ["unittest2" if sys.version_info < (2, 7) else ""]
 LICENSE = "MIT License"
 LONG_DESCRIPTION = readme()
 PACKAGE_DIR = "pyjob"
