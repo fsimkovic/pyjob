@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Testing facility for pyjob.dispatch"""
+"""Testing facility for pyjob"""
 
 __author__ = "Felix Simkovic"
 __date__ = "10 May 2017"

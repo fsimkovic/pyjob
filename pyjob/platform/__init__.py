@@ -30,6 +30,8 @@ import os
 import sys
 import tempfile
 
+from pyjob.exception import PyJobUnknownPlatform
+
 # OS-dependent script headers and extensions
 if sys.platform.startswith('win'):
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', '', '.bat')
@@ -51,7 +53,7 @@ def platform_factory(qtype):
         from pyjob.platform.sge import SunGridEngine
         return SunGridEngine
     else:
-        raise ValueError("Unknown platform")
+        raise PyJobUnknownPlatform("Unknown platform")
 
 
 def prep_array_script(scripts, directory, task_env):

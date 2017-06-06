@@ -30,6 +30,8 @@ import logging
 import os
 import time
 
+from pyjob.exception import PyJobError
+from pyjob.misc import is_script
 from pyjob.platform import platform_factory, prep_array_script
 
 logger = logging.getLogger(__name__)
@@ -128,17 +130,8 @@ class Job(object):
 
         Parameters
         ----------
-        script : list
+        script : str, list
            A list of one or more scripts with absolute paths
-
-        Raises
-        ------
-        ValueError
-           One or more scripts cannot be found
-        ValueError
-           One or more scripts are not executable
-        ValueError
-           Unknown queue type provided
 
         """
         # Only allow one submission per job
@@ -151,21 +144,15 @@ class Job(object):
             kwargs['directory'] = os.getcwd()
 
         # Quick check if all scripts are sound - Also keep copy of logs and scripts
-        if isinstance(script, str) and os.path.isfile(script) and os.access(script, os.X_OK):
-            self._log = [script.rsplit('.', 1)[0] + '.log']
-            self._script = [script]
-        elif (isinstance(script, list) or isinstance(script, tuple)) \
-                and all(os.path.isfile(fpath) for fpath in script) \
-                and all(os.access(fpath, os.X_OK) for fpath in script):
-            self._log = [s.rsplit('.', 1)[0] + '.log' for s in script]
-            self._script = list(script)
-            # Prepare array scripts
-            if len(script) > 1 and any(base.__name__ == "ClusterPlatform" for base in self._platform.__bases__):
+        self._script, self._log = Job.check_script(script)
+
+        # See if we need to prepare an array
+        if len(self._script) > 1:
+            if any(base.__name__ == "ClusterPlatform" for base in self._platform.__bases__):
                 script, _ = prep_array_script(self._script, kwargs['directory'], self._platform.TASK_ENV)
+                script = list(script)
                 kwargs["array"] = [1, len(self._script),
                                    kwargs['max_array_jobs'] if 'max_array_jobs' in kwargs else len(self._script)]
-        else:
-            raise ValueError("One or more scripts cannot be found or are not executable")
 
         # Get the submission function and submit the job
         self._pid = self._platform.sub(script, **kwargs)
@@ -210,3 +197,16 @@ class Job(object):
                 monitor()
             # Wait if nothing else
             time.sleep(interval)
+
+    @staticmethod
+    def check_script(script):
+        """Check if all scripts are sound"""
+        if isinstance(script, str) and is_script(script):
+            logs = [script.rsplit('.', 1)[0] + '.log']
+            scripts = [script]
+        elif isinstance(script, list) and all(is_script(fpath) for fpath in script):
+            logs = [s.rsplit('.', 1)[0] + '.log' for s in script]
+            scripts = list(script)
+        else:
+            raise PyJobError("One or more scripts cannot be found or are not executable")
+        return scripts, logs

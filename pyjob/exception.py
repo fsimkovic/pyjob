@@ -28,3 +28,13 @@ __author__ = "Felix Simkovic"
 class PyJobNotImplemented(Exception):
     """Raise for unimplemented PyJob features"""
     pass
+
+
+class PyJobUnknownPlatform(Exception):
+    """Raise for unknown job management platform"""
+    pass
+
+
+class PyJobError(Exception):
+    """Raise a general PyJob exception"""
+    pass

@@ -38,6 +38,11 @@ def StopWatch():
     return StopWatch()
 
 
+def is_script(f):
+    """Confirm if a script file is executable"""
+    return os.path.isfile(f) and os.access(f, os.X_OK)
+
+
 def make_script(cmd, directory=None, prefix="tmp", stem=None, suffix=SCRIPT_EXT):
     """Create an executable script
     
