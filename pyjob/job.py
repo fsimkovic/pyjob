@@ -204,7 +204,7 @@ class Job(object):
         if isinstance(script, str) and is_script(script):
             logs = [script.rsplit('.', 1)[0] + '.log']
             scripts = [script]
-        elif (isinstance(script, list) or isinstance(script, list)) and all(is_script(fpath) for fpath in script):
+        elif (isinstance(script, list) or isinstance(script, tuple)) and all(is_script(fpath) for fpath in script):
             logs = [s.rsplit('.', 1)[0] + '.log' for s in script]
             scripts = list(script)
         else:
