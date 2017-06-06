@@ -173,7 +173,7 @@ class TestSunGridEngine(unittest.TestCase):
         jobs = [make_script([["sleep 5"], ['echo "file {0}"'.format(i)]], directory=directory) 
                 for i in range(5)]
         array_script, array_jobs = prep_array_script(jobs, directory, SunGridEngine.TASK_ENV)
-        jobid = SunGridEngine.sub(array_script, array=[1, 5], hold=True, name=inspect.stack()[0][3])
+        jobid = SunGridEngine.sub(array_script, array=[1, 5], name=inspect.stack()[0][3])
         while SunGridEngine.stat(jobid):
             time.sleep(1)
         for i, j in enumerate(jobs):
