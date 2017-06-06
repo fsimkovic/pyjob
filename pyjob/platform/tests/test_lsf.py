@@ -6,22 +6,21 @@ __date__ = "03 Jun 2017"
 import glob
 import inspect
 import os
-import sys
 import time
 import unittest
 
 from pyjob.misc import make_script
 from pyjob.platform.lsf import LoadSharingFacility
 
-
-def skipUnless(condition, reason):
+# Required for Python2.6 support
+def skipUnless(condition):
     if condition:
         return lambda x: x
     else:
         return lambda x: None 
 
 
-@skipUnless("LSF_BINDIR" in os.environ, "not on LoadSharingFacility platform")
+@skipUnless("LSF_BINDIR" in os.environ)
 class TestLoadSharingFacility(unittest.TestCase):
 
     def test_stat_1(self):

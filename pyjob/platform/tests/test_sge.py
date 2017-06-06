@@ -6,22 +6,21 @@ __date__ = "10 May 2017"
 import glob
 import inspect
 import os
-import sys
 import time
 import unittest
 
 from pyjob.misc import make_script
 from pyjob.platform.sge import SunGridEngine
 
-
-def skipUnless(condition, reason):
+# Required for Python2.6 support
+def skipUnless(condition):
     if condition:
         return lambda x: x
     else:
         return lambda x: None 
 
 
-@skipUnless("SGE_ROOT" in os.environ, "not on SunGridEngine platform")
+@skipUnless("SGE_ROOT" in os.environ)
 class TestSunGridEngine(unittest.TestCase):
 
     def test_alt_1(self):
