@@ -150,10 +150,10 @@ class Job(object):
         if len(self._script) > 1:
             if any(base.__name__ == "ClusterPlatform" for base in self._platform.__bases__):
                 script, _ = prep_array_script(self._script, kwargs['directory'], self._platform.TASK_ENV)
-                script = list(script)
                 kwargs["array"] = [1, len(self._script),
                                    kwargs['max_array_jobs'] if 'max_array_jobs' in kwargs else len(self._script)]
-
+        # Make sure we have a list of len 1
+        script = list(script)
         # Get the submission function and submit the job
         self._pid = self._platform.sub(script, **kwargs)
         # Lock this Job so we cannot submit another
@@ -204,7 +204,7 @@ class Job(object):
         if isinstance(script, str) and is_script(script):
             logs = [script.rsplit('.', 1)[0] + '.log']
             scripts = [script]
-        elif isinstance(script, list) and all(is_script(fpath) for fpath in script):
+        elif (isinstance(script, list) or isinstance(script, list)) and all(is_script(fpath) for fpath in script):
             logs = [s.rsplit('.', 1)[0] + '.log' for s in script]
             scripts = list(script)
         else:
