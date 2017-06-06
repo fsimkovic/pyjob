@@ -22,8 +22,6 @@
 
 """Module to store a stopwatch class"""
 
-from __future__ import print_function
-
 __author__ = "Felix Simkovic"
 __date__ = "02 Jun 2017"
 __version__ = "1.0"
