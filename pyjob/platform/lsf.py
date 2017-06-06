@@ -8,13 +8,15 @@ import logging
 import os
 
 from pyjob import cexec
-from pyjob.platform.platform import Platform
+from pyjob.platform.platform import ClusterPlatform
 
 logger = logging.getLogger(__name__)
 
 
-class LoadSharingFacility(Platform):
+class LoadSharingFacility(ClusterPlatform):
     """Object to handle the Load Sharing Facility (LSF) management platform"""
+
+    TASK_ENV = "LSB_JOBINDEX"
 
     @staticmethod
     def hold(jobid):
@@ -95,14 +97,17 @@ class LoadSharingFacility(Platform):
             return {'job_number': jobid, 'status': "Running"}
 
     @staticmethod
-    def sub(command, deps=None, directory=None, hold=False, log=None, name=None, priority=None, queue=None,
-            runtime=None, shell=None, threads=None, *args, **kwargs):
+    def sub(command, array=None, deps=None, directory=None, hold=False, log=None, name=None, priority=None,
+            queue=None, runtime=None, shell=None, threads=None, *args, **kwargs):
         """Submit a job to the LSF queue
 
         Parameters
         ----------
         command : list
            A list with the final command
+        array : list, optional
+           A list of array instructions in form of [min, max, (step)].
+           ``step`` is optional.
         deps : list, optional
            A list of dependency job ids
         directory : str, optional
@@ -126,25 +131,14 @@ class LoadSharingFacility(Platform):
         threads : int, optional
            The maximum number of threads available to a job
 
-        Raises
-        ------
-        RuntimeError
-           Array submission not yet implemented
-
         """
-        # Prepare the command
         cmd = ["bsub", "-cwd", directory if directory else os.getcwd()]
-        if len(command) > 1:
-            if directory is None:
-                directory = os.getcwd()
-            array_script, array_jobs = Platform.prep_array_scripts(command, directory, "LSB_JOBINDEX")
-            # Add command-line flags
-            name = name if name else "pyjob"
-            cmd += ["-J", "{0}[1-{1}]%{1}".format(name, len(command))]
-            # Overwrite some defaults
-            command = [array_script]
-            log = os.devnull        # Reset this!
-            shell = "/bin/bash"     # Required for script!
+        if array:
+            name = "pyjob" if name is None else name
+            if len(array) == 3:
+                cmd += ["-J", "{0}[{1}-{2}%{3}]".format(name, array[0], array[1], array[2])]
+            elif len(array) == 2:
+                cmd += ["-J", "{0}[{1}-{2}]".format(name, array[0], array[1])]
             name = None             # Reset this!
         if deps:
             cmd += ["-w", " && ".join(["done(%s)" % dep for dep in map(str, deps)])]
@@ -164,10 +158,7 @@ class LoadSharingFacility(Platform):
             cmd += ["-R", '"span[ptile={0}]"'.format(threads)]
         if runtime:
             cmd += ["-W", str(runtime)]
-        # Submit the job
         stdout = cexec(cmd, stdin=open(command[0]).read(), directory=directory)
-        # Obtain the job id
         jobid = int(stdout.split()[1][1:-1])
         logger.debug("Job %d successfully submitted to the LSF queue", jobid)
         return jobid
-

@@ -9,7 +9,7 @@ import multiprocessing
 import time
 
 from pyjob import cexec
-from pyjob.platform.platform import Platform
+from pyjob.platform.platform import LocalPlatform
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ class _Worker(multiprocessing.Process):
 WORKERS = None
 
 
-class LocalJobServer(Platform):
+class LocalJobServer(LocalPlatform):
     """A local server to execute jobs via the multiprocessing module
     
     Examples

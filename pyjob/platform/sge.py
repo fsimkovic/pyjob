@@ -9,13 +9,15 @@ import os
 import re
 
 from pyjob import cexec
-from pyjob.platform.platform import Platform
+from pyjob.platform.platform import ClusterPlatform
 
 logger = logging.getLogger(__name__)
 
 
-class SunGridEngine(Platform):
+class SunGridEngine(ClusterPlatform):
     """Object to handle the Sun Grid Engine (SGE) management platform"""
+
+    TASK_ENV = "SGE_TASK_ID"
 
     @staticmethod
     def alt(jobid, priority=None):
@@ -116,7 +118,7 @@ class SunGridEngine(Platform):
         return data
 
     @staticmethod
-    def sub(command, deps=None, directory=None, hold=False, log=None, name=None, pe_opts=None,
+    def sub(command, array=None, deps=None, directory=None, hold=False, log=None, name=None, pe_opts=None,
             priority=None, queue=None, runtime=None, shell=None, threads=None, *args, **kwargs):
         """Submit a job to the SGE queue
 
@@ -124,6 +126,9 @@ class SunGridEngine(Platform):
         ----------
         command : list
            A list with the final command
+        array : list, optional
+           A list of array instructions in form of [min, max, (step)].
+           ``step`` is optional.
         deps : list, optional
            A list of dependency job ids
         directory : str, optional
@@ -148,30 +153,17 @@ class SunGridEngine(Platform):
            The maximum number of threads available to a job
 
         """
-        # Prepare the command with default options
-        cmd = ["qsub", "-cwd", "-V", "-w", "e"]
-        # See if we need to submit it as array
-        if len(command) > 1:
-            if directory is None:
-                directory = os.getcwd()
-            array_script, array_jobs = Platform.prep_array_scripts(command, directory, "SGE_TASK_ID")
-            # Add command-line flags
-            cmd += ["-t", "1-{0}".format(len(command)), "-tc", "{0}".format(len(command))]
-            # Overwrite some defaults
-            command = [array_script]
-            log = os.devnull        # Reset this!
-            shell = "/bin/bash"     # Required for script!
-            # Save status
-            array = True
-        else:
-            array = False
-        # Set the remaining options
+        cmd = ["qsub", "-cwd", "-V", "-w", "e", "-j", "y"]
+        if array and len(array) == 3:
+            cmd += ["-t", "{0}-{1}".format(array[0], array[1]), "-tc", str(array[2])]
+        elif array and len(array) == 2:
+            cmd += ["-t", "{0}-{1}".format(array[0], array[1])]
         if deps:
             cmd += ["-hold_jid", "{0}".format(",".join(map(str, deps)))]
         if hold:
             cmd += ["-h"]
         if log:
-            cmd += ["-j", "y", "-o", log]
+            cmd += ["-o", log]
         if name:
             cmd += ["-N", name]
         if pe_opts:
@@ -186,11 +178,8 @@ class SunGridEngine(Platform):
             cmd += ["-S", shell]
         if threads:
             cmd += ["-pe mpi", str(threads)]
-
         cmd += map(str, command)
-        # Submit the job
         stdout = cexec(cmd, directory=directory)
-        # Obtain the job id
         jobid = int(stdout.split()[2].split(".")[0]) if array else int(stdout.split()[2])
         logger.debug("Job %d successfully submitted to the SGE queue", jobid)
         return jobid

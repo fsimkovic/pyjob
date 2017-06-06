@@ -8,7 +8,7 @@ import logging
 import os
 import time
 
-from pyjob.platform import platform_factory
+from pyjob.platform import platform_factory, prep_array_script
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +45,7 @@ class Job(object):
 
         # Check immediately if we have a known platform
         self._platform = platform_factory(qtype)
+        self._qtype = qtype
 
     def __repr__(self):
         """Representation of the :obj:`Job`"""
@@ -136,6 +137,11 @@ class Job(object):
                 and all(os.access(fpath, os.X_OK) for fpath in script):
             self._log = [s.rsplit('.', 1)[0] + '.log' for s in script]
             self._script = list(script)
+            # Prepare array scripts
+            if any(base.__name__ == "ClusterPlatform" for base in self._platform.__bases__):
+                script, _ = prep_array_script(self._script, kwargs['directory'], self._platform.TASK_ENV)
+                kwargs["array"] = [1, len(self._script),
+                                   kwargs['max_array_jobs'] if 'max_array_jobs' in kwargs else len(self._script)]
         else:
             raise ValueError("One or more scripts cannot be found or are not executable")
 

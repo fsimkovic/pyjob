@@ -3,13 +3,13 @@
 __author__ = "Felix Simkovic"
 __date__ = "10 May 2017"
 
-import glob
 import inspect
 import os
 import time
 import unittest
 
 from pyjob.misc import make_script
+from pyjob.platform import prep_array_script
 from pyjob.platform.sge import SunGridEngine
 
 # Required for Python2.6 support
@@ -22,6 +22,9 @@ def skipUnless(condition):
 
 @skipUnless("SGE_ROOT" in os.environ)
 class TestSunGridEngine(unittest.TestCase):
+
+    # ================================================================================
+    # SINGLE JOB SUBMISSIONS
 
     def test_alt_1(self):
         jobs = [make_script(["sleep 100"])]
@@ -43,15 +46,6 @@ class TestSunGridEngine(unittest.TestCase):
         self.assertTrue(SunGridEngine.stat(jobid))
         SunGridEngine.kill(jobid)
         for f in jobs:
-            os.unlink(f)
- 
-    def test_kill_2(self):
-        jobs = [make_script(["sleep 100"]) for _ in range(5)]
-        jobid = SunGridEngine.sub(jobs, hold=True, name=inspect.stack()[0][3])
-        time.sleep(5)
-        self.assertTrue(SunGridEngine.stat(jobid))
-        SunGridEngine.kill(jobid)
-        for f in jobs + glob.glob(u'*.jobs') + glob.glob(u'*.script'):
             os.unlink(f)
 
     def test_hold_1(self):
@@ -96,9 +90,42 @@ class TestSunGridEngine(unittest.TestCase):
         for f in jobs:
             os.unlink(f)
 
+    def test_sub_1(self):
+        jobs = [make_script(["sleep 1"])]
+        jobid = SunGridEngine.sub(jobs, hold=True, name=inspect.stack()[0][3])
+        time.sleep(5)
+        self.assertTrue(SunGridEngine.stat(jobid))
+        SunGridEngine.kill(jobid)
+        for f in jobs:
+            os.unlink(f)
+
+    # ================================================================================
+    # ARRAY JOB SUBMISSIONS
+
+    def test_kill_2(self):
+        jobs = [make_script(["sleep 100"]) for _ in range(5)]
+        array_script, array_jobs = prep_array_script(jobs, os.getcwd(), SunGridEngine.TASK_ENV)
+        jobid = SunGridEngine.sub(array_script, array=[1, 5], hold=True, name=inspect.stack()[0][3])
+        time.sleep(5)
+        self.assertTrue(SunGridEngine.stat(jobid))
+        SunGridEngine.kill(jobid)
+        for f in jobs + [array_script, array_jobs]:
+            os.unlink(f)
+
+    def test_sub_2(self):
+        jobs = [make_script(["sleep 1"]) for _ in range(5)]
+        array_script, array_jobs = prep_array_script(jobs, os.getcwd(), SunGridEngine.TASK_ENV)
+        jobid = SunGridEngine.sub(array_script, array=[1, 5], hold=True, name=inspect.stack()[0][3])
+        time.sleep(5)
+        self.assertTrue(SunGridEngine.stat(jobid))
+        SunGridEngine.kill(jobid)
+        for f in jobs + [array_script, array_jobs]:
+            os.unlink(f)
+
     def test_stat_2(self):
         jobs = [make_script(["sleep 100"]) for _ in range(5)]
-        jobid = SunGridEngine.sub(jobs, hold=True, name=inspect.stack()[0][3])
+        array_script, array_jobs = prep_array_script(jobs, os.getcwd(), SunGridEngine.TASK_ENV)
+        jobid = SunGridEngine.sub(array_script, array=[1, 5], hold=True, name=inspect.stack()[0][3])
         time.sleep(5)
         data = SunGridEngine.stat(jobid)
         SunGridEngine.kill(jobid)
@@ -109,32 +136,15 @@ class TestSunGridEngine(unittest.TestCase):
         self.assertTrue('sge_o_host' in data)
         self.assertTrue('job-array tasks' in data)
         self.assertEqual("1-5:1", data['job-array tasks'].strip())
-        for f in jobs + glob.glob(u'*.jobs') + glob.glob(u'*.script'):
+        for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
 
-    def test_sub_1(self):
-        jobs = [make_script(["sleep 1"])]
-        jobid = SunGridEngine.sub(jobs, hold=True, name=inspect.stack()[0][3])
-        time.sleep(5)
-        self.assertTrue(SunGridEngine.stat(jobid))
-        SunGridEngine.kill(jobid)
-        for f in jobs:
-            os.unlink(f)
-
-    def test_sub_2(self):
-        jobs = [make_script(["sleep 1"]) for _ in range(5)]
-        jobid = SunGridEngine.sub(jobs, hold=True, name=inspect.stack()[0][3])
-        time.sleep(5)
-        self.assertTrue(SunGridEngine.stat(jobid))
-        SunGridEngine.kill(jobid)
-        for f in jobs + glob.glob(u'*.jobs') + glob.glob(u'*.script'):
-            os.unlink(f)
-    
     def test_sub_3(self):
         directory = os.getcwd()
         jobs = [make_script([["sleep 5"], ['echo "file {0}"'.format(i)]], directory=directory) 
                 for i in range(5)]
-        jobid = SunGridEngine.sub(jobs, name=inspect.stack()[0][3])
+        array_script, array_jobs = prep_array_script(jobs, directory, SunGridEngine.TASK_ENV)
+        jobid = SunGridEngine.sub(array_script, array=[1, 5], hold=True, name=inspect.stack()[0][3])
         start, timeout = time.time(), False
         while SunGridEngine.stat(jobid):
             # Don't wait too long, one minute, then fail
@@ -142,7 +152,7 @@ class TestSunGridEngine(unittest.TestCase):
                 SunGridEngine.kill(jobid)
                 timeout = True
             time.sleep(10)
-        for f in jobs + glob.glob(u'*.jobs') + glob.glob(u'*.script'):
+        for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
         if timeout:
             self.assertEqual(1, 0, "Timeout")
@@ -158,7 +168,8 @@ class TestSunGridEngine(unittest.TestCase):
         directory = os.getcwd()
         jobs = [make_script(['echo "file {0}"'.format(i)], directory=directory) 
                 for i in range(100)]
-        jobid = SunGridEngine.sub(jobs, name=inspect.stack()[0][3])
+        array_script, array_jobs = prep_array_script(jobs, directory, SunGridEngine.TASK_ENV)
+        jobid = SunGridEngine.sub(array_script, array=[1, 100], name=inspect.stack()[0][3])
         start, timeout = time.time(), False
         while SunGridEngine.stat(jobid):
             # Don't wait too long, one minute, then fail
@@ -166,7 +177,7 @@ class TestSunGridEngine(unittest.TestCase):
                 SunGridEngine.kill(jobid)
                 timeout = True
             time.sleep(10)
-        for f in jobs + glob.glob(u'*.jobs') + glob.glob(u'*.script'):
+        for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
         if timeout:
             self.assertEqual(1, 0, "Timeout")
@@ -180,7 +191,8 @@ class TestSunGridEngine(unittest.TestCase):
 
     def test_sub_5(self):
         jobs = [make_script(["echo $SGE_ROOT"], directory=os.getcwd()) for _ in range(2)]
-        jobid = SunGridEngine.sub(jobs, name=inspect.stack()[0][3])
+        array_script, array_jobs = prep_array_script(jobs, os.getcwd(), SunGridEngine.TASK_ENV)
+        jobid = SunGridEngine.sub(array_script, array=[1, 2], name=inspect.stack()[0][3])
         start, timeout = time.time(), False
         while SunGridEngine.stat(jobid):
             # Don't wait too long, one minute, then fail
@@ -188,7 +200,7 @@ class TestSunGridEngine(unittest.TestCase):
                 SunGridEngine.kill(jobid)
                 timeout = True
             time.sleep(10)
-        for f in jobs + glob.glob(u'*.jobs') + glob.glob(u'*.script'):
+        for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
         if timeout:
             self.assertEqual(1, 0, "Timeout")
@@ -199,6 +211,9 @@ class TestSunGridEngine(unittest.TestCase):
                 content = open(f).read().strip()
                 self.assertEqual(os.environ["SGE_ROOT"], content)
                 os.unlink(f)
+
+
+
 
 
 if __name__ == "__main__":
