@@ -65,8 +65,7 @@ class TestJob(unittest.TestCase):
         ss = tmp_file(delete=False)
         with open(ss, "w") as f_out:
             f_out.write("sleep 1")
-        with self.assertRaises(PyJobError):
-            Job.check_script(ss)
+        self.assertRaises(PyJobError, Job.check_script, ss)
 
 
 if __name__ == "__main__":

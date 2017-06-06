@@ -33,7 +33,7 @@ from pyjob.misc import make_python_script
 from pyjob.platform.local import LocalJobServer
 
 
-class TesLocalJobServer(unittest.TestCase):
+class TestLocalJobServer(unittest.TestCase):
 
     def test_sub_1(self):
         j = make_python_script([
