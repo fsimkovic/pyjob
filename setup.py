@@ -7,7 +7,6 @@ from distutils.util import convert_path
 from setuptools import setup
 
 import os
-import sys
 
 # ==============================================================
 # Functions, functions, functions ... 
@@ -76,6 +75,5 @@ setup(
     classifiers=CLASSIFIERS,
     test_suite='nose.collector',
     tests_require=['nose >=1.3.7'],
-    include_package_data=True,
     zip_safe=False,
 )

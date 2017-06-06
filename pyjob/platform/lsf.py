@@ -158,7 +158,8 @@ class LoadSharingFacility(ClusterPlatform):
             cmd += ["-R", '"span[ptile={0}]"'.format(threads)]
         if runtime:
             cmd += ["-W", str(runtime)]
-        stdout = cexec(cmd, stdin=open(command[0]).read(), directory=directory)
+        command_f = command[0] if isinstance(command, list) else command
+        stdout = cexec(cmd, stdin=open(command_f).read(), directory=directory)
         jobid = int(stdout.split()[1][1:-1])
         logger.debug("Job %d successfully submitted to the LSF queue", jobid)
         return jobid

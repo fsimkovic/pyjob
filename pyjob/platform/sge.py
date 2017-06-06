@@ -178,7 +178,7 @@ class SunGridEngine(ClusterPlatform):
             cmd += ["-S", shell]
         if threads:
             cmd += ["-pe mpi", str(threads)]
-        cmd += map(str, command)
+        cmd += command if isinstance(command, list) else [command]
         stdout = cexec(cmd, directory=directory)
         jobid = int(stdout.split()[2].split(".")[0]) if array else int(stdout.split()[2])
         logger.debug("Job %d successfully submitted to the SGE queue", jobid)
