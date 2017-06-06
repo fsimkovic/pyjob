@@ -109,24 +109,16 @@ class TestLoadSharingFacility(unittest.TestCase):
     def test_sub_2(self):
         assert "PYJOB_ENV" not in os.environ
         os.environ["PYJOB_ENV"] = "pyjob_random"
-        jobs = [make_script(["echo $PYJOB_ENV"])]
-        jobid = LoadSharingFacility.sub(jobs, name=inspect.stack()[0][3])
+        jobs = [make_script(["echo $PYJOB_ENV"], directory=os.getcwd())]
+        jobid = LoadSharingFacility.sub(jobs, directory=os.getcwd(), name=inspect.stack()[0][3])
         time.sleep(5)
-        start, timeout = time.time(), False
         while LoadSharingFacility.stat(jobid):
-            # Don't wait too long, one minute, then fail
-            if ((time.time() - start) // 60) >= 1:
-                LoadSharingFacility.kill(jobid)
-                timeout = True
-            time.sleep(10)
+            time.sleep(1)
+        log = jobs[0].replace(".sh", ".log")
+        self.assertTrue(os.path.isfile(log))
+        self.assertTrue(open(log).read().strip(), "pyjob_random")
         for f in jobs:
             os.unlink(f)
-        if timeout:
-            self.assertEqual(1, 0, "Timeout")
-        else:
-            log = jobs[0].replace(".sh", ".log")
-            self.assertTrue(os.path.isfile(log))
-            self.assertTrue(open(log).read().strip(), "pyjob_random")
 
     # ================================================================================
     # ARRAY JOB SUBMISSIONS
@@ -169,23 +161,15 @@ class TestLoadSharingFacility(unittest.TestCase):
                 for i in range(5)]
         array_script, array_jobs = prep_array_script(jobs, directory, LoadSharingFacility.TASK_ENV)
         jobid = LoadSharingFacility.sub(array_script, array=[1, 5], name=inspect.stack()[0][3])
-        start, timeout = time.time(), False
         while LoadSharingFacility.stat(jobid):
-            # Don't wait too long, one minute, then fail
-            if ((time.time() - start) // 60) >= 1:
-                LoadSharingFacility.kill(jobid)
-                timeout = True
-            time.sleep(10)
+            time.sleep(1)
+        for i, j in enumerate(jobs):
+            f = j.replace(".sh", ".log")
+            self.assertTrue(os.path.isfile(f))
+            self.assertEqual("file {0}".format(i), open(f).read().strip())
+            os.unlink(f)
         for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
-        if timeout:
-            self.assertEqual(1, 0, "Timeout")
-        else:
-            for i, j in enumerate(jobs):
-                f = j.replace(".sh", ".log")
-                self.assertTrue(os.path.isfile(f))
-                self.assertEqual("file {0}".format(i), open(f).read().strip())
-                os.unlink(f)
 
     def test_sub_5(self):
         directory = os.getcwd()
@@ -193,46 +177,29 @@ class TestLoadSharingFacility(unittest.TestCase):
                 for i in range(100)]
         array_script, array_jobs = prep_array_script(jobs, directory, LoadSharingFacility.TASK_ENV)
         jobid = LoadSharingFacility.sub(array_script, array=[1, 100], name=inspect.stack()[0][3])
-        start, timeout = time.time(), False
         while LoadSharingFacility.stat(jobid):
-            # Don't wait too long, one minute, then fail
-            if ((time.time() - start) // 60) >= 1:
-                LoadSharingFacility.kill(jobid)
-                timeout = True
-            time.sleep(10)
-        time.sleep(20)
+            time.sleep(1)
+        for i, j in enumerate(jobs):
+            f = j.replace(".sh", ".log")
+            self.assertTrue(os.path.isfile(f))
+            self.assertEqual("file {0}".format(i), open(f).read().strip())
+            os.unlink(f)
         for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
-        if timeout:
-            self.assertEqual(1, 0, "Timeout")
-        else:
-            for i, j in enumerate(jobs):
-                f = j.replace(".sh", ".log")
-                self.assertTrue(os.path.isfile(f))
-                self.assertEqual("file {0}".format(i), open(f).read().strip())
-                os.unlink(f)
 
     def test_sub_6(self):
         jobs = [make_script(["echo $LSF_BINDIR"], directory=os.getcwd()) for _ in range(2)]
         array_script, array_jobs = prep_array_script(jobs, os.getcwd(), LoadSharingFacility.TASK_ENV)
         jobid = LoadSharingFacility.sub(array_script, array=[1, 2], name=inspect.stack()[0][3])
-        start, timeout = time.time(), False
         while LoadSharingFacility.stat(jobid):
-            # Don't wait too long, one minute, then fail
-            if ((time.time() - start) // 60) >= 1:
-                LoadSharingFacility.kill(jobid)
-                timeout = True
-            time.sleep(10)
+            time.sleep(1)
+        for i, j in enumerate(jobs):
+            f = j.replace(".sh", ".log")
+            self.assertTrue(os.path.isfile(f))
+            self.assertEqual(os.environ["LSF_BINDIR"], open(f).read().strip())
+            os.unlink(f)
         for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
-        if timeout:
-            self.assertEqual(1, 0, "Timeout")
-        else:
-            for i, j in enumerate(jobs):
-                f = j.replace(".sh", ".log")
-                self.assertTrue(os.path.isfile(f))
-                self.assertEqual(os.environ["LSF_BINDIR"], open(f).read().strip())
-                os.unlink(f)
 
     def test_sub_7(self):
         assert "PYJOB_ENV1" not in os.environ
@@ -240,23 +207,15 @@ class TestLoadSharingFacility(unittest.TestCase):
         jobs = [make_script(["echo $PYJOB_ENV1"], directory=os.getcwd()) for _ in range(2)]
         jobid = LoadSharingFacility.sub(jobs, array=[1, 2], directory=os.getcwd(), name=inspect.stack()[0][3])
         time.sleep(5)
-        start, timeout = time.time(), False
         while LoadSharingFacility.stat(jobid):
-            # Don't wait too long, one minute, then fail
-            if ((time.time() - start) // 60) >= 1:
-                LoadSharingFacility.kill(jobid)
-                timeout = True
-            time.sleep(10)
+            time.sleep(1)
+        for i, j in enumerate(jobs):
+            f = j.replace(".sh", ".log")
+            self.assertTrue(os.path.isfile(f))
+            self.assertEqual(os.environ["PYJOB_ENV1"], open(f).read().strip())
+            os.unlink(f)
         for f in jobs:
             os.unlink(f)
-        if timeout:
-            self.assertEqual(1, 0, "Timeout")
-        else:
-            for i, j in enumerate(jobs):
-                f = j.replace(".sh", ".log")
-                self.assertTrue(os.path.isfile(f))
-                self.assertEqual(os.environ["PYJOB_ENV1"], open(f).read().strip())
-                os.unlink(f)
 
 
 if __name__ == "__main__":
