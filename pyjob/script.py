@@ -28,6 +28,7 @@ __version__ = "0.1"
 
 import os
 
+from pyjob.exception import PyJobUnknownFormat
 
 # Store what scripts we currently offer
 SCRIPT_FORMATS = [
@@ -42,17 +43,17 @@ SCRIPT_FORMATS = [
 
 class _ScriptFormat(object):
     """Class to store all script associated info"""
-    __slots__ = ["extension", "handle", "shebang"]
+    __slots__ = ["extension", "format", "shebang"]
 
-    def __init__(self, extension, handle, shebang):
+    def __init__(self, extension, format, shebang):
         """Instantiate a new :obj:`ScriptFormat`"""
         self.extension = extension
-        self.handle = handle
+        self.format = format
         self.shebang = shebang
 
     def __repr__(self):
-        return "{0}(handle=\"{1}\", ext=\"{2}\", shebang=\"{3}\")".format(
-            self.__class__.__name__, self.handle, self.extension, self.shebang
+        return "{0}(format=\"{1}\", ext=\"{2}\", shebang=\"{3}\")".format(
+            self.__class__.__name__, self.format, self.extension, self.shebang
         )
 
 
@@ -72,10 +73,30 @@ class _ScriptFormatter(object):
         """Return a :obj:`ScriptFormat` entry"""
         return self._format_dict[item]
 
+    def __iter__(self):
+        """Iterator over formatter"""
+        for sformat in self._format_list:
+            yield sformat
+
     def __repr__(self):
         return "{0}(formats=[ {1} ])".format(
             self.__class__.__name__, " | ".join(self._format_dict.keys())
         )
+
+    @property
+    def extensions(self):
+        """All available file extensions"""
+        return [f.extension for f in self]
+
+    @property
+    def formats(self):
+        """All available file formats"""
+        return [f.format for f in self]
+
+    @property
+    def shebangs(self):
+        """All available file shebangs"""
+        return [f.shebang for f in self]
 
     def add(self, extension, handle, shebang):
         """Add a new entry to the formatter"""
@@ -90,63 +111,114 @@ class _ScriptFormatter(object):
 ScriptFormatter = _ScriptFormatter()
 
 
-class _ScriptLine(object):
-    """Line container"""
-    def __init__(self, entry):
-        if isinstance(entry, list) or isinstance(entry, tuple):
-            self.entry = " ".join(map(str, entry))
-        elif isinstance(entry, str):
-            self.entry = entry.strip(os.linesep)
-        else:
-            raise ValueError("Cannot store line - {0}".format(entry))
-
-
-class _ScriptContent(object):
-    """Content container for scripts"""
-    def __init__(self):
-        self._lines = []
-
-    def __add__(self, cmd):
-        if isinstance(cmd, list) and isinstance(cmd[0], list):
-            for c in cmd:
-                self._lines += [_ScriptLine(c)]
-        elif isinstance(cmd, tuple) and isinstance(cmd[0], tuple):
-            for c in cmd:
-                self._lines += [_ScriptLine(c)]
-        else:
-            self._lines += [_ScriptLine(cmd)]
-
-    def __iter__(self):
-        """Iterator"""
-        for l in self._lines:
-            yield l
-
-
 class Script(object):
     """Script class"""
 
-    def __init__(self, handle):
+    def __init__(self, format, content=None):
         """Instantiate a new :obj:`Script` class"""
-        self._script_content = _ScriptContent()
-        self._formatter = ScriptFormatter[handle]
+        self._script_content = content
+        self._formatter = ScriptFormatter[format]
+
+    def __repr__(self):
+        pass
 
     @property
     def content(self):
         """The content of the script"""
-        content_str = os.linesep.join([
-            sc.entry for sc in self._script_content
-        ])
-        return content_str
+        return self._script_content
+
+    @content.setter
+    def content(self, content):
+        """Define the content of the script"""
+        self._script_content = content
 
     @property
     def formatted(self):
         """The full script formatted with header"""
-        content_str = self._formatter.shebang + os.linesep
-        content_str += os.linesep.join([
-            sc.entry for sc in self._script_content
+        content_str = os.linesep.join([
+            self._formatter.shebang,
+            self._script_content,
         ])
         return content_str
 
-    def add(self, cmd):
-        """Add some content to the script"""
-        self._script_content + cmd
+    def to_file(self, fname):
+        """Write the script content to a file
+        
+        Parameters
+        ----------
+        fname : str
+           The filename of the script
+        
+        Returns
+        -------
+        str
+           The absolute path to the script name
+        
+        Notes
+        -----
+        If no/incorrect extension, the correct will be appended!
+        
+        """
+        if not fname.endswith(self._formatter.extension):
+            fname += self._formatter.extension
+        with open(fname, "w") as f_out:
+            f_out.write(self.formatted)
+        os.chmod(fname, 0o777)
+        return os.path.abspath(fname)
+
+
+def read_file(fname, format=None):
+    """Read a script from a filename
+
+    The format of the script will be attempted to be established by
+        1. The shebang line
+        2. The script extension
+
+    Parameters
+    ----------
+    fname : str
+       The filename of the script
+    format : str, optional
+       The script format
+
+    Returns
+    -------
+    obj
+       A :obj:`Script <pyjob.script.Script>` instance
+
+    """
+    # Read the script
+    with open(fname, "r") as f_in:
+        fcontent = f_in.read()
+    lines = fcontent.split(os.linesep)
+
+    # Find format by shebang
+    if format is None and lines[0].startswith("#!"):
+        shebang = lines[0]
+        # Shebang looks like "#!/usr/bin/python"
+        if len(shebang.split()) == 1:
+            format = shebang.split(os.sep)[-1]
+            lines.pop(0)
+        # Shebang looks like "#!/usr/bin/env python"
+        elif len(shebang.split()) == 2:
+            format = shebang.split()[1]
+            lines.pop(0)
+    elif lines[0].startswith("#!"):
+        lines.pop(0)
+
+    # Attempt by file extension
+    if format is None:
+        # Attempt to guess it by the script extension
+        for ext, form in zip(ScriptFormatter.extensions, ScriptFormatter.formats):
+            if fname.endswith(ext):
+                format = form
+                break
+
+    # Nothing found
+    if format is None:
+        raise PyJobUnknownFormat("Cannot identify format, please specify")
+
+    # Get the content
+    content = os.linesep.join(lines).strip()
+
+    return Script(format, content=content)
