@@ -30,6 +30,11 @@ class PyJobNotImplemented(Exception):
     pass
 
 
+class PyJobUnknownFormat(Exception):
+    """Raise for unknown script format"""
+    pass
+
+
 class PyJobUnknownPlatform(Exception):
     """Raise for unknown job management platform"""
     pass
