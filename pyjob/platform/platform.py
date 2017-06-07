@@ -38,7 +38,7 @@ class _Platform(object):
     
     """
 
-    TASK_ENV = None
+    TASK_ID = None
 
     @staticmethod
     def alt(*args, **kwargs):

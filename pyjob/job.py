@@ -149,7 +149,7 @@ class Job(object):
         # See if we need to prepare an array
         if len(self._script) > 1:
             if any(base.__name__ == "ClusterPlatform" for base in self._platform.__bases__):
-                script, _ = prep_array_script(self._script, kwargs['directory'], self._platform.TASK_ENV)
+                script, _ = prep_array_script(self._script, kwargs['directory'], self._platform.TASK_ID)
                 kwargs["array"] = [1, len(self._script),
                                    kwargs['max_array_jobs'] if 'max_array_jobs' in kwargs else len(self._script)]
         # Make sure we have a list of len 1

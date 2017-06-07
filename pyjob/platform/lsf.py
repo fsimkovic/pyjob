@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class LoadSharingFacility(ClusterPlatform):
     """Object to handle the Load Sharing Facility (LSF) management platform"""
 
-    TASK_ENV = "LSB_JOBINDEX"
+    TASK_ID = "LSB_JOBINDEX"
 
     @staticmethod
     def hold(jobid):

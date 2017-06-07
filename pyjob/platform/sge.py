@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 class SunGridEngine(ClusterPlatform):
     """Object to handle the Sun Grid Engine (SGE) management platform"""
 
-    TASK_ENV = "SGE_TASK_ID"
+    TASK_ID = "SGE_TASK_ID"
 
     @staticmethod
     def alt(jobid, priority=None):
