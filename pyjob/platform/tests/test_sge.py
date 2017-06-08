@@ -116,16 +116,15 @@ class TestSunGridEngine(unittest.TestCase):
     def test_sub_2(self):
         assert "PYJOB_ENV" not in os.environ
         os.environ["PYJOB_ENV"] = "pyjob_random"
-        jobs = [make_script(["echo $PYJOB_ENV"])]
-        jobid = SunGridEngine.sub(jobs, name=inspect.stack()[0][3], shell="/bin/sh")
+        job = [make_script(["echo $PYJOB_ENV"])]
+        log = job[0].replace(".sh", ".log")
+        jobid = SunGridEngine.sub(job, log=log, name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
-        start, timeout = time.time(), False
         while SunGridEngine.stat(jobid):
             time.sleep(1)
-        log = jobs[0].replace(".sh", ".log")
         self.assertTrue(os.path.isfile(log))
         self.assertTrue(open(log).read().strip(), "pyjob_random")
-        for f in jobs:
+        for f in job + [log]:
             os.unlink(f)
 
     # ================================================================================
@@ -175,7 +174,7 @@ class TestSunGridEngine(unittest.TestCase):
         jobs = [make_script([["sleep 5"], ['echo "file {0}"'.format(i)]], directory=directory) 
                 for i in range(5)]
         array_script, array_jobs = prep_array_script(jobs, directory, SunGridEngine.TASK_ID)
-        jobid = SunGridEngine.sub(array_script, array=[1, 5],
+        jobid = SunGridEngine.sub(array_script, array=[1, 5], log=os.devnull,
                                   name=inspect.stack()[0][3], shell="/bin/sh")
         while SunGridEngine.stat(jobid):
             time.sleep(1)
@@ -192,7 +191,7 @@ class TestSunGridEngine(unittest.TestCase):
         jobs = [make_script(['echo "file {0}"'.format(i)], directory=directory) 
                 for i in range(100)]
         array_script, array_jobs = prep_array_script(jobs, directory, SunGridEngine.TASK_ID)
-        jobid = SunGridEngine.sub(array_script, array=[1, 100],
+        jobid = SunGridEngine.sub(array_script, array=[1, 100], log=os.devnull,
                                   name=inspect.stack()[0][3], shell="/bin/sh")
         while SunGridEngine.stat(jobid):
             time.sleep(1)
@@ -207,7 +206,7 @@ class TestSunGridEngine(unittest.TestCase):
     def test_sub_6(self):
         jobs = [make_script(["echo $SGE_ROOT"], directory=os.getcwd()) for _ in range(2)]
         array_script, array_jobs = prep_array_script(jobs, os.getcwd(), SunGridEngine.TASK_ID)
-        jobid = SunGridEngine.sub(array_script, array=[1, 2],
+        jobid = SunGridEngine.sub(array_script, array=[1, 2], log=os.devnull,
                                   name=inspect.stack()[0][3], shell="/bin/sh")
         while SunGridEngine.stat(jobid):
             time.sleep(1)
@@ -223,9 +222,8 @@ class TestSunGridEngine(unittest.TestCase):
         assert "PYJOB_ENV1" not in os.environ
         os.environ["PYJOB_ENV1"] = "pyjob_random1"
         jobs = [make_script(["echo $PYJOB_ENV1"], directory=os.getcwd()) for _ in range(2)]
-        jobid = SunGridEngine.sub(jobs, array=[1, 2], directory=os.getcwd(),
+        jobid = SunGridEngine.sub(jobs, array=[1, 2], directory=os.getcwd(), log=os.devnull,
                                   name=inspect.stack()[0][3], shell="/bin/sh")
-        time.sleep(5)
         while SunGridEngine.stat(jobid):
             time.sleep(1)
         for i, j in enumerate(jobs):

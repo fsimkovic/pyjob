@@ -110,14 +110,15 @@ class TestLoadSharingFacility(unittest.TestCase):
         assert "PYJOB_ENV" not in os.environ
         os.environ["PYJOB_ENV"] = "pyjob_random"
         jobs = [make_script(["echo $PYJOB_ENV"], directory=os.getcwd())]
-        jobid = LoadSharingFacility.sub(jobs, directory=os.getcwd(), name=inspect.stack()[0][3], shell="/bin/sh")
+        log = jobs[0].replace(".sh", ".log")
+        jobid = LoadSharingFacility.sub(jobs, log=log, directory=os.getcwd(),
+                                        name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
         while LoadSharingFacility.stat(jobid):
             time.sleep(1)
-        log = jobs[0].replace(".sh", ".log")
         self.assertTrue(os.path.isfile(log))
         self.assertTrue(open(log).read().strip(), "pyjob_random")
-        for f in jobs:
+        for f in jobs + [log]:
             os.unlink(f)
 
     # ================================================================================
@@ -126,7 +127,7 @@ class TestLoadSharingFacility(unittest.TestCase):
     def test_kill_2(self):
         jobs = [make_script(["sleep 100"]) for _ in range(5)]
         array_script, array_jobs = prep_array_script(jobs, os.getcwd(), LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], hold=True,
+        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], hold=True, log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
         self.assertTrue(LoadSharingFacility.stat(jobid))
@@ -137,7 +138,7 @@ class TestLoadSharingFacility(unittest.TestCase):
     def test_stat_2(self):
         jobs = [make_script(["sleep 100"]) for _ in range(5)]
         array_script, array_jobs = prep_array_script(jobs, os.getcwd(), LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], hold=True,
+        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], hold=True, log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
         data = LoadSharingFacility.stat(jobid)
@@ -150,7 +151,7 @@ class TestLoadSharingFacility(unittest.TestCase):
     def test_sub_3(self):
         jobs = [make_script(["sleep 1"]) for _ in range(5)]
         array_script, array_jobs = prep_array_script(jobs, os.getcwd(), LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], hold=True,
+        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], hold=True, log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
         self.assertTrue(LoadSharingFacility.stat(jobid))
@@ -163,7 +164,7 @@ class TestLoadSharingFacility(unittest.TestCase):
         jobs = [make_script([["sleep 5"], ['echo "file {0}"'.format(i)]], directory=directory)
                 for i in range(5)]
         array_script, array_jobs = prep_array_script(jobs, directory, LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 5],
+        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
         while LoadSharingFacility.stat(jobid):
             time.sleep(1)
@@ -180,7 +181,7 @@ class TestLoadSharingFacility(unittest.TestCase):
         jobs = [make_script(['echo "file {0}"'.format(i)], directory=directory)
                 for i in range(100)]
         array_script, array_jobs = prep_array_script(jobs, directory, LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 100],
+        jobid = LoadSharingFacility.sub(array_script, array=[1, 100], log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
         while LoadSharingFacility.stat(jobid):
             time.sleep(1)
@@ -195,7 +196,7 @@ class TestLoadSharingFacility(unittest.TestCase):
     def test_sub_6(self):
         jobs = [make_script(["echo $LSF_BINDIR"], directory=os.getcwd()) for _ in range(2)]
         array_script, array_jobs = prep_array_script(jobs, os.getcwd(), LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 2],
+        jobid = LoadSharingFacility.sub(array_script, array=[1, 2], log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
         while LoadSharingFacility.stat(jobid):
             time.sleep(1)
@@ -211,9 +212,8 @@ class TestLoadSharingFacility(unittest.TestCase):
         assert "PYJOB_ENV1" not in os.environ
         os.environ["PYJOB_ENV1"] = "pyjob_random1"
         jobs = [make_script(["echo $PYJOB_ENV1"], directory=os.getcwd()) for _ in range(2)]
-        jobid = LoadSharingFacility.sub(jobs, array=[1, 2], directory=os.getcwd(),
+        jobid = LoadSharingFacility.sub(jobs, array=[1, 2], directory=os.getcwd(), log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
-        time.sleep(5)
         while LoadSharingFacility.stat(jobid):
             time.sleep(1)
         for i, j in enumerate(jobs):
