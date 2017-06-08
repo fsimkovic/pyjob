@@ -152,6 +152,7 @@ class Job(object):
                 script, _ = prep_array_script(self._script, kwargs['directory'], self._platform.TASK_ID)
                 kwargs["array"] = [1, len(self._script),
                                    kwargs['max_array_jobs'] if 'max_array_jobs' in kwargs else len(self._script)]
+                kwargs["shell"] = "/bin/sh"
         # Make sure we have a list of len 1
         script = list(script)
         # Get the submission function and submit the job

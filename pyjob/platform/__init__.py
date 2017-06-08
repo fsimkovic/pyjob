@@ -85,8 +85,8 @@ def prep_array_script(scripts, directory, task_env):
     with open(array_script, "w") as f_out:
         # Construct the content for the file
         content = "#!/bin/sh" + os.linesep
-        content += "script=`sed -n \"${" + task_env + "}p\" " + array_jobs + "`" + os.linesep
-        content += "log=\"${script%.*}.log\"" + os.linesep
+        content += 'script=$(awk "NR==$' + task_env + '" ' + array_jobs + ')' + os.linesep
+        content += "log=$(echo $script | sed 's/.sh/.log/')" + os.linesep
         content += "$script > $log" + os.linesep
         f_out.write(content)
     return array_script, array_jobs
