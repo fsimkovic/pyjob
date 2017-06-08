@@ -41,9 +41,12 @@ class Test(unittest.TestCase):
         self.assertEqual(scripts, array_jobs_content)
         with open(array_script) as f_in:
             array_script_content = [l.strip() for l in f_in.readlines()]
-        self.assertEqual(["#!/bin/sh", "script=`sed -n \"${SGE_TASK_ID}p\" " + array_jobs + "`",
-                          "log=\"${script%.*}.log\"", "$script > $log"],
-                         array_script_content)
+        self.assertEqual([
+            "#!/bin/sh",
+            'script=$(awk "NR==$SGE_TASK_ID" ' + array_jobs + ')',
+            "log=$(echo $script | sed 's/.sh/.log/')",
+            "$script > $log"
+        ], array_script_content)
         for f in [array_script, array_jobs]:
             os.unlink(f)
 
@@ -55,9 +58,12 @@ class Test(unittest.TestCase):
         self.assertEqual(scripts, array_jobs_content)
         with open(array_script) as f_in:
             array_script_content = [l.strip() for l in f_in.readlines()]
-        self.assertEqual(["#!/bin/sh", "script=`sed -n \"${LSB_JOBINDEX}p\" " + array_jobs + "`",
-                          "log=\"${script%.*}.log\"", "$script > $log"],
-                         array_script_content)
+        self.assertEqual([
+            "#!/bin/sh",
+            'script=$(awk "NR==$LSB_JOBINDEX" ' + array_jobs + ')',
+            "log=$(echo $script | sed 's/.sh/.log/')",
+            "$script > $log"
+        ], array_script_content)
         for f in [array_script, array_jobs]:
             os.unlink(f)
 
@@ -69,9 +75,12 @@ class Test(unittest.TestCase):
         self.assertEqual(scripts, array_jobs_content)
         with open(array_script) as f_in:
             array_script_content = [l.strip() for l in f_in.readlines()]
-        self.assertEqual(["#!/bin/sh", "script=`sed -n \"${RANDOM_TEXT}p\" " + array_jobs + "`",
-                          "log=\"${script%.*}.log\"", "$script > $log"],
-                         array_script_content)
+        self.assertEqual([
+            "#!/bin/sh",
+            'script=$(awk "NR==$RANDOM_TEXT" ' + array_jobs + ')',
+            "log=$(echo $script | sed 's/.sh/.log/')",
+            "$script > $log"
+        ], array_script_content)
         for f in [array_script, array_jobs]:
             os.unlink(f)
 
@@ -85,9 +94,12 @@ class Test(unittest.TestCase):
         self.assertEqual(scripts, array_jobs_content)
         with open(array_script) as f_in:
             array_script_content = [l.strip() for l in f_in.readlines()]
-        self.assertEqual(["#!/bin/sh", "script=`sed -n \"${RANDOM_TEXT}p\" " + array_jobs + "`",
-                          "log=\"${script%.*}.log\"", "$script > $log"],
-                         array_script_content)
+        self.assertEqual([
+            "#!/bin/sh",
+            'script=$(awk "NR==$RANDOM_TEXT" ' + array_jobs + ')',
+            "log=$(echo $script | sed 's/.sh/.log/')",
+            "$script > $log"
+        ], array_script_content)
         for f in [array_script, array_jobs]:
             os.unlink(f)
 
