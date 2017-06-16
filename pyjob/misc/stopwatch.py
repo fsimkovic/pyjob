@@ -55,8 +55,8 @@ class _Time(object):
 
     @property
     def time(self):
-        """Time in seconds"""
-        return int(round(self._end_time - self._start_time))
+        """Time"""
+        return self._end_time - self._start_time
 
     @property
     def time_pretty(self):
@@ -89,6 +89,15 @@ class _Interval(_Time):
     def __getitem__(self, id):
         """Slice the intervals"""
         return self._laps[id]
+
+    @property
+    def average(self):
+        """The average lap time in ms"""
+        if len(self._laps) < 1:
+            logger.critical("No laps taken!")
+            return 0.0
+        lap_times = [lap.time for lap in self._laps]
+        return sum(lap_times) / float(len(lap_times))
 
     @property
     def lap(self):
@@ -173,10 +182,11 @@ class StopWatch(_Time):
     @property
     def lap(self):
         """Take a lap snapshot"""
-        if not self._running:
+        if len(self._intervals) > 0 and self._intervals[-1]._running:
+            return self._intervals[-1].lap
+        else:
             logger.critical("Cannot add a lap, stopwatch not running!")
             return None
-        return self._intervals[-1].lap
 
     @property
     def nintervals(self):
@@ -186,7 +196,7 @@ class StopWatch(_Time):
     @property
     def running(self):
         """Stopwatch status"""
-        return self._running
+        return len(self._intervals) > 0 and self._intervals[-1]._running 
 
     @property
     def time(self):
@@ -208,7 +218,7 @@ class StopWatch(_Time):
 
     def start(self):
         """Start the interval"""
-        if self._running:
+        if len(self._intervals) > 0 and self._intervals[-1]._running:
             logger.warning("Stopwatch already running!")
         else:
             logger.debug("Starting stopwatch ...")
@@ -216,13 +226,13 @@ class StopWatch(_Time):
             interval = _Interval(self._iinterval)
             interval.start()
             self._intervals += [interval]
-            self._running = True
+        return interval
 
     def stop(self):
         """Stop the interval"""
-        if self._running:
+        if len(self._intervals) > 0 and self._intervals[-1]._running:
             logger.debug("Stopping stopwatch ...")
             self._intervals[-1].stop()
-            self._running = False
         else:
             logger.warning("Stopwatch not running!")
+        return self._intervals[-1]
