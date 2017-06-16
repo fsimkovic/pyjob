@@ -222,7 +222,8 @@ class TestSunGridEngine(unittest.TestCase):
         assert "PYJOB_ENV1" not in os.environ
         os.environ["PYJOB_ENV1"] = "pyjob_random1"
         jobs = [make_script(["echo $PYJOB_ENV1"], directory=os.getcwd()) for _ in range(2)]
-        jobid = SunGridEngine.sub(jobs, array=[1, 2], directory=os.getcwd(), log=os.devnull,
+        array_script, array_jobs = prep_array_script(jobs, os.getcwd(), SunGridEngine.TASK_ID)
+        jobid = SunGridEngine.sub(array_script, array=[1, 2], directory=os.getcwd(), log=os.devnull,
                                   name=inspect.stack()[0][3], shell="/bin/sh")
         while SunGridEngine.stat(jobid):
             time.sleep(1)

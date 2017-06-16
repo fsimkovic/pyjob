@@ -212,7 +212,8 @@ class TestLoadSharingFacility(unittest.TestCase):
         assert "PYJOB_ENV1" not in os.environ
         os.environ["PYJOB_ENV1"] = "pyjob_random1"
         jobs = [make_script(["echo $PYJOB_ENV1"], directory=os.getcwd()) for _ in range(2)]
-        jobid = LoadSharingFacility.sub(jobs, array=[1, 2], directory=os.getcwd(), log=os.devnull,
+        array_script, array_jobs = prep_array_script(jobs, os.getcwd(), LoadSharingFacility.TASK_ID)
+        jobid = LoadSharingFacility.sub(array_script, array=[1, 2], directory=os.getcwd(), log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
         while LoadSharingFacility.stat(jobid):
             time.sleep(1)
