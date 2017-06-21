@@ -26,8 +26,10 @@ __author__ = "Felix Simkovic"
 __date__ = "09 May 2017"
 __version__ = "0.1"
 
+import collections
 import logging
 import multiprocessing
+import random
 import time
 
 from pyjob import cexec
@@ -66,7 +68,7 @@ class _Worker(multiprocessing.Process):
  
 
 # Store a reference to the Workers
-WORKERS = None
+SERVER_INDEX = collections.defaultdict(list)
 
 
 class LocalJobServer(LocalPlatform):
@@ -104,11 +106,12 @@ class LocalJobServer(LocalPlatform):
            The job id to remove
         
         """
-        if WORKERS:
-            for wk in WORKERS:
+        if jobid in SERVER_INDEX:
+            for wk in SERVER_INDEX[jobid]:
                 if wk.is_alive():
                     wk.terminate()
             logger.debug("Terminated job %d", jobid)
+            SERVER_INDEX.pop(jobid)
         else:
             logger.debug("Job %d not in queue", jobid)
 
@@ -122,7 +125,7 @@ class LocalJobServer(LocalPlatform):
            The job id to remove
         
         """
-        if WORKERS and any(wk.is_alive() for wk in WORKERS):
+        if SERVER_INDEX and any(wk.is_alive() for wk in SERVER_INDEX[jobid]):
             return {'job_number': jobid, 'status': "Running"}
         else:
             return {}
@@ -149,8 +152,7 @@ class LocalJobServer(LocalPlatform):
         queue = multiprocessing.Queue()
         
         # Create workers equivalent to the number of jobs
-        global WORKERS
-        WORKERS = workers = []
+        workers = []
         for _ in range(nproc):
             wp = _Worker(queue, directory=directory, permit_nonzero=permit_nonzero)
             wp.start()
@@ -165,4 +167,12 @@ class LocalJobServer(LocalPlatform):
         queue.close()
         # Need this in case we kill the job immediately after submitting
         time.sleep(0.1)
-        return queue._opid
+        # Save these workers
+        while True:
+            jobid = random.randint(1, 1000) 
+            if jobid in SERVER_INDEX:
+                continue
+            else:
+                break
+        SERVER_INDEX[jobid] = workers
+        return jobid

@@ -30,7 +30,7 @@ import time
 import unittest
 
 from pyjob.misc import make_python_script
-from pyjob.platform.local import LocalJobServer
+from pyjob.platform.local import LocalJobServer, SERVER_INDEX 
 
 
 class TestLocalJobServer(unittest.TestCase):
@@ -60,6 +60,24 @@ class TestLocalJobServer(unittest.TestCase):
         time.sleep(0.5)
         self.assertTrue(os.path.isfile(logs[-1]))
         for f in jobs + logs: os.unlink(f)
+    
+    def test_kill_1(self):
+        jobs = [
+            make_python_script([
+                ["import sys, time"], 
+                ["time.sleep(100)"],
+                ["sys.exit(0)"],
+            ], prefix="unittest") for i in range(6)
+        ]
+        logs = [j.rsplit('.', 1)[0] + '.log' for j in jobs]
+        jobid = LocalJobServer.sub(jobs, nproc=2)
+        time.sleep(0.5)
+        self.assertTrue(jobid in SERVER_INDEX)
+        LocalJobServer.kill(jobid)
+        self.assertFalse(jobid in SERVER_INDEX)
+        for l in logs:
+            self.assertFalse(os.path.isfile(l))
+        for f in jobs: os.unlink(f)
      
 
 if __name__ == "__main__":
