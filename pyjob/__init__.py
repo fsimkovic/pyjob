@@ -41,11 +41,6 @@ def Job(*args, **kwargs):
     return Job(*args, **kwargs)
 
 
-def Script(*args, **kwargs):
-    from pyjob.script import Script
-    return Script(*args, **kwargs)
-
-
 def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
     """Execute a command
 
@@ -94,26 +89,3 @@ def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
         os.kill(p.pid, signal.SIGTERM)
         sys.exit(signal.SIGTERM)
 
-
-def read_script(fname, format=None):
-    """Read a script from a filename
-
-    The format of the script will be attempted to be established by
-        1. The shebang line
-        2. The script extension
-
-    Parameters
-    ----------
-    fname : str
-       The filename of the script
-    format : str, optional
-       The script format
-
-    Returns
-    -------
-    obj
-       A :obj:`Script <pyjob.script.Script>` instance
-
-    """
-    from pyjob.script import read_file
-    return read_file(fname, format=format)
