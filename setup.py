@@ -1,4 +1,4 @@
-"""Sequence Independent Molecular Replacement Based on Available Database"""
+"""Job Management Controller"""
 
 __author__ = "Felix Simkovic"
 __version__ = "1.0"
