@@ -5,9 +5,18 @@ PyJob
 
 **Python-controlled job execution across multiple platforms**
 
-[![PyPi](https://img.shields.io/pypi/v/conkit.svg)]
-[![Python Versions](https://img.shields.io/pypi/pyversions/conkit.svg)]
-[![Build Status](https://travis-ci.org/fsimkovic/pyjob.svg?branch=master)](https://travis-ci.org/fsimkovic/pyjob)
+.. image:: https://img.shields.io/pypi/v/pyjob.svg
+   :target: https://pypi.python.org/pypi/pyjob
+   :alt: PyPi Package
+
+.. image:: https://img.shields.io/pypi/pyversions/pyjob.svg
+   :target: https://pypi.python.org/pypi/pyjob
+   :alt: Python Versions
+
+.. image:: https://travis-ci.org/fsimkovic/pyjob.svg?branch=master
+   :target: https://travis-ci.org/fsimkovic/pyjob
+   :alt: Travis Build
+
 
 Installation
 ++++++++++++
