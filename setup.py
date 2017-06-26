@@ -14,7 +14,7 @@ import os
 
 
 def readme():
-    with open('README.md', 'r') as f_in:
+    with open('README.rst', 'r') as f_in:
         return f_in.read()
 
 
