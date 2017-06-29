@@ -25,6 +25,7 @@
 __author__ = "Felix Simkovic"
 __date__ = "06 May 2017"
 
+import glob
 import os
 import unittest
 
@@ -42,7 +43,7 @@ class TestJob(unittest.TestCase):
         ss = make_script(["sleep 1"])
         ls = ss.replace(SCRIPT_EXT, ".log")
         j = Job(platform)
-        j.submit(ss, nproc=2)
+        j.submit(ss, nproc=2, log=ls)
         j.wait()
         for f in [ss, ls]:
             os.unlink(f)
@@ -51,7 +52,7 @@ class TestJob(unittest.TestCase):
         ss = [make_script(["sleep 1"])]
         ls = [ss[0].replace(SCRIPT_EXT, ".log")]
         j = Job(platform)
-        j.submit(ss, nproc=2)
+        j.submit(ss, nproc=2, log=ls[0])
         j.wait()
         for f in ss + ls:
             os.unlink(f)
@@ -60,9 +61,9 @@ class TestJob(unittest.TestCase):
         ss = [make_script(["sleep 1"]) for _ in range(5)]
         ls = [f.replace(SCRIPT_EXT, ".log") for f in ss]
         j = Job(platform)
-        j.submit(ss, nproc=2)
+        j.submit(ss, nproc=2, log=os.devnull)
         j.wait()
-        for f in ss + ls:
+        for f in ss + ls + glob.glob("array_*"):
             os.unlink(f)
 
     def test_check_script_1(self):
