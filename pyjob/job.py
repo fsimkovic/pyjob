@@ -153,8 +153,14 @@ class Job(object):
                 kwargs["array"] = [1, len(self._script),
                                    kwargs['max_array_jobs'] if 'max_array_jobs' in kwargs else len(self._script)]
                 kwargs["shell"] = "/bin/sh"
-        # Make sure we have a list of len 1
-        script = list(script)
+                kwargs["log"] = os.devnull
+
+                script = [script]
+            else:
+                script = self._script
+        else:
+            script = self._script
+
         # Get the submission function and submit the job
         self._pid = self._platform.sub(script, **kwargs)
         # Lock this Job so we cannot submit another

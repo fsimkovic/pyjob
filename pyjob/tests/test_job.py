@@ -32,8 +32,38 @@ from pyjob.exception import PyJobError
 from pyjob.job import Job
 from pyjob.misc import SCRIPT_EXT, make_script, tmp_file
 
+# Only need to check two, one for cluster and local
+platform = "sge" if "SGE_ROOT" in os.environ else "local"
+
 
 class TestJob(unittest.TestCase):
+
+    def test_submit_1(self):
+        ss = make_script(["sleep 1"])
+        ls = ss.replace(SCRIPT_EXT, ".log")
+        j = Job(platform)
+        j.submit(ss, nproc=2)
+        j.wait()
+        for f in [ss, ls]:
+            os.unlink(f)
+
+    def test_submit_2(self):
+        ss = [make_script(["sleep 1"])]
+        ls = [ss[0].replace(SCRIPT_EXT, ".log")]
+        j = Job(platform)
+        j.submit(ss, nproc=2)
+        j.wait()
+        for f in ss + ls:
+            os.unlink(f)
+
+    def test_submit_3(self):
+        ss = [make_script(["sleep 1"]) for _ in range(5)]
+        ls = [f.replace(SCRIPT_EXT, ".log") for f in ss]
+        j = Job(platform)
+        j.submit(ss, nproc=2)
+        j.wait()
+        for f in ss + ls:
+            os.unlink(f)
 
     def test_check_script_1(self):
         ss = [make_script(["sleep 1"])]
