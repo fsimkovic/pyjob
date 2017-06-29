@@ -4,7 +4,12 @@ __author__ = "Felix Simkovic"
 __version__ = "1.0"
 
 from distutils.util import convert_path
-from setuptools import setup
+try:
+    from setuptools import setup
+except ImportError:
+    import sys
+    msg("Please install setuptools first!")
+    sys.exit(msg)
 
 import os
 
