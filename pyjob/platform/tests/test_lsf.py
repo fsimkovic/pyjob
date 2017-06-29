@@ -222,7 +222,7 @@ class TestLoadSharingFacility(unittest.TestCase):
             self.assertTrue(os.path.isfile(f))
             self.assertEqual(os.environ["PYJOB_ENV1"], open(f).read().strip())
             os.unlink(f)
-        for f in jobs:
+        for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
 
 
