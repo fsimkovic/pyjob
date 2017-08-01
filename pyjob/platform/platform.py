@@ -26,10 +26,8 @@ __author__ = "Felix Simkovic"
 __date__ = "03 Jun 2017"
 __version__ = "0.1"
 
-from pyjob.exception import PyJobNotImplemented
 
-
-class _Platform(object):
+class Platform(object):
     """Container for job management platforms. 
     
     Notes
@@ -42,34 +40,34 @@ class _Platform(object):
 
     @staticmethod
     def alt(*args, **kwargs):
-        raise PyJobNotImplemented("Function unavailable for specified queue type")
+        raise NotImplementedError("Function unavailable for specified queue type")
 
     @staticmethod
     def hold(*args, **kwargs):
-        raise PyJobNotImplemented("Function unavailable for specified queue type")
+        raise NotImplementedError("Function unavailable for specified queue type")
 
     @staticmethod
     def kill(*args, **kwargs):
-        raise PyJobNotImplemented("Function unavailable for specified queue type")
+        raise NotImplementedError("Function unavailable for specified queue type")
 
     @staticmethod
     def rls(*args, **kwargs):
-        raise PyJobNotImplemented("Function unavailable for specified queue type")
+        raise NotImplementedError("Function unavailable for specified queue type")
 
     @staticmethod
     def sub(*args, **kwargs):
-        raise PyJobNotImplemented("Function unavailable for specified queue type")
+        raise NotImplementedError("Function unavailable for specified queue type")
 
     @staticmethod
     def stat(*args, **kwargs):
-        raise PyJobNotImplemented("Function unavailable for specified queue type")
+        raise NotImplementedError("Function unavailable for specified queue type")
 
 
-class ClusterPlatform(_Platform):
+class ClusterPlatform(Platform):
     """Container for cluster platforms"""
     pass
 
 
-class LocalPlatform(_Platform):
+class LocalPlatform(Platform):
     """Container for local platforms"""
     pass
