@@ -29,7 +29,6 @@ import subprocess
 import sys
 
 from pyjob import version
-from pyjob.exception import PyJobUnknownFormat
 
 __author__ = "Felix Simkovic"
 __email__ = "felixsimkovic@me.com"
