@@ -60,15 +60,14 @@ class SunGridEngine(ClusterPlatform):
         Todo
         ----
         * Add more functionality
-        * Add better debug message to include changed options
 
         """
         cmd = ["qalter"]
         if priority:
             cmd += ["-p", str(priority)]
+            logger.debug("Altered priority for job {} by {}", jobid, priority)
         cmd += [str(jobid)]
         cexec(cmd)
-        logger.debug("Altered parameters for job %d in the queue", jobid)
 
     @staticmethod
     def hold(jobid):
