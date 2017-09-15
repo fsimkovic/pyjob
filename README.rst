@@ -31,7 +31,7 @@ Installation
 Examples
 ++++++++
 
-1. To run a script called 'run.sh' on a local machine
+1. To run a script called `run.sh` on a local machine
 
 .. code-block:: python 
 
@@ -41,7 +41,7 @@ Examples
    >>> j.wait()
 
 
-2. To run a script called 'run.sh' on a SGE management platform
+2. To run a script called `run.sh` on a SGE management platform
 
 .. code-block:: python
    
@@ -51,7 +51,7 @@ Examples
    >>> j.wait()
 
 
-3. To run a script called 'run.sh' on a LSF management platform
+3. To run a script called `run.sh` on a LSF management platform
 
 .. code-block:: python
 
