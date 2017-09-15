@@ -45,7 +45,7 @@ class Test(unittest.TestCase):
             "#!/bin/sh",
             'script=$(awk "NR==$SGE_TASK_ID" ' + array_jobs + ')',
             "log=$(echo $script | sed 's/\.sh/\.log/')",
-            "$script > $log"
+            "$script > $log 2>&1"
         ], array_script_content)
         for f in [array_script, array_jobs]:
             os.unlink(f)
@@ -62,7 +62,7 @@ class Test(unittest.TestCase):
             "#!/bin/sh",
             'script=$(awk "NR==$LSB_JOBINDEX" ' + array_jobs + ')',
             "log=$(echo $script | sed 's/\.sh/\.log/')",
-            "$script > $log"
+            "$script > $log 2>&1"
         ], array_script_content)
         for f in [array_script, array_jobs]:
             os.unlink(f)
@@ -79,7 +79,7 @@ class Test(unittest.TestCase):
             "#!/bin/sh",
             'script=$(awk "NR==$RANDOM_TEXT" ' + array_jobs + ')',
             "log=$(echo $script | sed 's/\.sh/\.log/')",
-            "$script > $log"
+            "$script > $log 2>&1"
         ], array_script_content)
         for f in [array_script, array_jobs]:
             os.unlink(f)
@@ -98,7 +98,7 @@ class Test(unittest.TestCase):
             "#!/bin/sh",
             'script=$(awk "NR==$RANDOM_TEXT" ' + array_jobs + ')',
             "log=$(echo $script | sed 's/\.sh/\.log/')",
-            "$script > $log"
+            "$script > $log 2>&1"
         ], array_script_content)
         for f in [array_script, array_jobs]:
             os.unlink(f)
