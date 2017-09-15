@@ -44,7 +44,7 @@ class Test(unittest.TestCase):
         self.assertEqual([
             "#!/bin/sh",
             'script=$(awk "NR==$SGE_TASK_ID" ' + array_jobs + ')',
-            "log=$(echo $script | sed 's/.sh/.log/')",
+            "log=$(echo $script | sed 's/\.sh/\.log/')",
             "$script > $log"
         ], array_script_content)
         for f in [array_script, array_jobs]:
@@ -61,7 +61,7 @@ class Test(unittest.TestCase):
         self.assertEqual([
             "#!/bin/sh",
             'script=$(awk "NR==$LSB_JOBINDEX" ' + array_jobs + ')',
-            "log=$(echo $script | sed 's/.sh/.log/')",
+            "log=$(echo $script | sed 's/\.sh/\.log/')",
             "$script > $log"
         ], array_script_content)
         for f in [array_script, array_jobs]:
@@ -78,7 +78,7 @@ class Test(unittest.TestCase):
         self.assertEqual([
             "#!/bin/sh",
             'script=$(awk "NR==$RANDOM_TEXT" ' + array_jobs + ')',
-            "log=$(echo $script | sed 's/.sh/.log/')",
+            "log=$(echo $script | sed 's/\.sh/\.log/')",
             "$script > $log"
         ], array_script_content)
         for f in [array_script, array_jobs]:
@@ -97,7 +97,7 @@ class Test(unittest.TestCase):
         self.assertEqual([
             "#!/bin/sh",
             'script=$(awk "NR==$RANDOM_TEXT" ' + array_jobs + ')',
-            "log=$(echo $script | sed 's/.sh/.log/')",
+            "log=$(echo $script | sed 's/\.sh/\.log/')",
             "$script > $log"
         ], array_script_content)
         for f in [array_script, array_jobs]:
