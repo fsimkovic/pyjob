@@ -65,7 +65,7 @@ class SunGridEngine(ClusterPlatform):
         cmd = ["qalter"]
         if priority:
             cmd += ["-p", str(priority)]
-            logger.debug("Altered priority for job {} by {}", jobid, priority)
+            logger.debug("Altered priority for job %s by %s", str(jobid), str(priority))
         cmd += [str(jobid)]
         cexec(cmd)
 
