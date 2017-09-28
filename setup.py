@@ -4,18 +4,14 @@ __author__ = "Felix Simkovic"
 __version__ = "1.0"
 
 from distutils.util import convert_path
+
+import os
+import sys
+
 try:
     from setuptools import setup
 except ImportError:
-    import sys
-    msg("Please install setuptools first!")
-    sys.exit(msg)
-
-import os
-
-# ==============================================================
-# Functions, functions, functions ... 
-# ==============================================================
+    sys.exit("Please install setuptools first!")
 
 
 def readme():
@@ -25,7 +21,6 @@ def readme():
 
 def version():
     """Get the current PyJob version"""
-    # Credits to http://stackoverflow.com/a/24517154
     main_ns = {}
     ver_path = convert_path(os.path.join('pyjob', 'version.py'))
     with open(ver_path) as f_in:
@@ -33,9 +28,6 @@ def version():
     return main_ns['__version__']
 
 
-# ==============================================================
-# Define all the relevant options
-# ==============================================================
 AUTHOR = "Felix Simkovic"
 AUTHOR_EMAIL = "felixsimkovic@me.com"
 DESCRIPTION = __doc__.replace("\n", "")
