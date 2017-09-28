@@ -52,6 +52,12 @@ def platform_factory(qtype):
     elif qtype == "sge":
         from pyjob.platform.sge import SunGridEngine
         return SunGridEngine
+    elif qtype == "pbs":
+	from pyjob.platform.pbs import PortableBatchSystem
+	return PortableBatchSystem
+    elif qtype == "torque":
+	from pyjob.platform.pbs import PortableBatchSystem
+	return PortableBatchSystem
     else:
         raise PyJobUnknownPlatform("Unknown platform")
 
