@@ -1,4 +1,8 @@
 
+v0.2.dev1
+---------
+- Support for PBS/TORQUE added
+
 v0.1.3
 ------
 - Critical bug fix in ``prep_array_script()`` for cluster job submission
