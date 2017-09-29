@@ -1,7 +1,7 @@
 
 # Changelog
 
-## Unreleased
+## [Unreleased]
 ### Added
 - Support for PBS/TORQUE added
 
