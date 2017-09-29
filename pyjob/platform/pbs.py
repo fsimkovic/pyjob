@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 class PortableBatchSystem(ClusterPlatform):
     """Object to handle the PortableBatchSystem (PBS) management platform"""
 
-    TASK_ID = "PBS_ARRAYID"
+    ARRAY_TASK_ID = "PBS_ARRAYID"
 
     @staticmethod
     def alt(jobid, priority=None):

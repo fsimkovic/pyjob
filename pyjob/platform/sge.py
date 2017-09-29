@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 class SunGridEngine(ClusterPlatform):
     """Object to handle the Sun Grid Engine (SGE) management platform"""
 
-    TASK_ID = "SGE_TASK_ID"
+    ARRAY_TASK_ID = "SGE_TASK_ID"
 
     @staticmethod
     def alt(jobid, priority=None):
@@ -65,7 +65,8 @@ class SunGridEngine(ClusterPlatform):
         cmd = ["qalter"]
         if priority:
             cmd += ["-p", str(priority)]
-            logger.debug("Altered priority for job %s by %s", str(jobid), str(priority))
+            logger.debug("Altered priority for job %s by %s",
+                         str(jobid), str(priority))
         cmd += [str(jobid)]
         cexec(cmd)
 
@@ -176,7 +177,8 @@ class SunGridEngine(ClusterPlatform):
         """
         cmd = ["qsub", "-cwd", "-V", "-w", "e", "-j", "y"]
         if array and len(array) == 3:
-            cmd += ["-t", "{0}-{1}".format(array[0], array[1]), "-tc", str(array[2])]
+            cmd += ["-t",
+                    "{0}-{1}".format(array[0], array[1]), "-tc", str(array[2])]
         elif array and len(array) == 2:
             cmd += ["-t", "{0}-{1}".format(array[0], array[1])]
         if deps:
@@ -201,6 +203,7 @@ class SunGridEngine(ClusterPlatform):
             cmd += ["-pe mpi", str(threads)]
         cmd += command if isinstance(command, list) else [command]
         stdout = cexec(cmd, directory=directory)
-        jobid = int(stdout.split()[2].split(".")[0]) if array else int(stdout.split()[2])
+        jobid = int(stdout.split()[2].split(".")[0]
+                    ) if array else int(stdout.split()[2])
         logger.debug("Job %d successfully submitted to the SGE queue", jobid)
         return jobid

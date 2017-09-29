@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class LoadSharingFacility(ClusterPlatform):
     """Object to handle the Load Sharing Facility (LSF) management platform"""
 
-    TASK_ID = "LSB_JOBINDEX"
+    ARRAY_TASK_ID = "LSB_JOBINDEX"
 
     @staticmethod
     def hold(jobid):
@@ -77,7 +77,8 @@ class LoadSharingFacility(ClusterPlatform):
         if any(text in stdout for text in ["has already finished", "is being terminated", "is in progress"]):
             logger.debug("Removed job %d from the queue", jobid)
         else:
-            msg = "Execution of '{0}' exited with non-zero return code: {1}".format("bkill " + str(jobid), stdout)
+            msg = "Execution of '{0}' exited with non-zero return code: {1}".format(
+                "bkill " + str(jobid), stdout)
             raise RuntimeError(msg)
 
     @staticmethod
@@ -158,12 +159,14 @@ class LoadSharingFacility(ClusterPlatform):
         if array:
             name = "pyjob" if name is None else name
             if len(array) == 3:
-                cmd += ["-J", "{0}[{1}-{2}%{3}]".format(name, array[0], array[1], array[2])]
+                cmd += ["-J",
+                        "{0}[{1}-{2}%{3}]".format(name, array[0], array[1], array[2])]
             elif len(array) == 2:
                 cmd += ["-J", "{0}[{1}-{2}]".format(name, array[0], array[1])]
             name = None             # Reset this!
         if deps:
-            cmd += ["-w", " && ".join(["done(%s)" % dep for dep in map(str, deps)])]
+            cmd += ["-w", " && ".join(["done(%s)" %
+                                       dep for dep in map(str, deps)])]
         if hold:
             cmd += ["-H"]
         if log:

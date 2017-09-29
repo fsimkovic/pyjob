@@ -36,31 +36,37 @@ class Platform(object):
     
     """
 
-    TASK_ID = None
+    ARRAY_TASK_ID = None
 
     @staticmethod
     def alt(*args, **kwargs):
-        raise NotImplementedError("Function unavailable for specified queue type")
+        raise NotImplementedError(
+            "Function unavailable for specified queue type")
 
     @staticmethod
     def hold(*args, **kwargs):
-        raise NotImplementedError("Function unavailable for specified queue type")
+        raise NotImplementedError(
+            "Function unavailable for specified queue type")
 
     @staticmethod
     def kill(*args, **kwargs):
-        raise NotImplementedError("Function unavailable for specified queue type")
+        raise NotImplementedError(
+            "Function unavailable for specified queue type")
 
     @staticmethod
     def rls(*args, **kwargs):
-        raise NotImplementedError("Function unavailable for specified queue type")
+        raise NotImplementedError(
+            "Function unavailable for specified queue type")
 
     @staticmethod
     def sub(*args, **kwargs):
-        raise NotImplementedError("Function unavailable for specified queue type")
+        raise NotImplementedError(
+            "Function unavailable for specified queue type")
 
     @staticmethod
     def stat(*args, **kwargs):
-        raise NotImplementedError("Function unavailable for specified queue type")
+        raise NotImplementedError(
+            "Function unavailable for specified queue type")
 
 
 class ClusterPlatform(Platform):
