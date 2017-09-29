@@ -32,7 +32,7 @@ import time
 
 from pyjob.exception import PyJobError
 from pyjob.misc import is_script
-from pyjob.platform import platform_factory, prep_array_script
+from pyjob.platform import Platform, prep_array_script
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class Job(object):
         self._script = []
 
         # Check immediately if we have a known platform
-        self._platform = platform_factory(qtype)
+        self._platform = Platform(qtype)
         self._qtype = qtype
 
     def __repr__(self):
@@ -136,7 +136,8 @@ class Job(object):
         """
         # Only allow one submission per job
         if self._lock:
-            logger.debug("This Job instance is locked, for further submissions create a new")
+            logger.debug(
+                "This Job instance is locked, for further submissions create a new")
             return
 
         # Define a directory if not already done
@@ -149,7 +150,8 @@ class Job(object):
         # See if we need to prepare an array
         if len(self._script) > 1:
             if any(base.__name__ == "ClusterPlatform" for base in self._platform.__bases__):
-                script, _ = prep_array_script(self._script, kwargs['directory'], self._platform.TASK_ID)
+                script, _ = prep_array_script(
+                    self._script, kwargs['directory'], self._platform.ARRAY_TASK_ID)
                 kwargs["array"] = [1, len(self._script),
                                    kwargs['max_array_jobs'] if 'max_array_jobs' in kwargs else len(self._script)]
                 kwargs["shell"] = "/bin/sh"
@@ -189,7 +191,8 @@ class Job(object):
         """
         do_check_success = bool(check_success and callable(check_success))
         if do_check_success:
-            logger.debug("Checking for Job %d success with function %s", self.pid, check_success.__name__)
+            logger.debug("Checking for Job %d success with function %s",
+                         self.pid, check_success.__name__)
         do_monitor = bool(monitor and callable(monitor))
 
         while not self.finished:
@@ -197,7 +200,8 @@ class Job(object):
             if do_check_success:
                 for log in self.log:
                     if os.path.isfile(log) and check_success(log):
-                        logger.debug("Job %d succeeded, run log: %s", self.pid, log)
+                        logger.debug(
+                            "Job %d succeeded, run log: %s", self.pid, log)
                         self.kill()
             # Allow for GUI updating
             if do_monitor:
@@ -215,5 +219,6 @@ class Job(object):
             logs = [s.rsplit('.', 1)[0] + '.log' for s in script]
             scripts = list(script)
         else:
-            raise PyJobError("One or more scripts cannot be found or are not executable")
+            raise PyJobError(
+                "One or more scripts cannot be found or are not executable")
         return scripts, logs

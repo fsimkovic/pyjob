@@ -38,7 +38,7 @@ else:
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
 
 
-def platform(name):
+def Platform(name):
     lc_name = name.lower()
     if lc_name == "local":
         from pyjob.platform.local import LocalJobServer
@@ -64,7 +64,7 @@ def platform_factory(qtype):
     import warnings
     warnings.warn("This function has been deprecated - use "
                   + "pyjob.platform.platform() instead")
-    return platform(qtype)
+    return Platform(qtype)
 
 
 def prep_array_script(scripts, directory, task_env):
