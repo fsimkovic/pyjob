@@ -1,6 +1,6 @@
 
-v0.2.dev1
----------
+unreleased
+----------
 - Support for PBS/TORQUE added
 
 v0.1.3

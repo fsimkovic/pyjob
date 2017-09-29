@@ -59,3 +59,7 @@ Examples
    >>> j = Job('lsf')
    >>> j.submit('run.sh')
    >>> j.wait()
+
+----
+
+.. include:: ../CHANGELOG.rst
