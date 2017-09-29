@@ -65,7 +65,8 @@ class PortableBatchSystem(ClusterPlatform):
         cmd = ["qalter"]
         if priority:
             cmd += ["-p", str(priority)]
-            logger.debug("Altered priority for job %s by %s", str(jobid), str(priority))
+            logger.debug("Altered priority for job %s by %s",
+                         str(jobid), str(priority))
         cmd += [str(jobid)]
         cexec(cmd)
 
@@ -124,16 +125,16 @@ class PortableBatchSystem(ClusterPlatform):
 
         """
         line_split1 = re.compile(":\s+")
-	line_split2 = re.compile("\s+=\s+")
+        line_split2 = re.compile("\s+=\s+")
 
         stdout = cexec(["qstat", "-f", str(jobid)], permit_nonzero=True)
-	all_lines = stdout.split(os.linesep)
+        all_lines = stdout.split(os.linesep)
 
         data = {}
         key, job_id = line_split1.split(all_lines[0], 1)
-	data[key] = job_id	
+        data[key] = job_id
 
-	for line in all_lines[1:]:
+        for line in all_lines[1:]:
             line = line.strip()
             if 'Unknown queue destination' in line:
                 return data
@@ -182,7 +183,7 @@ class PortableBatchSystem(ClusterPlatform):
             cmd += ["-h"]
         if log:
             cmd += ["-o", log]
-	    cmd += ["-e", log]
+            cmd += ["-e", log]
         if name:
             cmd += ["-N", name]
         if priority:
@@ -190,8 +191,8 @@ class PortableBatchSystem(ClusterPlatform):
         if queue:
             cmd += ["-q", queue]
         if runtime:
-	    m, s = divmod(runtime, 60)
-	    h, m = divmod(m, 60)
+            m, s = divmod(runtime, 60)
+            h, m = divmod(m, 60)
             cmd += ["-l", "walltime={}:{}:{}".format(h, m, s)]
         if shell:
             cmd += ["-S", shell]

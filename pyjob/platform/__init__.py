@@ -53,11 +53,11 @@ def platform_factory(qtype):
         from pyjob.platform.sge import SunGridEngine
         return SunGridEngine
     elif qtype == "pbs":
-	from pyjob.platform.pbs import PortableBatchSystem
-	return PortableBatchSystem
+        from pyjob.platform.pbs import PortableBatchSystem
+        return PortableBatchSystem
     elif qtype == "torque":
-	from pyjob.platform.pbs import PortableBatchSystem
-	return PortableBatchSystem
+        from pyjob.platform.pbs import PortableBatchSystem
+        return PortableBatchSystem
     else:
         raise PyJobUnknownPlatform("Unknown platform")
 
@@ -83,7 +83,8 @@ def prep_array_script(scripts, directory, task_env):
 
     """
     # Write all jobs into an array.jobs file
-    array_jobs = tempfile.NamedTemporaryFile(delete=False, dir=directory, prefix="array_", suffix=".jobs").name
+    array_jobs = tempfile.NamedTemporaryFile(
+        delete=False, dir=directory, prefix="array_", suffix=".jobs").name
     with open(array_jobs, 'w') as f_out:
         f_out.write(os.linesep.join(scripts) + os.linesep)
     # Create the actual executable script
@@ -91,7 +92,8 @@ def prep_array_script(scripts, directory, task_env):
     with open(array_script, "w") as f_out:
         # Construct the content for the file
         content = "#!/bin/sh" + os.linesep
-        content += 'script=$(awk "NR==$' + task_env + '" ' + array_jobs + ')' + os.linesep
+        content += 'script=$(awk "NR==$' + task_env \
+            + '" ' + array_jobs + ')' + os.linesep
         content += "log=$(echo $script | sed 's/\.sh/\.log/')" + os.linesep
         content += "$script > $log 2>&1" + os.linesep
         f_out.write(content)
