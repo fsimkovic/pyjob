@@ -32,34 +32,39 @@ import tempfile
 
 from pyjob.exception import PyJobUnknownPlatform
 
-# OS-dependent script headers and extensions
 if sys.platform.startswith('win'):
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', '', '.bat')
 else:
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
 
 
-# Little factory function to get the right platform without importing all
-def platform_factory(qtype):
-    """Return the correct platform handler"""
-    qtype = qtype.lower()
-    if qtype == "local":
+def platform(name):
+    lc_name = name.lower()
+    if lc_name == "local":
         from pyjob.platform.local import LocalJobServer
         return LocalJobServer
-    elif qtype == "lsf":
+    elif lc_name == "lsf":
         from pyjob.platform.lsf import LoadSharingFacility
         return LoadSharingFacility
-    elif qtype == "sge":
+    elif lc_name == "sge":
         from pyjob.platform.sge import SunGridEngine
         return SunGridEngine
-    elif qtype == "pbs":
+    elif lc_name == "pbs":
         from pyjob.platform.pbs import PortableBatchSystem
         return PortableBatchSystem
-    elif qtype == "torque":
+    elif lc_name == "torque":
         from pyjob.platform.pbs import PortableBatchSystem
         return PortableBatchSystem
     else:
-        raise PyJobUnknownPlatform("Unknown platform")
+        raise PyJobUnknownPlatform("Unsupported platform: %s" % name)
+
+
+def platform_factory(qtype):
+    """Return the correct platform handler"""
+    import warnings
+    warnings.warn("This function has been deprecated - use "
+                  + "pyjob.platform.platform() instead")
+    return platform(qtype)
 
 
 def prep_array_script(scripts, directory, task_env):
