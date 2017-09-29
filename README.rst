@@ -17,9 +17,10 @@ PyJob
    :target: https://travis-ci.org/fsimkovic/pyjob
    :alt: Travis Build
 
+----
 
 Installation
-++++++++++++
+============
 
 .. code-block:: bash
 
@@ -27,9 +28,10 @@ Installation
    $> cd pyjob
    $> python setup install
 
+----
 
 Examples
-++++++++
+========
 
 1. To run a script called `run.sh` on a local machine
 
@@ -63,26 +65,36 @@ Examples
 ----
 
 Changelog
-+++++++++
+=========
 
 unreleased
 ----------
+Added
+~~~~~
 - Support for PBS/TORQUE added
 
 v0.1.3
 ------
+Changed
+~~~~~~~
 - Critical bug fix in ``prep_array_script()`` for cluster job submission
 
 v0.1.2
 ------
+Changed
+~~~~~~~
 - ``PyJobNotImplementedError`` replaced with ``NotImplementedError``
 - Bug fix for script submission in ``Job.submit()``
 
 v0.1.1
 ------
+Changed
+~~~~~~~
 - Fix for PyPi installation
-- README files updated
+- Added additional information to README file
 
 v0.1
 ----
+Added
+~~~~~
 - Initial release
