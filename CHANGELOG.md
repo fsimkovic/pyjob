@@ -1,18 +1,24 @@
 
-v0.1.3
-------
+# Changelog
+
+## [Unreleased]
+### Added
+- Support for PBS/TORQUE added
+
+## [0.1.3]
+### Changed
 - Critical bug fix in ``prep_array_script()`` for cluster job submission
 
-v0.1.2
-------
+## [0.1.2]
+### Changed
 - ``PyJobNotImplementedError`` replaced with ``NotImplementedError``
 - Bug fix for script submission in ``Job.submit()``
 
-v0.1.1
-------
+## [0.1.1]
+### Changed
 - Fix for PyPi installation
-- README files updated
+- Added additional information to README file
 
-
-## v0.1
+## [0.1]
+### Added
 - Initial release

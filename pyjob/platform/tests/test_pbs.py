@@ -10,8 +10,7 @@
 # furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
+# copies or substantial portions of the Software.  #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,10 +19,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Testing facility for pyjob.platform.lsf"""
+"""Testing facility for pyjob.platform.pbs"""
 
 __author__ = "Felix Simkovic"
-__date__ = "03 Jun 2017"
+__date__ = "10 May 2017"
 
 import inspect
 import os
@@ -32,7 +31,7 @@ import unittest
 
 from pyjob.misc import make_script
 from pyjob.platform import prep_array_script
-from pyjob.platform.lsf import LoadSharingFacility
+from pyjob.platform.pbs import PortableBatchSystem
 
 
 def skipUnless(condition):
@@ -42,88 +41,96 @@ def skipUnless(condition):
         return lambda x: None
 
 
-@skipUnless("LSF_BINDIR" in os.environ)
-class TestLoadSharingFacility(unittest.TestCase):
+@skipUnless("PBS_ROOT" in os.environ)
+class TestPortableBatchSystem(unittest.TestCase):
 
     # ================================================================================
     # SINGLE JOB SUBMISSIONS
 
-    def test_hold_1(self):
+    def test_alt_1(self):
         jobs = [make_script(["sleep 100"])]
-        jobid = LoadSharingFacility.sub(
-            jobs, hold=False, name=inspect.stack()[0][3], shell="/bin/sh")
+        jobid = PortableBatchSystem.sub(
+            jobs, hold=True, name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
-        LoadSharingFacility.hold(jobid)
-        LoadSharingFacility.kill(jobid)
+        PortableBatchSystem.alt(jobid, priority=-1)
+        data = PortableBatchSystem.stat(jobid)
+        self.assertTrue(data)
+        self.assertEqual(jobid, data['Job Id'])
+        self.assertEqual(-1, int(data['Priority']))
+        PortableBatchSystem.kill(jobid)
         for f in jobs:
             os.unlink(f)
 
     def test_kill_1(self):
         jobs = [make_script(["sleep 100"])]
-        jobid = LoadSharingFacility.sub(
+        jobid = PortableBatchSystem.sub(
             jobs, hold=True, name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
-        self.assertTrue(LoadSharingFacility.stat(jobid))
-        LoadSharingFacility.kill(jobid)
+        self.assertTrue(PortableBatchSystem.stat(jobid))
+        PortableBatchSystem.kill(jobid)
         for f in jobs:
             os.unlink(f)
 
-    def test_rls_1(self):
-        jobs = [make_script(["touch", "pyjob_rls_test_1"])]
-        jobid = LoadSharingFacility.sub(
-            jobs, hold=True, name=inspect.stack()[0][3], shell="/bin/sh")
+    def test_hold_1(self):
+        jobs = [make_script(["sleep 100"])]
+        jobid = PortableBatchSystem.sub(jobs, hold=False, name=inspect.stack()[
+                                        0][3], shell="/bin/sh", log=os.devnull)
         time.sleep(5)
-        LoadSharingFacility.rls(jobid)
-        start, timeout = time.time(), False
-        while LoadSharingFacility.stat(jobid):
-            # Don't wait too long, one minute, then fail
-            if ((time.time() - start) // 60) >= 1:
-                LoadSharingFacility.kill(jobid)
-                timeout = True
-            time.sleep(10)
+        PortableBatchSystem.hold(jobid)
+        PortableBatchSystem.kill(jobid)
+        map(os.unlink, jobs)
+
+    def test_rls_1(self):
+        jobs = [make_script(["touch", "pyjob_rls__test_1"])]
+        jobid = PortableBatchSystem.sub(jobs, hold=True, name=inspect.stack()[
+                                        0][3], shell="/bin/sh", log=os.devnull)
+        time.sleep(5)
+        PortableBatchSystem.rls(jobid)
+        while PortableBatchSystem.stat(jobid):
+            time.sleep(1)
+        self.assertTrue(os.path.isfile('pyjob_rls__test_1'))
+        os.unlink('pyjob_rls__test_1')
         for f in jobs:
             os.unlink(f)
-        if timeout:
-            self.assertEqual(1, 0, "Timeout")
-        else:
-            self.assertTrue(os.path.isfile('pyjob_rls_test_1'))
-            os.unlink('pyjob_rls_test_1')
 
     def test_stat_1(self):
         jobs = [make_script(["sleep 100"])]
-        jobid = LoadSharingFacility.sub(
+        jobid = PortableBatchSystem.sub(
             jobs, hold=True, name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
-        data = LoadSharingFacility.stat(jobid)
+        data = PortableBatchSystem.stat(jobid)
         self.assertTrue(data)
-        self.assertEqual(jobid, int(data['job_number']))
-        LoadSharingFacility.kill(jobid)
+        self.assertEqual(jobid, data['Job Id'])
+        self.assertTrue('pbs_o_shell' in data)
+        self.assertTrue('pbs_o_workdir' in data)
+        self.assertTrue('pbs_o_host' in data)
+        PortableBatchSystem.kill(jobid)
         for f in jobs:
             os.unlink(f)
 
     def test_sub_1(self):
         jobs = [make_script(["sleep 1"])]
-        jobid = LoadSharingFacility.sub(
+        jobid = PortableBatchSystem.sub(
             jobs, hold=True, name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
-        self.assertTrue(LoadSharingFacility.stat(jobid))
-        LoadSharingFacility.kill(jobid)
+        self.assertTrue(PortableBatchSystem.stat(jobid))
+        PortableBatchSystem.kill(jobid)
         for f in jobs:
             os.unlink(f)
 
     def test_sub_2(self):
         assert "PYJOB_ENV" not in os.environ
         os.environ["PYJOB_ENV"] = "pyjob_random"
-        jobs = [make_script(["echo $PYJOB_ENV"], directory=os.getcwd())]
-        log = jobs[0].replace(".sh", ".log")
-        jobid = LoadSharingFacility.sub(jobs, log=log, directory=os.getcwd(),
-                                        name=inspect.stack()[0][3], shell="/bin/sh")
+        job = [make_script(["echo $PYJOB_ENV"])]
+        log = job[0].replace(".sh", ".log")
+        jobid = PortableBatchSystem.sub(
+            job, log=log, name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
-        while LoadSharingFacility.stat(jobid):
+        while PortableBatchSystem.stat(jobid):
             time.sleep(1)
         self.assertTrue(os.path.isfile(log))
         self.assertTrue(open(log).read().strip(), "pyjob_random")
-        for f in jobs + [log]:
+        for f in job + [log]:
             os.unlink(f)
 
     # ================================================================================
@@ -132,38 +139,43 @@ class TestLoadSharingFacility(unittest.TestCase):
     def test_kill_2(self):
         jobs = [make_script(["sleep 100"]) for _ in range(5)]
         array_script, array_jobs = prep_array_script(
-            jobs, os.getcwd(), LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], hold=True, log=os.devnull,
+            jobs, os.getcwd(), PortableBatchSystem.TASK_ID)
+        jobid = PortableBatchSystem.sub(array_script, array=[1, 5], hold=True,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
-        self.assertTrue(LoadSharingFacility.stat(jobid))
-        LoadSharingFacility.kill(jobid)
+        self.assertTrue(PortableBatchSystem.stat(jobid))
+        PortableBatchSystem.kill(jobid)
         for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
 
     def test_stat_2(self):
         jobs = [make_script(["sleep 100"]) for _ in range(5)]
         array_script, array_jobs = prep_array_script(
-            jobs, os.getcwd(), LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], hold=True, log=os.devnull,
-                                        name=inspect.stack()[0][3], shell="/bin/sh")
+            jobs, os.getcwd(), PortableBatchSystem.TASK_ID)
+        jobid = PortableBatchSystem.sub(array_script, array=[
+                                        1, 5], hold=True, name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
-        data = LoadSharingFacility.stat(jobid)
-        LoadSharingFacility.kill(jobid)
+        data = PortableBatchSystem.stat(jobid)
+        PortableBatchSystem.kill(jobid)
         self.assertTrue(data)
-        self.assertEqual(jobid, int(data['job_number']))
+        self.assertEqual(jobid, data['Job Id'])
+        self.assertTrue('pbs_o_shell' in data)
+        self.assertTrue('pbs_o_workdir' in data)
+        self.assertTrue('pbs_o_host' in data)
+        self.assertTrue('job-array tasks' in data)
+        self.assertEqual("1-5:1", data['job-array tasks'].strip())
         for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
 
     def test_sub_3(self):
         jobs = [make_script(["sleep 1"]) for _ in range(5)]
         array_script, array_jobs = prep_array_script(
-            jobs, os.getcwd(), LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], hold=True, log=os.devnull,
+            jobs, os.getcwd(), PortableBatchSystem.TASK_ID)
+        jobid = PortableBatchSystem.sub(array_script, array=[1, 5], hold=True,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
         time.sleep(5)
-        self.assertTrue(LoadSharingFacility.stat(jobid))
-        LoadSharingFacility.kill(jobid)
+        self.assertTrue(PortableBatchSystem.stat(jobid))
+        PortableBatchSystem.kill(jobid)
         for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
 
@@ -172,10 +184,10 @@ class TestLoadSharingFacility(unittest.TestCase):
         jobs = [make_script([["sleep 5"], ['echo "file {0}"'.format(i)]], directory=directory)
                 for i in range(5)]
         array_script, array_jobs = prep_array_script(
-            jobs, directory, LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 5], log=os.devnull,
+            jobs, directory, PortableBatchSystem.TASK_ID)
+        jobid = PortableBatchSystem.sub(array_script, array=[1, 5], log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
-        while LoadSharingFacility.stat(jobid):
+        while PortableBatchSystem.stat(jobid):
             time.sleep(1)
         for i, j in enumerate(jobs):
             f = j.replace(".sh", ".log")
@@ -190,10 +202,10 @@ class TestLoadSharingFacility(unittest.TestCase):
         jobs = [make_script(['echo "file {0}"'.format(i)], directory=directory)
                 for i in range(100)]
         array_script, array_jobs = prep_array_script(
-            jobs, directory, LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 100], log=os.devnull,
+            jobs, directory, PortableBatchSystem.TASK_ID)
+        jobid = PortableBatchSystem.sub(array_script, array=[1, 100], log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
-        while LoadSharingFacility.stat(jobid):
+        while PortableBatchSystem.stat(jobid):
             time.sleep(1)
         for i, j in enumerate(jobs):
             f = j.replace(".sh", ".log")
@@ -204,18 +216,18 @@ class TestLoadSharingFacility(unittest.TestCase):
             os.unlink(f)
 
     def test_sub_6(self):
-        jobs = [make_script(["echo $LSF_BINDIR"], directory=os.getcwd())
+        jobs = [make_script(["echo $PBS_ROOT"], directory=os.getcwd())
                 for _ in range(2)]
         array_script, array_jobs = prep_array_script(
-            jobs, os.getcwd(), LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 2], log=os.devnull,
+            jobs, os.getcwd(), PortableBatchSystem.TASK_ID)
+        jobid = PortableBatchSystem.sub(array_script, array=[1, 2], log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
-        while LoadSharingFacility.stat(jobid):
+        while PortableBatchSystem.stat(jobid):
             time.sleep(1)
         for i, j in enumerate(jobs):
             f = j.replace(".sh", ".log")
             self.assertTrue(os.path.isfile(f))
-            self.assertEqual(os.environ["LSF_BINDIR"], open(f).read().strip())
+            self.assertEqual(os.environ["PBS_ROOT"], open(f).read().strip())
             os.unlink(f)
         for f in jobs + [array_script, array_jobs]:
             os.unlink(f)
@@ -226,10 +238,10 @@ class TestLoadSharingFacility(unittest.TestCase):
         jobs = [make_script(["echo $PYJOB_ENV1"], directory=os.getcwd())
                 for _ in range(2)]
         array_script, array_jobs = prep_array_script(
-            jobs, os.getcwd(), LoadSharingFacility.TASK_ID)
-        jobid = LoadSharingFacility.sub(array_script, array=[1, 2], directory=os.getcwd(), log=os.devnull,
+            jobs, os.getcwd(), PortableBatchSystem.TASK_ID)
+        jobid = PortableBatchSystem.sub(array_script, array=[1, 2], directory=os.getcwd(), log=os.devnull,
                                         name=inspect.stack()[0][3], shell="/bin/sh")
-        while LoadSharingFacility.stat(jobid):
+        while PortableBatchSystem.stat(jobid):
             time.sleep(1)
         for i, j in enumerate(jobs):
             f = j.replace(".sh", ".log")
