@@ -62,10 +62,11 @@ class _Worker(multiprocessing.Process):
     def run(self):
         """Method representing the process's activity"""
         for job in iter(self.queue.get, None):
-            stdout = cexec([job], directory=self.directory, permit_nonzero=self.permit_nonzero)
+            stdout = cexec([job], directory=self.directory,
+                           permit_nonzero=self.permit_nonzero)
             with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
                 f_out.write(stdout)
- 
+
 
 # Store a reference to the Workers
 SERVER_INDEX = collections.defaultdict(list)
@@ -150,11 +151,12 @@ class LocalJobServer(LocalPlatform):
         """
         # Create a new queue
         queue = multiprocessing.Queue()
-        
+
         # Create workers equivalent to the number of jobs
         workers = []
         for _ in range(nproc):
-            wp = _Worker(queue, directory=directory, permit_nonzero=permit_nonzero)
+            wp = _Worker(queue, directory=directory,
+                         permit_nonzero=permit_nonzero)
             wp.start()
             workers.append(wp)
         # Add each command to the queue
@@ -169,7 +171,7 @@ class LocalJobServer(LocalPlatform):
         time.sleep(0.1)
         # Save these workers
         while True:
-            jobid = random.randint(1, 1000) 
+            jobid = random.randint(1, 1000)
             if jobid in SERVER_INDEX:
                 continue
             else:
