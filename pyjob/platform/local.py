@@ -113,6 +113,8 @@ class LocalJobServer(LocalPlatform):
         """
         if jobid in SERVER_INDEX:
             SERVER_INDEX[jobid]["kill_switch"].set()
+            while any(wk.is_alive() for wk in SERVER_INDEX[jobid]["workers"]):
+                continue
             logger.debug("Terminated job %d", jobid)
             SERVER_INDEX.pop(jobid)
         else:

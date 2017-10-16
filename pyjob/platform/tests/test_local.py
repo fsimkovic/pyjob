@@ -40,13 +40,14 @@ class TestLocalJobServer(unittest.TestCase):
             ["import sys, time"],
             ["print(\"I am job: 1\")"],
             ["sys.exit(0)"],
-        ], prefix="unittest")
+        ], directory=".", prefix="unittest")
         l = j.rsplit('.', 1)[0] + '.log'
         LocalJobServer.sub([j], nproc=1)
         time.sleep(0.5)
-        self.assertTrue(os.path.isfile(l))
+        found_the_log = os.path.isfile(l)
         for f in [j, l]:
             os.unlink(f)
+        self.assertTrue(found_the_log)
 
     def test_sub_2(self):
         jobs = [
@@ -54,14 +55,15 @@ class TestLocalJobServer(unittest.TestCase):
                 ["import sys, time"],
                 ["print(\"I am job: {0}\")".format(i)],
                 ["sys.exit(0)"],
-            ], prefix="unittest") for i in range(6)
+            ], directory=".", prefix="unittest") for i in range(6)
         ]
         logs = [j.rsplit('.', 1)[0] + '.log' for j in jobs]
         LocalJobServer.sub(jobs, nproc=2)
         time.sleep(0.5)
-        self.assertTrue(os.path.isfile(logs[-1]))
+        found_all_logs = all(os.path.isfile(f) for f in logs)
         for f in jobs + logs:
             os.unlink(f)
+        self.assertTrue(found_all_logs)
 
     def test_kill_1(self):
         jobs = [
@@ -69,18 +71,21 @@ class TestLocalJobServer(unittest.TestCase):
                 ["import sys, time"],
                 ["time.sleep(5)"],
                 ["sys.exit(0)"],
-            ], prefix="unittest") for i in range(1000)
+            ], directory=".", prefix="unittest") for i in range(10)
         ]
         logs = [j.rsplit('.', 1)[0] + '.log' for j in jobs]
         jobid = LocalJobServer.sub(jobs, nproc=2)
         time.sleep(0.5)
-        self.assertTrue(jobid in SERVER_INDEX)
+        before_kill_in_server_index = jobid in SERVER_INDEX
         LocalJobServer.kill(jobid)
-        self.assertFalse(jobid in SERVER_INDEX)
-        for l in logs:
-            self.assertFalse(os.path.isfile(l))
-        for f in jobs:
-            os.unlink(f)
+        after_kill_in_server_index = jobid in SERVER_INDEX
+        nlogs_found = len([l for l in logs if os.path.isfile(l)])
+        for f in jobs + logs:
+            if os.path.isfile(f):
+                os.unlink(f)
+        self.assertTrue(before_kill_in_server_index)
+        self.assertFalse(after_kill_in_server_index)
+        self.assertEqual(2, nlogs_found)
 
 
 if __name__ == "__main__":
