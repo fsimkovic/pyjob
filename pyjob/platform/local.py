@@ -37,39 +37,43 @@ from pyjob.platform.platform import LocalPlatform
 
 logger = logging.getLogger(__name__)
 
+SERVER_INDEX = collections.defaultdict(dict)
 
-class _Worker(multiprocessing.Process):
+
+class Worker(multiprocessing.Process):
     """Simple manual worker class to execute jobs in the queue"""
 
-    def __init__(self, queue, directory=None, permit_nonzero=False):
+    def __init__(self, queue, kill_switch, directory=None, permit_nonzero=False):
         """Instantiate a new worker
 
         Parameters
         ----------
         queue : obj
            An instance of a :obj:`Queue <multiprocessing.Queue>`
+        kill_switch : obj
+           An instance of a :obj:`Event <multiprocessing.Event>`
         directory : str, optional
            The directory to execute the jobs in
         permit_nonzero : bool, optional
            Allow non-zero return codes [default: False]
 
         """
-        super(_Worker, self).__init__()
+        super(Worker, self).__init__()
+        self.queue = queue
+        self.kill_switch = kill_switch
         self.directory = directory
         self.permit_nonzero = permit_nonzero
-        self.queue = queue
 
     def run(self):
         """Method representing the process's activity"""
         for job in iter(self.queue.get, None):
-            stdout = cexec([job], directory=self.directory,
-                           permit_nonzero=self.permit_nonzero)
-            with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
-                f_out.write(stdout)
-
-
-# Store a reference to the Workers
-SERVER_INDEX = collections.defaultdict(list)
+            if self.kill_switch.is_set():
+                continue
+            else:
+                stdout = cexec([job], directory=self.directory,
+                               permit_nonzero=self.permit_nonzero)
+                with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
+                    f_out.write(stdout)
 
 
 class LocalJobServer(LocalPlatform):
@@ -108,9 +112,7 @@ class LocalJobServer(LocalPlatform):
         
         """
         if jobid in SERVER_INDEX:
-            for wk in SERVER_INDEX[jobid]:
-                if wk.is_alive():
-                    wk.terminate()
+            SERVER_INDEX[jobid]["kill_switch"].set()
             logger.debug("Terminated job %d", jobid)
             SERVER_INDEX.pop(jobid)
         else:
@@ -126,7 +128,7 @@ class LocalJobServer(LocalPlatform):
            The job id to remove
         
         """
-        if SERVER_INDEX and any(wk.is_alive() for wk in SERVER_INDEX[jobid]):
+        if jobid in SERVER_INDEX and any(wk.is_alive() for wk in SERVER_INDEX[jobid]["workers"]):
             return {'job_number': jobid, 'status': "Running"}
         else:
             return {}
@@ -149,32 +151,27 @@ class LocalJobServer(LocalPlatform):
            The maximum runtime of the job in seconds
 
         """
-        # Create a new queue
         queue = multiprocessing.Queue()
-
-        # Create workers equivalent to the number of jobs
+        kill_switch = multiprocessing.Event()
         workers = []
         for _ in range(nproc):
-            wp = _Worker(queue, directory=directory,
-                         permit_nonzero=permit_nonzero)
+            wp = Worker(queue, kill_switch, directory=directory,
+                        permit_nonzero=permit_nonzero)
             wp.start()
             workers.append(wp)
-        # Add each command to the queue
         for cmd in command:
             queue.put(cmd)
-        # Stop workers from exiting without completion
         for _ in range(nproc):
             queue.put(None)
-        # Disallow addition of further jobs
         queue.close()
-        # Need this in case we kill the job immediately after submitting
         time.sleep(0.1)
-        # Save these workers
         while True:
             jobid = random.randint(1, 1000)
-            if jobid in SERVER_INDEX:
-                continue
-            else:
+            if jobid not in SERVER_INDEX:
                 break
-        SERVER_INDEX[jobid] = workers
+        SERVER_INDEX[jobid] = {
+            "queue": queue,
+            "kill_switch": kill_switch,
+            "workers": workers
+        }
         return jobid
