@@ -30,14 +30,14 @@ import time
 import unittest
 
 from pyjob.misc import make_python_script
-from pyjob.platform.local import LocalJobServer, SERVER_INDEX 
+from pyjob.platform.local import LocalJobServer, SERVER_INDEX
 
 
 class TestLocalJobServer(unittest.TestCase):
 
     def test_sub_1(self):
         j = make_python_script([
-            ["import sys, time"], 
+            ["import sys, time"],
             ["print(\"I am job: 1\")"],
             ["sys.exit(0)"],
         ], prefix="unittest")
@@ -45,12 +45,13 @@ class TestLocalJobServer(unittest.TestCase):
         LocalJobServer.sub([j], nproc=1)
         time.sleep(0.5)
         self.assertTrue(os.path.isfile(l))
-        for f in [j, l]: os.unlink(f)
+        for f in [j, l]:
+            os.unlink(f)
 
     def test_sub_2(self):
         jobs = [
             make_python_script([
-                ["import sys, time"], 
+                ["import sys, time"],
                 ["print(\"I am job: {0}\")".format(i)],
                 ["sys.exit(0)"],
             ], prefix="unittest") for i in range(6)
@@ -59,15 +60,16 @@ class TestLocalJobServer(unittest.TestCase):
         LocalJobServer.sub(jobs, nproc=2)
         time.sleep(0.5)
         self.assertTrue(os.path.isfile(logs[-1]))
-        for f in jobs + logs: os.unlink(f)
-    
+        for f in jobs + logs:
+            os.unlink(f)
+
     def test_kill_1(self):
         jobs = [
             make_python_script([
-                ["import sys, time"], 
-                ["time.sleep(100)"],
+                ["import sys, time"],
+                ["time.sleep(5)"],
                 ["sys.exit(0)"],
-            ], prefix="unittest") for i in range(6)
+            ], prefix="unittest") for i in range(1000)
         ]
         logs = [j.rsplit('.', 1)[0] + '.log' for j in jobs]
         jobid = LocalJobServer.sub(jobs, nproc=2)
@@ -77,9 +79,9 @@ class TestLocalJobServer(unittest.TestCase):
         self.assertFalse(jobid in SERVER_INDEX)
         for l in logs:
             self.assertFalse(os.path.isfile(l))
-        for f in jobs: os.unlink(f)
-     
+        for f in jobs:
+            os.unlink(f)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
-
