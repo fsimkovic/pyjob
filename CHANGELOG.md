@@ -2,6 +2,9 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- `LocalJobServer` `Worker` instances are now terminated properly
+
 ### Added
 - Support for PBS/TORQUE added
 ### Changed
