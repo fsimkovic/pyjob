@@ -2,6 +2,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [0.1.5]
 ### Added
 - `MANIFEST.in` file added - thanks @mobiusklein
 
