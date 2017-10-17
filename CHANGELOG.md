@@ -2,6 +2,8 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- `MANIFEST.in` file
 
 ## [0.1.4]
 ### Added
