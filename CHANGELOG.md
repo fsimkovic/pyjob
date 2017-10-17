@@ -3,7 +3,7 @@
 
 ## [Unreleased]
 ### Added
-- `MANIFEST.in` file
+- `MANIFEST.in` file added - thanks @mobiusklein
 
 ## [0.1.4]
 ### Added
