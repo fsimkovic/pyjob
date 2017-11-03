@@ -43,7 +43,7 @@ def is_script(f):
     return os.path.isfile(f) and os.access(f, os.X_OK)
 
 
-def make_script(cmd, directory=None, prefix="tmp", stem=None, suffix=SCRIPT_EXT):
+def make_script(cmd, directory=None, prefix="tmp", shebang=SCRIPT_HEADER, stem=None, suffix=SCRIPT_EXT):
     """Create an executable script
     
     Parameters
@@ -65,23 +65,29 @@ def make_script(cmd, directory=None, prefix="tmp", stem=None, suffix=SCRIPT_EXT)
     str
        The path to the script
 
+    See Also
+    --------
+    make_python_script
+
     """
-    # Get the script name
-    script = tmp_file(delete=True, directory=directory, prefix=prefix, stem=stem, suffix=suffix)
-    # Write the contents to the file
+    content = [shebang]
+    if isinstance(cmd, list) and isinstance(cmd[0], list) \
+            or isinstance(cmd, tuple) and isinstance(cmd[0], tuple) \
+            or isinstance(cmd, list) and isinstance(cmd[0], tuple) \
+            or isinstance(cmd, tuple) and isinstance(cmd[0], list):
+        for c in cmd:
+            content.append(' '.join(map(str, c)))
+    elif isinstance(cmd, list) or isinstance(cmd, tuple):
+            content.append(' '.join(map(str, cmd)))
+    script = tmp_file(delete=True, directory=directory, prefix=prefix,
+                      stem=stem, suffix=suffix)
     with open(script, 'w') as f_out:
-        content = SCRIPT_HEADER + os.linesep
-        if isinstance(cmd, list) and isinstance(cmd[0], list):
-            for c in cmd:
-                content += ' '.join(map(str, c)) + os.linesep
-        elif isinstance(cmd, list):
-            content += ' '.join(map(str, cmd)) + os.linesep
-        f_out.write(content)
+        f_out.write(os.linesep.join(content))
     os.chmod(script, 0o777)
     return script
 
 
-def make_python_script(cmd, directory=None, prefix="tmp", stem=None, suffix='.py'):
+def make_python_script(cmd, directory=None, prefix="tmp", stem=None):
     """Create an executable Python script
 
     Parameters
@@ -103,20 +109,15 @@ def make_python_script(cmd, directory=None, prefix="tmp", stem=None, suffix='.py
     str
        The path to the script
 
+    See Also
+    --------
+    make_script
+
     """
-    # Get the script name
-    script = tmp_file(delete=True, directory=directory, prefix=prefix, stem=stem, suffix=suffix)
-    # Write the contents to the file
-    with open(script, 'w') as f_out:
-        content = "#!/usr/bin/env python" + os.linesep
-        if isinstance(cmd, list) and isinstance(cmd[0], list):
-            for c in cmd:
-                content += ' '.join(map(str, c)) + os.linesep
-        elif isinstance(cmd, list):
-            content += ' '.join(map(str, cmd)) + os.linesep
-        f_out.write(content)
-    os.chmod(script, 0o777)
-    return script
+    return make_script(
+        cmd, directory=directory, shebang="#!/usr/bin/env python",
+        prefix=prefix, stem=stem, suffix=".py"
+    )
 
 
 def tmp_dir(directory=None, prefix="tmp", suffix=""):
@@ -157,12 +158,12 @@ def tmp_file(delete=False, directory=None, prefix="tmp", stem=None, suffix=""):
     if directory is None:
         directory = tempfile.gettempdir()
     if stem is None:
-        tmpf = tempfile.NamedTemporaryFile(delete=delete, dir=directory, prefix=prefix, suffix=suffix)
+        tmpf = tempfile.NamedTemporaryFile(delete=delete, dir=directory,
+                                           prefix=prefix, suffix=suffix)
         tmpf.close()
         return tmpf.name
     else:
-        tmpf = os.path.join(directory, prefix + stem + suffix)
+        tmpf = os.path.join(directory, "".join([prefix, stem, suffix]))
         if not delete:
             open(tmpf, 'w').close()
         return tmpf
-
