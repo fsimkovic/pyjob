@@ -134,38 +134,29 @@ class Job(object):
            A list of one or more scripts with absolute paths
 
         """
-        # Only allow one submission per job
         if self._lock:
-            logger.debug(
-                "This Job instance is locked, for further submissions create a new")
+            logger.debug("This Job instance is locked, for further submissions create a new")
             return
-
-        # Define a directory if not already done
         if not('directory' in kwargs and kwargs['directory']):
             kwargs['directory'] = os.getcwd()
-
-        # Quick check if all scripts are sound - Also keep copy of logs and scripts
         self._script, self._log = Job.check_script(script)
-
-        # See if we need to prepare an array
         if len(self._script) > 1:
             if any(base.__name__ == "ClusterPlatform" for base in self._platform.__bases__):
-                script, _ = prep_array_script(
-                    self._script, kwargs['directory'], self._platform.ARRAY_TASK_ID)
-                kwargs["array"] = [1, len(self._script),
-                                   kwargs['max_array_jobs'] if 'max_array_jobs' in kwargs else len(self._script)]
+                script, _ = prep_array_script(self._script, kwargs['directory'], self._platform.ARRAY_TASK_ID)
+                kwargs["array"] = [1, len(self._script), kwargs['max_array_jobs'] if 'max_array_jobs' in kwargs else len(self._script)]
                 kwargs["shell"] = "/bin/sh"
                 kwargs["log"] = os.devnull
 
                 script = [script]
             else:
                 script = self._script
-        else:
+        elif len(self._script) == 1:
             script = self._script
-
-        # Get the submission function and submit the job
+        else:
+            logger.critical("No script(s) provided!")
+            return
+        logger.debug("Submitting script(s): %s", ",".join(script))
         self._pid = self._platform.sub(script, **kwargs)
-        # Lock this Job so we cannot submit another
         self._lock = True
 
     def stat(self):

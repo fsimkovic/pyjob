@@ -26,6 +26,7 @@ __author__ = "Felix Simkovic"
 __date__ = "03 Jun 2017"
 __version__ = "0.1"
 
+import logging
 import os
 import sys
 import tempfile
@@ -36,6 +37,8 @@ if sys.platform.startswith('win'):
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', '', '.bat')
 else:
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
+
+logger = logging.getLogger(__name__)
 
 
 def Platform(name):
@@ -63,7 +66,7 @@ def platform_factory(qtype):
     """Return the correct platform handler"""
     import warnings
     warnings.warn("This function has been deprecated - use "
-                  + "pyjob.platform.platform() instead")
+                  + "pyjob.platform.Platform() instead")
     return Platform(qtype)
 
 
@@ -87,19 +90,18 @@ def prep_array_script(scripts, directory, task_env):
        The file listing all jobs
 
     """
-    # Write all jobs into an array.jobs file
-    array_jobs = tempfile.NamedTemporaryFile(
-        delete=False, dir=directory, prefix="array_", suffix=".jobs").name
+    array_jobs = tempfile.NamedTemporaryFile(delete=False, dir=directory, prefix="array_", suffix=".jobs").name
+    logger.debug("Writing array jobs script to %s", array_jobs)
     with open(array_jobs, 'w') as f_out:
         f_out.write(os.linesep.join(scripts) + os.linesep)
-    # Create the actual executable script
     array_script = array_jobs.replace(".jobs", ".script")
+    logger.debug("Writing array master script to %s", array_script)
+    content = [
+        SCRIPT_HEADER,
+        'script=$(awk "NR==$' + task_env + '" ' + array_jobs + ')',
+        "log=$(echo $script | sed 's/\.sh/\.log/')",
+        "$script > $log 2>&1" + os.linesep
+    ]
     with open(array_script, "w") as f_out:
-        # Construct the content for the file
-        content = "#!/bin/sh" + os.linesep
-        content += 'script=$(awk "NR==$' + task_env \
-            + '" ' + array_jobs + ')' + os.linesep
-        content += "log=$(echo $script | sed 's/\.sh/\.log/')" + os.linesep
-        content += "$script > $log 2>&1" + os.linesep
-        f_out.write(content)
+       f_out.write(os.linesep.join(content))
     return array_script, array_jobs
