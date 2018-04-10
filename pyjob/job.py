@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2017 Felix Simkovic
+# Copyright (c) 2017-18 Felix Simkovic
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,8 @@
 """Job container for automated launch"""
 
 __author__ = "Felix Simkovic"
-__date__ = "05 Jun 2017"
-__version__ = "0.1"
+__date__ = "10 Apr 2018"
+__version__ = "0.1.1"
 
 import logging
 import os
