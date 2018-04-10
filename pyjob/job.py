@@ -143,7 +143,11 @@ class Job(object):
         if len(self._script) > 1:
             if any(base.__name__ == "ClusterPlatform" for base in self._platform.__bases__):
                 script, _ = prep_array_script(self._script, kwargs['directory'], self._platform.ARRAY_TASK_ID)
-                kwargs["array"] = [1, len(self._script), kwargs['max_array_jobs'] if 'max_array_jobs' in kwargs else len(self._script)]
+                if 'max_array_jobs' in kwargs and kwargs['max_array_jobs'] is not None:
+                    max_array_jobs = kwargs['max_array_jobs']
+                else:
+                    max_array_jobs = len(self._script)
+                kwargs["array"] = [1, len(self._script), max_array_jobs]
                 kwargs["shell"] = "/bin/sh"
                 kwargs["log"] = os.devnull
 
