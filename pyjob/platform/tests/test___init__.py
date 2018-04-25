@@ -42,7 +42,7 @@ class Test(unittest.TestCase):
         with open(array_script) as f_in:
             array_script_content = [l.strip() for l in f_in.readlines()]
         self.assertEqual([
-            "#!/bin/sh",
+            "#!/bin/bash",
             'script=$(awk "NR==$SGE_TASK_ID" ' + array_jobs + ')',
             "log=$(echo $script | sed 's/\.sh/\.log/')",
             "$script > $log 2>&1"
@@ -59,7 +59,7 @@ class Test(unittest.TestCase):
         with open(array_script) as f_in:
             array_script_content = [l.strip() for l in f_in.readlines()]
         self.assertEqual([
-            "#!/bin/sh",
+            "#!/bin/bash",
             'script=$(awk "NR==$LSB_JOBINDEX" ' + array_jobs + ')',
             "log=$(echo $script | sed 's/\.sh/\.log/')",
             "$script > $log 2>&1"
@@ -76,7 +76,7 @@ class Test(unittest.TestCase):
         with open(array_script) as f_in:
             array_script_content = [l.strip() for l in f_in.readlines()]
         self.assertEqual([
-            "#!/bin/sh",
+            "#!/bin/bash",
             'script=$(awk "NR==$RANDOM_TEXT" ' + array_jobs + ')',
             "log=$(echo $script | sed 's/\.sh/\.log/')",
             "$script > $log 2>&1"
@@ -95,7 +95,7 @@ class Test(unittest.TestCase):
         with open(array_script) as f_in:
             array_script_content = [l.strip() for l in f_in.readlines()]
         self.assertEqual([
-            "#!/bin/sh",
+            "#!/bin/bash",
             'script=$(awk "NR==$RANDOM_TEXT" ' + array_jobs + ')',
             "log=$(echo $script | sed 's/\.sh/\.log/')",
             "$script > $log 2>&1"
