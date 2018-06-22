@@ -31,6 +31,7 @@ import logging
 import multiprocessing
 import os
 import random
+import sys
 import time
 
 from pyjob import cexec
@@ -175,7 +176,7 @@ class LocalJobServer(LocalPlatform):
         queue.close()
         time.sleep(0.1)
         while True:
-            jobid = random.randint(1, 1000)
+            jobid = random.randint(1, sys.maxsize)
             if jobid not in SERVER_INDEX:
                 break
         SERVER_INDEX[jobid] = {
