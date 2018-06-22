@@ -29,6 +29,7 @@ __version__ = "0.1"
 import collections
 import logging
 import multiprocessing
+import os
 import random
 import time
 
@@ -43,7 +44,7 @@ SERVER_INDEX = collections.defaultdict(dict)
 class Worker(multiprocessing.Process):
     """Simple manual worker class to execute jobs in the queue"""
 
-    def __init__(self, queue, kill_switch, directory=None, permit_nonzero=False):
+    def __init__(self, queue, kill_switch, directory=None, permit_nonzero=False, chdir=False):
         """Instantiate a new worker
 
         Parameters
@@ -63,6 +64,7 @@ class Worker(multiprocessing.Process):
         self.kill_switch = kill_switch
         self.directory = directory
         self.permit_nonzero = permit_nonzero
+        self.chdir = chdir
 
     def run(self):
         """Method representing the process's activity"""
@@ -70,7 +72,12 @@ class Worker(multiprocessing.Process):
             if self.kill_switch.is_set():
                 continue
             else:
-                stdout = cexec([job], directory=self.directory,
+                if self.chdir:
+                    directory = os.path.dirname(job)
+                else:
+                    directory = self.directory
+
+                stdout = cexec([job], directory=directory,
                                permit_nonzero=self.permit_nonzero)
                 with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
                     f_out.write(stdout)
@@ -136,7 +143,7 @@ class LocalJobServer(LocalPlatform):
             return {}
 
     @staticmethod
-    def sub(command, directory=None, nproc=1, permit_nonzero=False, *args, **kwargs):
+    def sub(command, directory=None, nproc=1, permit_nonzero=False, chdir=False, *args, **kwargs):
         """Submission function for local job submission via ``multiprocessing``
         
         Parameters
@@ -158,7 +165,7 @@ class LocalJobServer(LocalPlatform):
         workers = []
         for _ in range(nproc):
             wp = Worker(queue, kill_switch, directory=directory,
-                        permit_nonzero=permit_nonzero)
+                        permit_nonzero=permit_nonzero, chdir=chdir)
             wp.start()
             workers.append(wp)
         for cmd in command:
