@@ -19,7 +19,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 """PyJob library for Python-controlled job execution across multiple platforms"""
 
 import logging
@@ -38,6 +37,16 @@ __version__ = version.__version__
 def Job(*args, **kwargs):
     from pyjob.job import Job
     return Job(*args, **kwargs)
+
+
+def Pool(*args, **kwargs):
+    from pyjob.pool import Pool
+    return Pool(*args, **kwargs)
+
+
+def Queue(*args, **kwargs):
+    from pyjob.queue import Queue
+    return Queue(*args, **kwargs)
 
 
 def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
@@ -69,8 +78,8 @@ def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
     try:
         logger.debug("Executing '%s'", " ".join(cmd))
         kwargs = {"bufsize": 0, "shell": "False"} if os.name == "nt" else {}
-        p = subprocess.Popen(cmd, cwd=directory, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
-                             stdout=subprocess.PIPE, **kwargs)
+        p = subprocess.Popen(
+            cmd, cwd=directory, stdin=subprocess.PIPE, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, **kwargs)
         # We require the str.encode() and str.decode() functions for Python 2.x and 3.x compatibility
         stdout, _ = p.communicate(input=stdin.encode()) if stdin else p.communicate()
         stdout = stdout.decode()
@@ -80,11 +89,10 @@ def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
             logger.debug("Ignoring non-zero returncode %d for '%s'", p.returncode, " ".join(cmd))
             return stdout.strip()
         else:
-            msg = "Execution of '{0}' exited with non-zero return code ({1}): {2}".format(' '.join(cmd),
-                                                                                          p.returncode, stdout)
+            msg = "Execution of '{0}' exited with non-zero return code ({1}): {2}".format(
+                ' '.join(cmd), p.returncode, stdout)
             raise RuntimeError(msg)
     # Allow ctrl-c's
     except KeyboardInterrupt:
         os.kill(p.pid, signal.SIGTERM)
         sys.exit(signal.SIGTERM)
-

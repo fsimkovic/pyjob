@@ -2,6 +2,13 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Extended total number of independent jobs allowed on local server
+- `Pool` contextmanager added to allow proper clear-up ... built around `multiprocessing.Pool`
+
+### Changed
+- `Job` renamed to `Queue` although backwards compatible
+- `Queue` can be used as context
 
 ## [0.1.5]
 ### Added

@@ -19,7 +19,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 """Module to store PortableBatchSystem cluster management platform code"""
 
 __author__ = "Felix Simkovic"
@@ -65,8 +64,7 @@ class PortableBatchSystem(ClusterPlatform):
         cmd = ["qalter"]
         if priority:
             cmd += ["-p", str(priority)]
-            logger.debug("Altered priority for job %s by %s",
-                         str(jobid), str(priority))
+            logger.debug("Altered priority for job %s by %s", str(jobid), str(priority))
         cmd += [str(jobid)]
         cexec(cmd)
 
@@ -124,8 +122,8 @@ class PortableBatchSystem(ClusterPlatform):
            A dictionary with job specific data
 
         """
-        line_split1 = re.compile(":\s+")
-        line_split2 = re.compile("\s+=\s+")
+        line_split1 = re.compile(":\\s+")
+        line_split2 = re.compile("\\s+=\\s+")
 
         stdout = cexec(["qstat", "-f", str(jobid)], permit_nonzero=True)
         all_lines = stdout.split(os.linesep)
@@ -145,8 +143,18 @@ class PortableBatchSystem(ClusterPlatform):
         return data
 
     @staticmethod
-    def sub(command, array=None, directory=None, hold=False, log=None, name=None,
-            priority=None, queue=None, runtime=None, shell=None, *args, **kwargs):
+    def sub(command,
+            array=None,
+            directory=None,
+            hold=False,
+            log=None,
+            name=None,
+            priority=None,
+            queue=None,
+            runtime=None,
+            shell=None,
+            *args,
+            **kwargs):
         """Submit a job to the PBS queue
 
         Parameters

@@ -19,7 +19,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 """Testing facility for pyjob.job"""
 
 __author__ = "Felix Simkovic"
@@ -30,19 +29,18 @@ import os
 import unittest
 
 from pyjob.exception import PyJobError
-from pyjob.job import Job
+from pyjob.job import Queue
 from pyjob.misc import SCRIPT_EXT, make_script, tmp_file
 
 # Only need to check two, one for cluster and local
 platform = "sge" if "SGE_ROOT" in os.environ else "local"
 
 
-class TestJob(unittest.TestCase):
-
+class TestQueue(unittest.TestCase):
     def test_submit_1(self):
         ss = make_script(["sleep 1"])
         ls = ss.replace(SCRIPT_EXT, ".log")
-        j = Job(platform)
+        j = Queue(platform)
         j.submit(ss, nproc=2, log=ls)
         j.wait()
         for f in [ss, ls]:
@@ -51,7 +49,7 @@ class TestJob(unittest.TestCase):
     def test_submit_2(self):
         ss = [make_script(["sleep 1"])]
         ls = [ss[0].replace(SCRIPT_EXT, ".log")]
-        j = Job(platform)
+        j = Queue(platform)
         j.submit(ss, nproc=2, log=ls[0])
         j.wait()
         for f in ss + ls:
@@ -60,7 +58,7 @@ class TestJob(unittest.TestCase):
     def test_submit_3(self):
         ss = [make_script(["sleep 1"]) for _ in range(5)]
         ls = [f.replace(SCRIPT_EXT, ".log") for f in ss]
-        j = Job(platform)
+        j = Queue(platform)
         j.submit(ss, nproc=2, log=os.devnull)
         j.wait()
         for f in ss + ls + glob.glob("array_*"):
@@ -69,7 +67,7 @@ class TestJob(unittest.TestCase):
     def test_check_script_1(self):
         ss = [make_script(["sleep 1"])]
         ls = [f.replace(SCRIPT_EXT, ".log") for f in ss]
-        s, l = Job.check_script(ss)
+        s, l = Queue.check_script(ss)
         self.assertEqual(ss, s)
         self.assertEqual(ls, l)
         for f in ss:
@@ -78,7 +76,7 @@ class TestJob(unittest.TestCase):
     def test_check_script_2(self):
         ss = [make_script(["sleep 1"]) for _ in range(5)]
         ls = [f.replace(SCRIPT_EXT, ".log") for f in ss]
-        s, l = Job.check_script(ss)
+        s, l = Queue.check_script(ss)
         self.assertEqual(ss, s)
         self.assertEqual(ls, l)
         for f in ss:
@@ -87,7 +85,7 @@ class TestJob(unittest.TestCase):
     def test_check_script_3(self):
         ss = make_script(["sleep 1"])
         ls = ss.replace(SCRIPT_EXT, ".log")
-        s, l = Job.check_script(ss)
+        s, l = Queue.check_script(ss)
         self.assertEqual([ss], s)
         self.assertEqual([ls], l)
         os.unlink(ss)
@@ -96,7 +94,7 @@ class TestJob(unittest.TestCase):
         ss = tmp_file(delete=False)
         with open(ss, "w") as f_out:
             f_out.write("sleep 1")
-        self.assertRaises(PyJobError, Job.check_script, ss)
+        self.assertRaises(PyJobError, Queue.check_script, ss)
 
 
 if __name__ == "__main__":
