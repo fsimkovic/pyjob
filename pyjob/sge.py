@@ -42,8 +42,9 @@ class SunGridEngine(ClusterQueue):
         super(SunGridEngine, self).__init__()
 
     def kill(self):
-        cmd = ['qdel', ' '.join(map(str, self.queue))]
-        cexec(cmd)
+        if len(self.queue) > 0:
+            cmd = ['qdel', ' '.join(map(str, self.queue))]
+            cexec(cmd)
 
     def submit(self, script, array=None, deps=None, name=None, pe_opts=None,
                priority=None, queue=None, runtime=None, shell=None, threads=None):
@@ -53,6 +54,7 @@ class SunGridEngine(ClusterQueue):
             master, _ = self.prep_array_script(script, '.')
             script = [master]
             log = None 
+            shell = '/bin/sh'
 
         cmd = ['qsub', '-cwd', '-V', '-w', 'e', '-j', 'y']
 	if array and len(array) == 3:
@@ -62,7 +64,7 @@ class SunGridEngine(ClusterQueue):
         if deps:
             cmd += ["-hold_jid", "{0}".format(",".join(map(str, deps)))]
         if log:
-            cmd += ["-o", log]
+            cmd += ["-o", log[0]]
         if name:
             cmd += ["-N", name]
         if pe_opts:
@@ -85,10 +87,12 @@ class SunGridEngine(ClusterQueue):
 
     def wait(self):
         while len(self.queue) > 0:
-            for jobid in reversed(self.queue):
-                cmd = ['qstat', '-j', str(jobid)]
+            i = len(self.queue)
+            while i > 0:
+                cmd = ['qstat', '-j', str(self.queue[i - 1])]
                 stdout = cexec(cmd, permit_nonzero=True)
                 for line in stdout.split(os.linesep):    
                     if 'jobs do not exist' in line:    
-                        self.queue.pop(jobid)
+                        self.queue.pop(i - 1)
+                i -= 1
             sleep(2)
