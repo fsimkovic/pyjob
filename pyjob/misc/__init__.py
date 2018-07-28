@@ -20,16 +20,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Various functions"""
-
-__author__ = "Felix Simkovic"
-__date__ = "03 Jun 2017"
-__version__ = "0.1"
+__author__ = 'Felix Simkovic'
+__version__ = '1.0'
 
 import os
+import sys
 import tempfile
 
-from pyjob.platform import SCRIPT_EXT, SCRIPT_HEADER
+if sys.platform.startswith('win'):
+    EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', '', '.bat')
+else:
+    EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
 
 
 def StopWatch():
