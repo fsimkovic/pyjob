@@ -50,19 +50,23 @@ class SunGridEngine(ClusterQueue):
                priority=None, queue=None, runtime=None, shell=None, threads=None):
 
         script, log = self.__class__.check_script(script) 
-        if len(script) > 1:
+        nscripts = len(script)
+
+        if nscripts > 1:
             master, _ = self.prep_array_script(script, '.')
             script = [master]
-            log = None 
+            log = [os.devnull]
             shell = '/bin/sh'
+            if array is None:
+                array = [1, nscripts, nscripts]
 
         cmd = ['qsub', '-cwd', '-V', '-w', 'e', '-j', 'y']
 	if array and len(array) == 3:
-            cmd += ["-t", "{0}-{1}".format(array[0], array[1]), "-tc", str(array[2])]                                         
+            cmd += ["-t", "{}-{}".format(array[0], array[1]), "-tc", str(array[2])]                                         
         elif array and len(array) == 2:
-            cmd += ["-t", "{0}-{1}".format(array[0], array[1])]
+            cmd += ["-t", "{}-{}".format(array[0], array[1])]
         if deps:
-            cmd += ["-hold_jid", "{0}".format(",".join(map(str, deps)))]
+            cmd += ["-hold_jid", "{}".format(",".join(map(str, deps)))]
         if log:
             cmd += ["-o", log[0]]
         if name:
@@ -74,7 +78,7 @@ class SunGridEngine(ClusterQueue):
         if queue:
             cmd += ["-q", queue]
         if runtime:
-            cmd += ["-l", "h_rt={0}".format(runtime)]
+            cmd += ["-l", "h_rt={}".format(runtime)]
         if shell:
             cmd += ["-S", shell]
         if threads:
@@ -82,7 +86,7 @@ class SunGridEngine(ClusterQueue):
         
         stdout = cexec(cmd + script)
 
-        jobid = int(stdout.split()[2])
+        jobid = int(stdout.split()[2]) if nscripts == 1 else int(stdout.split()[2].split('.')[0])
         self.queue.append(jobid)
 
     def wait(self):
@@ -95,4 +99,4 @@ class SunGridEngine(ClusterQueue):
                     if 'jobs do not exist' in line:    
                         self.queue.pop(i - 1)
                 i -= 1
-            sleep(2)
+            sleep(5)
