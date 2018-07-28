@@ -38,14 +38,12 @@ from pyjob.queue import Queue
 logger = logging.getLogger(__name__)
 
 
-
 class LocalJobServer(Queue):
-
     def __init__(self, processes=1):
         super(LocalJobServer, self).__init__()
         self.pid = uuid.uuid1()
         self.nprocesses = processes
-        self.processes = Processes(processes=self.nprocesses)
+        self.processes = None
 
     def kill(self):
         self.processes.terminate()
@@ -55,6 +53,8 @@ class LocalJobServer(Queue):
         if isinstance(command, str):
             command = [command]
         logger.debug('Submitting %d new job(s)', len(command))
+        if self.processes is None:
+            self.processes = Processes(processes=self.nprocesses)
         for cmd in command:
             self.processes.queue.put(cmd)
         sleep(0.1)
@@ -62,11 +62,10 @@ class LocalJobServer(Queue):
     def wait(self, timeout=None):
         self.processes.join(timeout=timeout)
         self.processes.terminate()
-        self.processes = Processes(processes=self.nprocesses)
+        self.processes = None
 
 
 class Processes(object):
-
     def __init__(self, processes=1):
         self.nprocesses = processes
         self.queue = MpQueue()
@@ -91,8 +90,12 @@ class Processes(object):
 
 
 class Process(MpProcess):
-    
-    def __init__(self, queue, kill_switch, directory='.', chdir=False, permit_nonzero=False):
+    def __init__(self,
+                 queue,
+                 kill_switch,
+                 directory='.',
+                 chdir=False,
+                 permit_nonzero=False):
         super(Process, self).__init__()
         self.queue = queue
         self.kill_switch = kill_switch
@@ -106,6 +109,7 @@ class Process(MpProcess):
             if self.kill_switch.is_set():
                 continue
             directory = os.path.dirname(job) if self.chdir else self.directory
-            stdout = cexec([job], directory=directory, permit_nonzero=self.permit_nonzero)
+            stdout = cexec(
+                [job], directory=directory, permit_nonzero=self.permit_nonzero)
             with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
                 f_out.write(stdout)

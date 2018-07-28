@@ -46,10 +46,19 @@ class SunGridEngine(ClusterQueue):
             cmd = ['qdel', ' '.join(map(str, self.queue))]
             cexec(cmd)
 
-    def submit(self, script, array=None, deps=None, name=None, pe_opts=None,
-               priority=None, queue=None, runtime=None, shell=None, threads=None):
+    def submit(self,
+               script,
+               array=None,
+               deps=None,
+               name=None,
+               pe_opts=None,
+               priority=None,
+               queue=None,
+               runtime=None,
+               shell=None,
+               threads=None):
 
-        script, log = self.__class__.check_script(script) 
+        script, log = self.__class__.check_script(script)
         nscripts = len(script)
 
         if nscripts > 1:
@@ -61,8 +70,11 @@ class SunGridEngine(ClusterQueue):
                 array = [1, nscripts, nscripts]
 
         cmd = ['qsub', '-cwd', '-V', '-w', 'e', '-j', 'y']
-	if array and len(array) == 3:
-            cmd += ["-t", "{}-{}".format(array[0], array[1]), "-tc", str(array[2])]                                         
+        if array and len(array) == 3:
+            cmd += [
+                '-t', '{}-{}'.format(array[0], array[1]), '-tc',
+                str(array[2])
+            ]
         elif array and len(array) == 2:
             cmd += ["-t", "{}-{}".format(array[0], array[1])]
         if deps:
@@ -83,10 +95,12 @@ class SunGridEngine(ClusterQueue):
             cmd += ["-S", shell]
         if threads:
             cmd += ["-pe mpi", str(threads)]
-        
-        stdout = cexec(cmd + script)
 
-        jobid = int(stdout.split()[2]) if nscripts == 1 else int(stdout.split()[2].split('.')[0])
+        stdout = cexec(cmd + script)
+        if nscripts == 1:
+            jobid = int(stdout.split()[2])
+        else:
+            jobid = int(stdout.split()[2].split('.')[0])
         self.queue.append(jobid)
 
     def wait(self):
@@ -95,8 +109,8 @@ class SunGridEngine(ClusterQueue):
             while i > 0:
                 cmd = ['qstat', '-j', str(self.queue[i - 1])]
                 stdout = cexec(cmd, permit_nonzero=True)
-                for line in stdout.split(os.linesep):    
-                    if 'jobs do not exist' in line:    
+                for line in stdout.split(os.linesep):
+                    if 'jobs do not exist' in line:
                         self.queue.pop(i - 1)
                 i -= 1
             sleep(5)
