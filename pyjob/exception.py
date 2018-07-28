@@ -19,18 +19,19 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 """Module to store PyJob-specific exceptions"""
 
-__author__ = "Felix Simkovic"
-
-
-class PyJobUnknownPlatform(Exception):
-    """Raise for unknown job management platform"""
-    pass
+__author__ = 'Felix Simkovic'
+__version__ = '1.0'
 
 
 class PyJobError(Exception):
-    """Raise a general PyJob exception"""
     pass
 
+
+class PyJobUnknownQueue(PyJobError):
+    pass
+
+
+class PyJobExecutionError(PyJobError):
+    pass

@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""Module to contain executing functions"""
 
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
@@ -29,11 +30,13 @@ import signal
 import subprocess
 import sys
 
+from pyjob.exception import PyJobExecutionError
+
 logger = logging.getLogger(__name__)
 
 
 def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
-    """Execute a command
+    """Function to execute a command
 
     Parameters
     ----------
@@ -53,7 +56,7 @@ def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
 
     Raises
     ------
-    RuntimeError
+    PyJobExecutionError
        Execution exited with non-zero return code
 
     """
@@ -76,9 +79,9 @@ def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
         if p.returncode == 0:
             return stdout.strip()
         elif permit_nonzero:
-            logger.debug("Ignoring non-zero returncode %d for '%s'", p.returncode, " ".join(cmd))
+            logger.debug("Ignoring non-zero returncode %d for '%s'",
+                         p.returncode, " ".join(cmd))
             return stdout.strip()
         else:
-            msg = "Execution of '{}' exited with non-zero return code ({})".format(' '.join(cmd), p.returncode)
-            raise RuntimeError(msg)
-
+            msg = "Execution of '{}' exited with non-zero return code ({})"
+            raise PyJobExecutionError(msg.format(' '.join(cmd), p.returncode))
