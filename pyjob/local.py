@@ -46,23 +46,25 @@ class LocalJobServer(Queue):
         self.processes = None
 
     def kill(self):
-        self.processes.terminate()
-        self.processes.queue.close()
+        if self.processes:
+            self.processes.terminate()
+            self.processes.queue.close()
+            self.processes = None
 
     def submit(self, command):
         if isinstance(command, str):
             command = [command]
-        logger.debug('Submitting %d new job(s)', len(command))
-        if self.processes is None:
+        if not self.processes:
             self.processes = Processes(processes=self.nprocesses)
         for cmd in command:
             self.processes.queue.put(cmd)
         sleep(0.1)
+        logger.debug('Submitted %d new job(s)', len(command))
 
     def wait(self, timeout=None):
-        self.processes.join(timeout=timeout)
-        self.processes.terminate()
-        self.processes = None
+        if self.processes:
+            self.processes.join(timeout=timeout)
+            self.kill()
 
 
 class Processes(object):
