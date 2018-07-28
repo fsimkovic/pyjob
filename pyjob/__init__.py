@@ -20,18 +20,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pyjob import version
-
 __author__ = 'Felix Simkovic'
+from pyjob import version
 __version__ = version.__version__
 
-
-def Pool(*args, **kwargs):
-    from pyjob.pool import Pool
-    return Pool(*args, **kwargs)
+from pyjob.cexec import cexec
+from pyjob.pool import Pool
 
 
-def Queue(platform, *args, **kwargs):
+def QueueFactory(platform, *args, **kwargs):
+    """Accessibility function for any :obj:`Queue <pyjob.queue.Queue>`
+    
+    Parameters
+    ----------
+    platform : str
+       The platform to create the queue on
+
+    """
     platform = platform.lower()
     if platform == 'local':
         from pyjob.local import LocalJobServer
