@@ -85,6 +85,7 @@ class ClusterQueue(Queue):
         self.queue = []
 
     def prep_array_script(self, scripts, directory):
+        _, extension = os.path.splitext(scripts[0])
         array_jobs = NamedTemporaryFile(delete=False, dir=directory, prefix='array_', suffix='.jobs').name
         logger.debug('Writing array jobs script to %s', array_jobs)
         with open(array_jobs, 'w') as f_out:
@@ -94,7 +95,7 @@ class ClusterQueue(Queue):
         content = [
             SCRIPT_HEADER,
             'script=$(awk "NR==$' + self.__class__.TASK_ENV + '" ' + array_jobs + ')',
-            "log=$(echo $script | sed 's/\.sh/\.log/')",
+            "log=$(echo $script | sed 's/\{}/\.log/')".format(extension),
             '$script > $log 2>&1' + os.linesep
         ]
         with open(array_script, 'w') as f_out:
