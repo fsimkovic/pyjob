@@ -37,7 +37,6 @@ logger = logging.getLogger(__name__)
 ABC = abc.ABCMeta('ABC', (object, ), {})
 
 
-
 class Queue(ABC):
 
     def __init__(self):
