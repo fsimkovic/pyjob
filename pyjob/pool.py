@@ -29,6 +29,20 @@ from multiprocessing import Pool
 
 @contextmanager
 def Pool(*args, **kwargs):
+    """:obj:`~multiprocessing.pool.Pool` of processes to allow concurrent method calls
+    
+    This function creates a context for normal :obj:`~multiprocessing.pool.Pool` 
+    instances. This allows controlled termination for :obj:`RuntimeError` 
+    and :obj:`KeyboardInterrupt` exceptions.
+
+    Examples
+    --------
+
+    >>> from pyjob import Pool
+    >>> with Pool(processes=4) as pool:
+    ...     pool.map(callable, [iterable])
+
+    """
     pool = Pool(*args, **kwargs)
     try:
         yield pool

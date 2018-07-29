@@ -39,6 +39,28 @@ logger = logging.getLogger(__name__)
 
 
 class LocalJobServer(Queue):
+    """
+
+    Examples
+    --------
+
+    The recommended way to use a :obj:`~pyjob.queue.Queue` is by
+    creating a context and perform all actions within. The context will
+    not be left until all submitted scripts have executed.
+
+    >>> with LocalJobServer(processes=2) as queue:
+    ...     queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
+    
+    A :obj:`~pyjob.queue.Queue` instance can also be assigned to a
+    variable and used throughout. However, it is required to close the 
+    :obj:`~pyjob.queue.Queue` explicitly.
+
+    >>> queue = LocalJobServer(processes=2)
+    >>> queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
+    >>> queue.close()
+
+    """
+
     def __init__(self, processes=1):
         super(LocalJobServer, self).__init__()
         self.pid = uuid.uuid1()

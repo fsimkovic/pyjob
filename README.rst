@@ -44,7 +44,7 @@ Quickstart
    >>> with QueueFactory('local', processes=1) as queue:
    ...     queue.submit('run.sh')
 
-The first argument to the :obj:`QueueFactory <pyjob.queue.QueueFactory>` defines the platform for which the :obj:`Queue <pyjob.queue.Queue>` is created. Different platforms are available, and their commonly used abbreviations can be used. 
+The first argument to the :obj:`~pyjob.queue.QueueFactory` defines the platform for which the :obj:`~pyjob.queue.Queue` is created. Different platforms are available, and their commonly used abbreviations can be used. 
 
 +-------------------------+----------+
 | Platform                | Argument | 
@@ -53,6 +53,7 @@ The first argument to the :obj:`QueueFactory <pyjob.queue.QueueFactory>` defines
 +-------------------------+----------+
 | Sun Grid Engine         | `sge`    |
 +-------------------------+----------+
+
 .. | Load Sharing Facility   | `lsf`    |
 .. +-------------------------+----------+
 .. | Portable Batch System   | `pbs`    |
@@ -65,7 +66,7 @@ The first argument to the :obj:`QueueFactory <pyjob.queue.QueueFactory>` defines
 .. code-block:: python
 
    >>> from pyjob import QueueFactory
-   >>> with QueueFactory('sge') as queue:
+   >>> with QueueFactory('local', processes=2) as queue:
    ...     queue.submit(['run_1.sh', 'run_2.sh'])
 
 
@@ -76,5 +77,3 @@ The first argument to the :obj:`QueueFactory <pyjob.queue.QueueFactory>` defines
    >>> from pyjob import Pool
    >>> with Pool(processes=4) as pool:
    ...     pool.map(f, args)
-
-The implementation of :obj:`Pool <pyjob.pool.Pool>` creates a context for :obj:`multiprocessing.Pool` to allow easier termination of threads and catch exceptions.

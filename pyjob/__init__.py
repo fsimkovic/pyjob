@@ -27,6 +27,3 @@ __version__ = version.__version__
 from pyjob.cexec import cexec
 from pyjob.pool import Pool
 from pyjob.queue import QueueFactory
-
-
-
