@@ -37,6 +37,24 @@ logger = logging.getLogger(__name__)
 ABC = abc.ABCMeta('ABC', (object, ), {})
 
 
+def QueueFactory(platform, *args, **kwargs):
+    """Accessibility function for any :obj:`Queue <pyjob.queue.Queue>`
+    
+    Parameters
+    ----------
+    platform : str
+       The platform to create the queue on
+
+    """
+    platform = platform.lower()
+    if platform == 'local':
+        from pyjob.local import LocalJobServer
+        return LocalJobServer(*args, **kwargs)
+    elif platform == 'sge':
+        from pyjob.sge import SunGridEngine
+        return SunGridEngine(*args, **kwargs)
+
+
 class Queue(ABC):
 
     def __init__(self):

@@ -36,7 +36,7 @@ Installation
 Quickstart
 ++++++++++
 
-** Single script**
+**Single script**
 
 .. code-block:: python
 
@@ -44,8 +44,7 @@ Quickstart
    >>> with QueueFactory('local', processes=1) as queue:
    ...     queue.submit('run.sh')
 
-The first argument added to the constructor call --- `local` in the above example --- defines the platform.
-Different platforms are available, and their commonly used abbreviations can be used. 
+The first argument to the :obj:`QueueFactory <pyjob.queue.QueueFactory>` defines the platform for which the :obj:`Queue <pyjob.queue.Queue>` is created. Different platforms are available, and their commonly used abbreviations can be used. 
 
 +-------------------------+----------+
 | Platform                | Argument | 
