@@ -34,7 +34,7 @@ from pyjob.queue import ClusterQueue
 logger = logging.getLogger(__name__)
 
 
-class SunGridEngine(ClusterQueue):
+class LoadSharingFacility(ClusterQueue):
     """
 
     Examples
@@ -44,36 +44,43 @@ class SunGridEngine(ClusterQueue):
     creating a context and perform all actions within. The context will
     not be left until all submitted scripts have executed.
 
-    >>> with SunGridEngine() as queue:
+    >>> with LoadSharingFacility() as queue:
     ...     queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
     
     A :obj:`~pyjob.queue.Queue` instance can also be assigned to a
     variable and used throughout. However, it is required to close the 
     :obj:`~pyjob.queue.Queue` explicitly.
 
-    >>> queue = SungGridEngine()
+    >>> queue = LoadSharingFacility()
     >>> queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
     >>> queue.close()
 
     """
 
-    TASK_ENV = 'SGE_TASK_ID'
+    ARRAY_TASK_ID = 'LSB_JOBINDEX'
 
     def __init__(self, *args, **kwargs):
-        super(SunGridEngine, self).__init__(*args, **kwargs)
+        super(LoadSharingFacility, self).__init__(*args, **kwargs)
 
     def kill(self):
         if len(self.queue) > 0:
-            cmd = ['qdel', ' '.join(map(str, self.queue))]
-            cexec(cmd)
-            self.queue = []
+            cmd = ['bkill', str(jobid)]
+            stdout = cexec(cmd, permit_nonzero=True)
+            if "is in progress" in stdout:
+                stdout = cexec(['bkill', '-b', str(jobid)], permit_nonzero=True)
+                sleep(10)
+            if any(text in stdout for text in ["has already finished", "is being terminated", "is in progress"]):
+                self.queue = []
+            else:
+                raise RuntimeError('Cannot delete jobs from %s!' % self.__class__.__name__)
 
     def submit(self,
                script,
                array=None,
                deps=None,
+               hold=False,
+               log=None,
                name=None,
-               pe_opts=None,
                priority=None,
                queue=None,
                runtime=None,
@@ -91,45 +98,42 @@ class SunGridEngine(ClusterQueue):
             if array is None:
                 array = [1, nscripts, nscripts]
 
-        cmd = ['qsub', '-cwd', '-V', '-w', 'e', '-j', 'y']
-        if array and len(array) == 3:
-            cmd += ['-t', '{}-{}'.format(array[0], array[1]), '-tc', str(array[2])]
-        elif array and len(array) == 2:
-            cmd += ["-t", "{}-{}".format(array[0], array[1])]
+        cmd = ['bsub', '-cwd', os.getcwd()]
+        if array:
+            name = "pyjob" if name is None else name
+            if len(array) == 3:
+                cmd += ["-J", "{0}[{1}-{2}%{3}]".format(name, array[0], array[1], array[2])]
+            elif len(array) == 2:
+                cmd += ["-J", "{0}[{1}-{2}]".format(name, array[0], array[1])]
+            name = None  # Reset this!
         if deps:
-            cmd += ["-hold_jid", "{}".format(",".join(map(str, deps)))]
+            cmd += ["-w", " && ".join(["done(%s)" % dep for dep in map(str, deps)])]
         if log:
-            cmd += ["-o", log[0]]
+            cmd += ["-o", log]
         if name:
-            cmd += ["-N", name]
-        if pe_opts:
-            cmd += ["-pe"] + pe_opts.split()
+            cmd += ["-J", '"{0}"'.format(name)]
         if priority:
-            cmd += ["-p", str(priority)]
+            cmd += ["-sp", str(priority)]
         if queue:
             cmd += ["-q", queue]
-        if runtime:
-            cmd += ["-l", "h_rt={}".format(runtime)]
         if shell:
-            cmd += ["-S", shell]
+            cmd += ["-L", shell]
         if threads:
-            cmd += ["-pe mpi", str(threads)]
+            cmd += ["-R", '"span[ptile={0}]"'.format(threads)]
+        if runtime:
 
-        stdout = cexec(cmd + script)
-        if nscripts == 1:
-            jobid = int(stdout.split()[2])
-        else:
-            jobid = int(stdout.split()[2].split('.')[0])
+            cmd += ["-W", str(runtime)]
+        stdout = cexec(cmd, stdin=open(script[0]).read())
+        jobid = int(stdout.split()[1][1:-1])
         self.queue.append(jobid)
 
     def wait(self):
         while len(self.queue) > 0:
             i = len(self.queue)
             while i > 0:
-                cmd = ['qstat', '-j', str(self.queue[i - 1])]
-                stdout = cexec(cmd, permit_nonzero=True)
-                for line in stdout.split(os.linesep):
-                    if 'jobs do not exist' in line:
-                        self.queue.pop(i - 1)
+                cmd = ['bjobs', '-l', str(self.queue[i - 1])]
+                stdout = cexec(cmd)
+                if "Done successfully" in stdout:
+                    self.queue.pop(i - 1)
                 i -= 1
             sleep(5)

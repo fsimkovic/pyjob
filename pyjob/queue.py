@@ -38,6 +38,7 @@ ABC = abc.ABCMeta('ABC', (object, ), {})
 # TODO: make this dynamic
 QUEUES = {
     'local': ('pyjob.local', 'LocalJobServer'),
+    'lsf': ('pyjob.lsf', 'LoadSharingFacility'),
     'pbs': ('pyjob.pbs', 'PortableBatchSystem'),
     'sge': ('pyjob.sge', 'SunGridEngine'),
 }

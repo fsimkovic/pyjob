@@ -66,6 +66,7 @@ class PortableBatchSystem(ClusterQueue):
         if len(self.queue) > 0:
             cmd = ['qdel', ' ', join(map(str, self.queue))]
             cexec(cmd)
+            self.queue = []
 
     def submit(self, script, array=None, log=None, name=None, priority=None, queue=None, runtime=None, shell=None):
 
@@ -102,10 +103,7 @@ class PortableBatchSystem(ClusterQueue):
             cmd += ["-S", shell]
 
         stdout = cexec(cmd + script)
-        if nscripts == 1:
-            jobid = int(stdout.split()[2])
-        else:
-            jobid = int(stdout.split()[2].split('.')[0])
+        jobid = stdout
         self.queue.append(jobid)
 
     def wait(self):
