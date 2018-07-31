@@ -57,9 +57,8 @@ The first argument to the :obj:`~pyjob.queue.QueueFactory` defines the platform 
 +-------------------------+----------+
 | Sun Grid Engine         | `sge`    |
 +-------------------------+----------+
-
-.. | TORQUE Resource Manager | `torque` |
-.. +-------------------------+----------+
+| TORQUE Resource Manager | `torque` |
++-------------------------+----------+
 
 **Multiple scripts**
 

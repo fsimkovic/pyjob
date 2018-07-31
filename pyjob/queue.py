@@ -41,6 +41,7 @@ QUEUES = {
     'lsf': ('pyjob.lsf', 'LoadSharingFacility'),
     'pbs': ('pyjob.pbs', 'PortableBatchSystem'),
     'sge': ('pyjob.sge', 'SunGridEngine'),
+    'torque': ('pyjob.pbs', 'PortableBatchSystem'),
 }
 
 logger = logging.getLogger(__name__)
