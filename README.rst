@@ -78,8 +78,8 @@ The first argument to the :obj:`~pyjob.queue.QueueFactory` defines the platform 
    >>> with Pool(processes=4) as pool:
    ...     pool.map(f, args)
 
-**Script execution from BASH shell**
+**Script execution from a shell**
 
 .. code-block:: bash
 
-   $> python -m pyjob run_1.sh run_2.sh
+   $> python -m pyjob <SCRIPTS>

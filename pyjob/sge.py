@@ -35,6 +35,27 @@ logger = logging.getLogger(__name__)
 
 
 class SunGridEngine(ClusterQueue):
+    """
+
+    Examples
+    --------
+
+    The recommended way to use a :obj:`~pyjob.queue.Queue` is by
+    creating a context and perform all actions within. The context will
+    not be left until all submitted scripts have executed.
+
+    >>> with SunGridEngine() as queue:
+    ...     queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
+    
+    A :obj:`~pyjob.queue.Queue` instance can also be assigned to a
+    variable and used throughout. However, it is required to close the 
+    :obj:`~pyjob.queue.Queue` explicitly.
+
+    >>> queue = SungGridEngine()
+    >>> queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
+    >>> queue.close()
+
+    """
 
     TASK_ENV = 'SGE_TASK_ID'
 

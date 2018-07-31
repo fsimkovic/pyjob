@@ -29,12 +29,13 @@ import os
 import sys
 
 from pyjob import QueueFactory
+from pyjob.queue import QUEUES
 from pyjob import version
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
     p.add_argument('-d', '--directory', default='.')
-    p.add_argument('-p', '--platform', choices=['local', 'sge'], default='local')
+    p.add_argument('-p', '--platform', choices=QUEUES.keys(), default='local')
     p.add_argument('-t', '--threads', default=1, type=int)
     p.add_argument('--change-dir', default=False, action='store_true')
     p.add_argument('--permit-nonzero', default=False, action='store_true')
