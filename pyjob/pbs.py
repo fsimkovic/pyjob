@@ -29,7 +29,7 @@ import logging
 import os
 
 from pyjob.cexec import cexec
-from pyjob.platform.platform import ClusterPlatform
+from pyjob.queue import ClusterQueue
 
 logger = logging.getLogger(__name__)
 

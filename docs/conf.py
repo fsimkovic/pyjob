@@ -14,6 +14,7 @@
 
 import os
 import sys
+sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
@@ -22,6 +23,7 @@ project = 'PyJob'
 copyright = '2018, Felix Simkovic'
 author = 'Felix Simkovic'
 
+import sphinx_bootstrap_theme
 import pyjob
 version = pyjob.__version__
 release = version
@@ -81,13 +83,17 @@ autodoc_docstring_signature = True
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'bootstrap'
+html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    'bootswatch_theme': 'united',
+    'bootstrap_version': '3',
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -133,8 +139,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'PyJob.tex', 'PyJob Documentation', 'Felix Simkovic',
-     'manual'),
+    (master_doc, 'PyJob.tex', 'PyJob Documentation', 'Felix Simkovic', 'manual'),
 ]
 
 # -- Options for manual page output ------------------------------------------
@@ -149,19 +154,14 @@ man_pages = [(master_doc, 'pyjob', 'PyJob Documentation', [author], 1)]
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'PyJob', 'PyJob Documentation', author, 'PyJob',
-     'One line description of project.', 'Miscellaneous'),
+    (master_doc, 'PyJob', 'PyJob Documentation', author, 'PyJob', 'One line description of project.', 'Miscellaneous'),
 ]
 
 
 # -- Extension configuration -------------------------------------------------
 def run_apidoc(_):
     ignore_paths = []
-    argv = [
-        '-f', '-T', '-e', '-M', '-o',
-        os.path.join('_build', 'apidoc'),
-        os.path.join('..', 'pyjob')
-    ] + ignore_paths
+    argv = ['-f', '-T', '-e', '-M', '-o', os.path.join('_build', 'apidoc'), os.path.join('..', 'pyjob')] + ignore_paths
     try:
         # Sphinx 1.7+
         from sphinx.ext import apidoc
