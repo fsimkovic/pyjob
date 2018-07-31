@@ -77,3 +77,9 @@ The first argument to the :obj:`~pyjob.queue.QueueFactory` defines the platform 
    >>> from pyjob import Pool
    >>> with Pool(processes=4) as pool:
    ...     pool.map(f, args)
+
+**Script execution from BASH shell**
+
+.. code-block:: bash
+
+   $> python -m pyjob run_1.sh run_2.sh

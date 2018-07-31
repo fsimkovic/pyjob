@@ -56,8 +56,12 @@ def QueueFactory(platform, *args, **kwargs):
 
 
 class Queue(ABC):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.pid = None
+        for i, arg in enumerate(args):
+            logger.debug('Ignoring positional argument [%d]: %d', i, str(arg))
+        for k, v in kwargs.items():
+            logger.debug('Ignoring keyword argument [%s]: %s', str(k), str(v))
 
     def __enter__(self):
         return self
@@ -88,34 +92,30 @@ class Queue(ABC):
         if isinstance(script, str) and is_script(script):
             logs = [script.rsplit('.', 1)[0] + '.log']
             scripts = [script]
-        elif (isinstance(script, list) or isinstance(script, tuple)) and all(
-                is_script(fpath) for fpath in script):
+        elif (isinstance(script, list) or isinstance(script, tuple)) and all(is_script(fpath) for fpath in script):
             logs = [s.rsplit('.', 1)[0] + '.log' for s in script]
             scripts = list(script)
         else:
-            raise PyJobError(
-                "One or more scripts cannot be found or are not executable")
+            raise PyJobError("One or more scripts cannot be found or are not executable")
         return scripts, logs
 
 
 class ClusterQueue(Queue):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.queue = []
+        super(ClusterQueue, self).__init__(*args, **kwargs)
 
     def prep_array_script(self, scripts, directory):
         _, extension = os.path.splitext(scripts[0])
-        array_jobs = NamedTemporaryFile(
-            delete=False, dir=directory, prefix='array_', suffix='.jobs').name
+        array_jobs = NamedTemporaryFile(delete=False, dir=directory, prefix='array_', suffix='.jobs').name
         logger.debug('Writing array jobs script to %s', array_jobs)
         with open(array_jobs, 'w') as f_out:
             f_out.write(os.linesep.join(scripts) + os.linesep)
         array_script = array_jobs.replace('.jobs', '.script')
         logger.debug('Writing array master script to %s', array_script)
         content = [
-            SCRIPT_HEADER, 'script=$(awk "NR==$' + self.__class__.TASK_ENV +
-            '" ' + array_jobs + ')',
-            "log=$(echo $script | sed 's/\{}/\.log/')".format(extension),
-            '$script > $log 2>&1' + os.linesep
+            SCRIPT_HEADER, 'script=$(awk "NR==$' + self.__class__.TASK_ENV + '" ' + array_jobs + ')',
+            "log=$(echo $script | sed 's/\{}/\.log/')".format(extension), '$script > $log 2>&1' + os.linesep
         ]
         with open(array_script, 'w') as f_out:
             f_out.write(os.linesep.join(content))

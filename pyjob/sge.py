@@ -38,8 +38,8 @@ class SunGridEngine(ClusterQueue):
 
     TASK_ENV = 'SGE_TASK_ID'
 
-    def __init__(self):
-        super(SunGridEngine, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(SunGridEngine, self).__init__(*args, **kwargs)
 
     def kill(self):
         if len(self.queue) > 0:
@@ -71,10 +71,7 @@ class SunGridEngine(ClusterQueue):
 
         cmd = ['qsub', '-cwd', '-V', '-w', 'e', '-j', 'y']
         if array and len(array) == 3:
-            cmd += [
-                '-t', '{}-{}'.format(array[0], array[1]), '-tc',
-                str(array[2])
-            ]
+            cmd += ['-t', '{}-{}'.format(array[0], array[1]), '-tc', str(array[2])]
         elif array and len(array) == 2:
             cmd += ["-t", "{}-{}".format(array[0], array[1])]
         if deps:

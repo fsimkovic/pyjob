@@ -61,11 +61,14 @@ class LocalJobServer(Queue):
 
     """
 
-    def __init__(self, processes=1):
-        super(LocalJobServer, self).__init__()
+    def __init__(self, processes=1, directory='.', chdir=False, permit_nonzero=False, *args, **kwargs):
         self.pid = uuid.uuid1()
         self.nprocesses = processes
+        self.directory = directory
+        self.chdir = chdir
+        self.permit_nonzero = permit_nonzero
         self.processes = None
+        super(LocalJobServer, self).__init__(*args, **kwargs)
 
     def kill(self):
         if self.processes:
@@ -77,7 +80,11 @@ class LocalJobServer(Queue):
         if isinstance(command, str):
             command = [command]
         if not self.processes:
-            self.processes = Processes(processes=self.nprocesses)
+            self.processes = Processes(
+                processes=self.nprocesses,
+                directory=self.directory,
+                chdir=self.chdir,
+                permit_nonzero=self.permit_nonzero)
         for cmd in command:
             self.processes.queue.put(cmd)
         sleep(0.1)
@@ -90,13 +97,14 @@ class LocalJobServer(Queue):
 
 
 class Processes(object):
-    def __init__(self, processes=1):
+    def __init__(self, processes=1, directory='.', chdir=False, permit_nonzero=False):
         self.nprocesses = processes
         self.queue = MpQueue()
         self.kill_switch = MpEvent()
         self._processes = []
         for _ in range(self.nprocesses):
-            process = Process(self.queue, self.kill_switch)
+            process = Process(
+                self.queue, self.kill_switch, chdir=chdir, directory=directory, permit_nonzero=permit_nonzero)
             process.start()
             self._processes.append(process)
 
@@ -114,12 +122,7 @@ class Processes(object):
 
 
 class Process(MpProcess):
-    def __init__(self,
-                 queue,
-                 kill_switch,
-                 directory='.',
-                 chdir=False,
-                 permit_nonzero=False):
+    def __init__(self, queue, kill_switch, directory='.', chdir=False, permit_nonzero=False):
         super(Process, self).__init__()
         self.queue = queue
         self.kill_switch = kill_switch
@@ -133,7 +136,6 @@ class Process(MpProcess):
             if self.kill_switch.is_set():
                 continue
             directory = os.path.dirname(job) if self.chdir else self.directory
-            stdout = cexec(
-                [job], directory=directory, permit_nonzero=self.permit_nonzero)
+            stdout = cexec([job], directory=directory, permit_nonzero=self.permit_nonzero)
             with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
                 f_out.write(stdout)
