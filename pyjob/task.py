@@ -64,9 +64,23 @@ class Task(ABC):
                 'One or more scripts cannot be found or are not executable')
 
     def __enter__(self):
+        """Contextmanager entry function
+        
+        Note
+        ----
+        For further details see `PEP 343 <https://www.python.org/dev/peps/pep-0343/>`_.
+
+        """
         return self
 
     def __exit__(self, *exc):
+        """Contextmanager exit function
+
+        Note
+        ----
+        For further details see `PEP 343 <https://www.python.org/dev/peps/pep-0343/>`_.
+
+        """
         self.wait()
 
     def __repr__(self):
