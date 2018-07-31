@@ -83,4 +83,4 @@ The first argument to the :obj:`~pyjob.queue.QueueFactory` defines the platform 
 
 .. code-block:: bash
 
-   $> python -m pyjob <SCRIPTS>
+   $> pyjob <SCRIPTS>
