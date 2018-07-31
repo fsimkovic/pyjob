@@ -25,6 +25,7 @@ __version__ = '1.0'
 
 import abc
 import logging
+import os
 import time
 
 from pyjob.exception import PyJobError
@@ -60,8 +61,7 @@ class Task(ABC):
                 is_valid_script_path(fpath) for fpath in script):
             self.script = list(script)
         else:
-            raise PyJobError(
-                'One or more scripts cannot be found or are not executable')
+            raise PyJobError('One or more scripts cannot be found or are not executable')
 
     def __enter__(self):
         """Contextmanager entry function
@@ -81,7 +81,7 @@ class Task(ABC):
         For further details see `PEP 343 <https://www.python.org/dev/peps/pep-0343/>`_.
 
         """
-        self.wait()
+        self.close()
 
     def __repr__(self):
         """Representation of the :obj:`~pyjob.task.Task`"""
@@ -92,6 +92,11 @@ class Task(ABC):
     @abc.abstractproperty
     def info(self):
         """Abstract property to provide info about the :obj:`~pyjob.task.Task`"""
+        pass
+
+    @abc.abstractmethod
+    def close(self):
+        """Abstract method to end :obj:`~pyjob.task.Task`"""
         pass
 
     @abc.abstractmethod
@@ -173,7 +178,7 @@ class Task(ABC):
         if do_check_success:
             msg = 'Checking for %s %d success with function %s'
             logger.debug(msg, self.__class__.__name__, self.pid,
-                         do_check_success.__name__)
+                         check_success.__name__)
         do_monitor = bool(monitor and callable(monitor))
         while not self.completed:
             if do_check_success:

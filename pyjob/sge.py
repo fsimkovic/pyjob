@@ -77,6 +77,17 @@ class SunGridEngineTask(Task):
                     data[kv[0]] = kv[1]
         return data
 
+    def close(self):
+        """Close this :obj:`~pyjob.sge.SunGridEngineTask` after completion
+
+        Warning
+        -------
+        It is essential to call this method if you are using any 
+        :obj:`~pyjob.task.Task` without context manager.
+ 
+        """
+        self.wait()
+
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.sge.SunGridEngineTask`"""
         cexec(['qdel', str(self.pid)])

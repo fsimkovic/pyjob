@@ -21,10 +21,9 @@
 # SOFTWARE.
 
 __author__ = 'Felix Simkovic'
+__version__ = '1.0'
 
-from pyjob.cexec import cexec
-from pyjob.factory import TaskFactory
-from pyjob.job import Job
-from pyjob.script import Script
-from pyjob.stopwatch import StopWatch
-from pyjob.version import __version__
+import warnings
+warnings.warn('This subpackage will be removed in release 0.3')
+
+from pyjob.script import *

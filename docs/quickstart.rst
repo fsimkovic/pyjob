@@ -17,7 +17,7 @@ Quickstart
    './example.sh'
    >>> script.write()
 
-**Execution of single script on local machine**
+**Execution of single script on a local machine**
 
 .. code-block:: python
 
@@ -25,7 +25,7 @@ Quickstart
    >>> with TaskFactory('local', script.path) as task:
    ...     task.run()
 
-**Execution of multiple scripts on local machine**
+**Execution of multiple scripts on a local machine**
 
 .. code-block:: python
 
@@ -54,25 +54,25 @@ Quickstart
    >>> with TaskFactory('sge', [script1.path, script2.path]) as task:
    ...     task.run()
 
-The first argument to :obj:`~pyjob.factory.TaskFactory`, `sge` in this example, defines the 
+The first argument to :obj:`~pyjob.factory.TaskFactory`, ``sge`` in this example, defines the 
 platform on which the :obj:`~pyjob.task.Task` will be executed. Other options exist and you 
-can try this by installing PyJob on such a machine and substituting any of below commands in.
+can try this by installing PyJob on such a machine and substituting any of below options in.
 
 .. rst-class:: table-hover
 
-+-------------------------+----------+-------------------------------------------+
-| Platform                | Argument | Task class                                |
-+=========================+==========+===========================================+
-| Local Machine           | `local`  | :obj:`~pyjob.local.LocalTask`             |
-+-------------------------+----------+-------------------------------------------+
-| Sun Grid Engine         | `sge`    | :obj:`~pyjob.sge.SunGridEngineTask`       |
-+-------------------------+----------+-------------------------------------------+
-| Load Sharing Facility   | `lsf`    | :obj:`~pyjob.lsf.LoadSharingFacilityTask` |
-+-------------------------+----------+-------------------------------------------+
-| Portable Batch System   | `pbs`    | :obj:`~pyjob.pbs.PortableBatchSystemTas`  |
-+-------------------------+----------+-------------------------------------------+
-| TORQUE Resource Manager | `torque` | :obj:`~pyjob.torque.TorqueTask`           |
-+-------------------------+----------+-------------------------------------------+
++-------------------------+------------+-------------------------------------------+
+| Platform                | Argument   | Task class                                |
++=========================+============+===========================================+
+| Local Machine           | ``local``  | :obj:`~pyjob.local.LocalTask`             |
++-------------------------+------------+-------------------------------------------+
+| Sun Grid Engine         | ``sge``    | :obj:`~pyjob.sge.SunGridEngineTask`       |
++-------------------------+------------+-------------------------------------------+
+| Load Sharing Facility   | ``lsf``    | :obj:`~pyjob.lsf.LoadSharingFacilityTask` |
++-------------------------+------------+-------------------------------------------+
+| Portable Batch System   | ``pbs``    | :obj:`~pyjob.pbs.PortableBatchSystemTas`  |
++-------------------------+------------+-------------------------------------------+
+| TORQUE Resource Manager | ``torque`` | :obj:`~pyjob.torque.TorqueTask`           |
++-------------------------+------------+-------------------------------------------+
 
 **Execution of Python functions**
 

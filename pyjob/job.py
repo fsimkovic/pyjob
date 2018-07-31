@@ -21,10 +21,48 @@
 # SOFTWARE.
 
 __author__ = 'Felix Simkovic'
+__version__ = '1.0'
 
-from pyjob.cexec import cexec
+from pyjob.deprecate import deprecate
 from pyjob.factory import TaskFactory
-from pyjob.job import Job
-from pyjob.script import Script
-from pyjob.stopwatch import StopWatch
-from pyjob.version import __version__
+
+
+class Job(object):
+    
+    @deprecate(0.3, msg='use pyjob.factory.TaskFactory')
+    def __init__(self, qtype):
+        self.qtype = qtype
+        self._taskfactory = None
+        self._locked = False
+
+    @property
+    def finished(self):
+        return self._taskfactory.completed
+
+    @property
+    def pid(self):
+        return self._taskfactory.pid
+
+    @property
+    def log(self):
+        return self._taskfactory.log
+
+    @property
+    def script(self):
+        return self._taskfactory.script
+
+    def kill(self):
+        self._taskfactory.kill()
+
+    def submit(self, script, *args, **kwargs):
+        if self._locked:
+            return
+        self._taskfactory = TaskFactory(self.qtype, script, *args, **kwargs)
+        self._taskfactory.run()
+        self._locked = True
+
+    def stat(self):
+        return self._taskfactory.info
+
+    def wait(self, *args, **kwargs):
+        self._taskfactory.wait(*args, **kwargs)

@@ -62,6 +62,25 @@ class LocalTask(Task):
         else:
             return {}
 
+    def close(self):
+        """Close this :obj:`~pyjob.local.LocalTask` after completion
+
+        Warning
+        -------
+        It is essential to call this method if you are using any 
+        :obj:`~pyjob.task.Task` without context manager.
+        
+        """
+        self.kill_switch.set()
+        for proc in self.processes:
+            self.queue.put(None)
+        self.queue.close()
+        for proc in self.processes:
+            proc.join()
+        for proc in self.processes:
+            proc.terminate()
+
+
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.local.LocalTask`"""
         self.kill_switch.set()
@@ -137,9 +156,6 @@ class LocalProcess(multiprocessing.Process):
                 else:
                     directory = self.directory
 
-                stdout = cexec(
-                    [job],
-                    directory=directory,
-                    permit_nonzero=self.permit_nonzero)
+                stdout = cexec([job], directory=directory, permit_nonzero=self.permit_nonzero)
                 with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
                     f_out.write(stdout)

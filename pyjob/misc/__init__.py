@@ -26,9 +26,11 @@ __version__ = '1.0'
 import os
 import sys
 import tempfile
+import warnings
 
 from pyjob.deprecate import deprecate
 
+warnings.warn('This subpackage will be removed in release 0.3')
 
 @deprecate(0.3, msg='use pyjob.stopwatch.StopWatch')
 def StopWatch():

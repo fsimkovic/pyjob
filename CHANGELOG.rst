@@ -1,14 +1,5 @@
 **[unreleased]**
 
-*Added*
-
-- `pyjob` executable script to shell submissions of jobs --- draft version
-
-*Changed*
-
-- Renamed :func:`~pyjob.platform.Platform()` to :func:`pyjob.queue.QueueFactory`
-- :const:`~pyjob.queue.Queue.ARRAY_TASK_ID` renamed to :const:`~pyjob.queue.Queue.TASK_ENV`
-
 **[0.2]**
 
 *Added*

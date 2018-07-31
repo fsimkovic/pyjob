@@ -76,6 +76,17 @@ class PortableBatchSystemTask(Task):
                     data[kv[0]] = kv[1]
         return data
 
+    def close(self):
+        """Close this :obj:`~pyjob.pbs.PortableBatchSystemTask` after completion
+        
+        Warning
+        -------
+        It is essential to call this method if you are using any 
+        :obj:`~pyjob.task.Task` without context manager.
+
+        """
+        self.wait()
+
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.pbs.PortableBatchSystemTask`"""
         cexec(['qdel', str(self.pid)])

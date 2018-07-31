@@ -77,6 +77,7 @@ pygments_style = 'sphinx'
 # If true, create autosummary automatically
 autosummary_generate = True
 autodoc_docstring_signature = True
+autodoc_inherited_members = True
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -139,7 +140,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'PyJob.tex', 'PyJob Documentation', 'Felix Simkovic', 'manual'),
+    (master_doc, 'PyJob.tex', 'PyJob Documentation', 'Felix Simkovic',
+     'manual'),
 ]
 
 # -- Options for manual page output ------------------------------------------
@@ -154,14 +156,19 @@ man_pages = [(master_doc, 'pyjob', 'PyJob Documentation', [author], 1)]
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'PyJob', 'PyJob Documentation', author, 'PyJob', 'One line description of project.', 'Miscellaneous'),
+    (master_doc, 'PyJob', 'PyJob Documentation', author, 'PyJob',
+     'One line description of project.', 'Miscellaneous'),
 ]
 
 
 # -- Extension configuration -------------------------------------------------
 def run_apidoc(_):
     ignore_paths = []
-    argv = ['-f', '-T', '-e', '-M', '-o', os.path.join('_build', 'apidoc'), os.path.join('..', 'pyjob')] + ignore_paths
+    argv = [
+        '-f', '-T', '-e', '-M', '-o',
+        os.path.join('_build', 'apidoc'),
+        os.path.join('..', 'pyjob')
+    ] + ignore_paths
     try:
         # Sphinx 1.7+
         from sphinx.ext import apidoc
