@@ -19,22 +19,16 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Module to store PyJob-specific exceptions"""
 
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
 
 class PyJobError(Exception):
-    """Generic PyJob exception"""
     pass
 
-
-class PyJobUnknownQueue(PyJobError):
-    """Unknown :obj:`~pyjob.queue.Queue` exception"""
+class PyJobTaskLockedError(PyJobError):
     pass
-
 
 class PyJobExecutionError(PyJobError):
-    """Generic PyJob execution exception"""
     pass

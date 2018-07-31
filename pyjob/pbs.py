@@ -23,97 +23,108 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
-from time import sleep
-
 import logging
 import os
+import re
+import time
+import uuid
 
 from pyjob.cexec import cexec
-from pyjob.queue import ClusterQueue
+from pyjob.task import Task
 
 logger = logging.getLogger(__name__)
 
 
-class PortableBatchSystem(ClusterQueue):
-    """
+class PortableBatchSystemTask(Task):
+    """PortableBatchSystem executable :obj:`~pyjob.task.Task`
 
     Examples
     --------
-
-    The recommended way to use a :obj:`~pyjob.queue.Queue` is by
-    creating a context and perform all actions within. The context will
-    not be left until all submitted scripts have executed.
-
-    >>> with PortableBatchSystem() as queue:
-    ...     queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
-    
-    A :obj:`~pyjob.queue.Queue` instance can also be assigned to a
-    variable and used throughout. However, it is required to close the 
-    :obj:`~pyjob.queue.Queue` explicitly.
-
-    >>> queue = PortableBatchSystem()
-    >>> queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
-    >>> queue.close()
 
     """
 
     TASK_ENV = 'PBS_ARRAYID'
 
     def __init__(self, *args, **kwargs):
-        super(PortableBatchSystem, self).__init__(*args, **kwargs)
+        """Instantiate a new :obj:`~pyjob.pbs.PortableBatchSystemTask`"""
+        super(PortableBatchSystemTask, self).__init__(*args, **kwargs)
+        self.directory = os.path.abspath(kwargs.get('directory', '.'))
+        self.max_array_size = kwargs.get('max_array_size', len(self.script))
+        self.name = kwargs.get('name', None)
+        self.priority = kwargs.get('priority', None)
+        self.queue = kwargs.get('queue', None)
+        self.runtime = kwargs.get('runtime', None)
+        self.shell = kwargs.get('shell', None)
+
+    @property
+    def info(self):
+        """:obj:`~pyjob.pbs.PortableBatchSystemTask` information"""
+        line_split1 = re.compile(":\\s+")
+        line_split2 = re.compile("\\s+=\\s+")
+        stdout = cexec(['qstat', '-f', str(self.pid)], permit_nonzero=True)
+        all_lines = stdout.split(os.linesep)
+        data = {}
+        key, job_id = line_split1.split(all_lines[0], 1)
+        data[key] = job_id
+        for line in all_lines[1:]:
+            line = line.strip()
+            if 'Unknown queue destination' in line:
+                return data
+            else:
+                kv = line_split2.split(line, 1)
+                if len(kv) == 2:
+                    data[kv[0]] = kv[1]
+        return data
 
     def kill(self):
-        if len(self.queue) > 0:
-            cmd = ['qdel', ' ', join(map(str, self.queue))]
-            cexec(cmd)
-            self.queue = []
+        """Immediately terminate the :obj:`~pyjob.pbs.PortableBatchSystemTask`"""
+        cexec(['qdel', str(self.pid)])
+        logger.debug("Terminated task: %d", self.pid)
 
-    def submit(self, script, array=None, log=None, name=None, priority=None, queue=None, runtime=None, shell=None):
-
-        script, log = self.__class__.check_script(script)
-        nscripts = len(script)
-
-        if nscripts > 1:
-            master, _ = self.prep_array_script(script, '.')
-            script = [master]
-            log = [os.devnull]
-            shell = '/bin/sh'
-            if array is None:
-                array = [1, nscripts, nscripts]
-
-        cmd = ['qsub', '-w', os.environ['PWD'], '-V']
-        if array and len(array) == 3:
-            cmd += ["-t", "{}-{}%{}".format(array[0], array[1], array[2])]
-        elif array and len(array) == 2:
-            cmd += ["-t", "{}-{}".format(array[0], array[1])]
-        if log:
-            cmd += ["-o", log]
-            cmd += ["-e", log]
-        if name:
-            cmd += ["-N", name]
-        if priority:
-            cmd += ["-p", str(priority)]
-        if queue:
-            cmd += ["-q", queue]
-        if runtime:
-            m, s = divmod(runtime, 60)
+    def _run(self):
+        """Method to initialise :obj:`~pyjob.pbs.PortableBatchSystemTask` execution"""
+        runscript = Script(
+            directory=self.directory,
+            prefix='pbs_',
+            suffix='.script',
+            stem=str(uuid.uuid1().int))
+        runscript.append('#PBS -V')
+        if self.directory:
+            runscript.append('#PBS -w %s' % self.directory)
+        if self.name:
+            runscript.append('#PBS -N %s' % self.name)
+        if self.priority:
+            runscript.append('#PBS -p %s' % str(self.priority))
+        if self.queue:
+            runscript.append('#PBS -q %s' % self.queue)
+        if self.runtime:
+            m, s = divmod(self.runtime, 60)
             h, m = divmod(m, 60)
-            cmd += ["-l", "walltime={}:{}:{}".format(h, m, s)]
-        if shell:
-            cmd += ["-S", shell]
+            runscript.append('#PBS -l walltime={}:{}:{}'.format(h, m, s))
+        if self.shell:
+            runscript.append('#PBS -S %s' % self.shell)
 
-        stdout = cexec(cmd + script)
-        jobid = stdout
-        self.queue.append(jobid)
+        if len(self.script) > 1:
+            logf = runscript.path.replace('.script', '.log')
+            jobsf = runscript.path.replace('.script', '.jobs')
+            with open(jobsf, 'w') as f_out:
+                f_out.write(os.linesep.join(self.script))
 
-    def wait(self):
-        while len(self.queue) > 0:
-            i = len(self.queue)
-            while i > 0:
-                cmd = ['qstat', '-f', str(self.queue[i - 1])]
-                stdout = cexec(cmd, permit_nonzero=True)
-                for line in stdout.split(os.linesep):
-                    if 'Unknown queue destination' in line:
-                        self.queue.pop(i - 1)
-                i -= 1
-            sleep(5)
+            runscript.append('#PBS -t {}-{}%{}'.format(1, len(self.script),
+                                                       self.max_array_size))
+            runscript.append('#PBS -o %s' % logf)
+            runscript.append('#PBS -e %s' % logf)
+            runscript.append('script=$(awk "NR==${}" {})'.format(
+                SunGridEngineTask.TASK_ENV, jobsf))
+            runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
+            runscript.append("$script > $log 2>&1")
+        else:
+            runscript.append('#PBS -o %s' % self.log[0])
+            runscript.append('#PBS -e %s' % self.log[0])
+            runscript.append(self.script[0])
+
+        runscript.write()
+        stdout = cexec(['qsub', runscript.path], directory=self.directory)
+        jobid = cexec(cmd, directory=directory)
+        logger.debug('%s [%d] submission script is %s',
+                     self.__class__.__name__, self.pid, runscript.path)

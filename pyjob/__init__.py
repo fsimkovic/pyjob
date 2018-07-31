@@ -21,9 +21,6 @@
 # SOFTWARE.
 
 __author__ = 'Felix Simkovic'
-from pyjob import version
-__version__ = version.__version__
 
 from pyjob.cexec import cexec
-from pyjob.pool import Pool
-from pyjob.queue import QueueFactory
+from pyjob.version import __version__

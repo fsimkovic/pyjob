@@ -23,113 +23,119 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
-from time import sleep
-
 import logging
 import os
+import re
+import uuid
 
 from pyjob.cexec import cexec
-from pyjob.queue import ClusterQueue
+from pyjob.script import Script
+from pyjob.task import Task
 
 logger = logging.getLogger(__name__)
 
 
-class SunGridEngine(ClusterQueue):
-    """
+class SunGridEngineTask(Task):
+    """SunGridEngine executable :obj:`~pyjob.task.Task`
 
     Examples
     --------
-
-    The recommended way to use a :obj:`~pyjob.queue.Queue` is by
-    creating a context and perform all actions within. The context will
-    not be left until all submitted scripts have executed.
-
-    >>> with SunGridEngine() as queue:
-    ...     queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
-    
-    A :obj:`~pyjob.queue.Queue` instance can also be assigned to a
-    variable and used throughout. However, it is required to close the 
-    :obj:`~pyjob.queue.Queue` explicitly.
-
-    >>> queue = SungGridEngine()
-    >>> queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
-    >>> queue.close()
 
     """
 
     TASK_ENV = 'SGE_TASK_ID'
 
     def __init__(self, *args, **kwargs):
-        super(SunGridEngine, self).__init__(*args, **kwargs)
+        """Instantiate a new :obj:`~pyjob.sge.SunGridEngineTask`"""
+        super(SunGridEngineTask, self).__init__(*args, **kwargs)
+        self.dependency = kwargs.get('dependency', [])
+        self.directory = os.path.abspath(kwargs.get('directory', '.'))
+        self.max_array_size = kwargs.get('max_array_size', len(self.script))
+        self.name = kwargs.get('name', None)
+        self.pe_opts = kwargs.get('pe_opts', [])
+        self.priority = kwargs.get('priority', None)
+        self.queue = kwargs.get('queue', None)
+        self.runtime = kwargs.get('runtime', None)
+        self.shell = kwargs.get('shell', None)
+        self.nprocesses = kwargs.get('nprocesses', 1)
+
+    @property
+    def info(self):
+        """:obj:`~pyjob.sge.SunGridEngineTask` information"""
+        stdout = cexec(["qstat", "-j", str(self.pid)], permit_nonzero=True)
+        data = {}
+        line_split = re.compile(":\s+")
+        for line in stdout.split(os.linesep):
+            line = line.strip()
+            if 'jobs do not exist' in line:
+                return data
+            if not line or "=" * 30 in line:
+                continue
+            else:
+                kv = line_split.split(line, 1)
+                if len(kv) == 2:
+                    data[kv[0]] = kv[1]
+        return data
 
     def kill(self):
-        if len(self.queue) > 0:
-            cmd = ['qdel', ' '.join(map(str, self.queue))]
-            cexec(cmd)
-            self.queue = []
+        """Immediately terminate the :obj:`~pyjob.sge.SunGridEngineTask`"""
+        cexec(['qdel', str(self.pid)])
+        logger.debug("Terminated task: %d", self.pid)
 
-    def submit(self,
-               script,
-               array=None,
-               deps=None,
-               name=None,
-               pe_opts=None,
-               priority=None,
-               queue=None,
-               runtime=None,
-               shell=None,
-               threads=None):
-
-        script, log = self.__class__.check_script(script)
-        nscripts = len(script)
-
-        if nscripts > 1:
-            master, _ = self.prep_array_script(script, '.')
-            script = [master]
-            log = [os.devnull]
-            shell = '/bin/sh'
-            if array is None:
-                array = [1, nscripts, nscripts]
-
-        cmd = ['qsub', '-cwd', '-V', '-w', 'e', '-j', 'y']
-        if array and len(array) == 3:
-            cmd += ['-t', '{}-{}'.format(array[0], array[1]), '-tc', str(array[2])]
-        elif array and len(array) == 2:
-            cmd += ["-t", "{}-{}".format(array[0], array[1])]
-        if deps:
-            cmd += ["-hold_jid", "{}".format(",".join(map(str, deps)))]
-        if log:
-            cmd += ["-o", log[0]]
-        if name:
-            cmd += ["-N", name]
-        if pe_opts:
-            cmd += ["-pe"] + pe_opts.split()
-        if priority:
-            cmd += ["-p", str(priority)]
-        if queue:
-            cmd += ["-q", queue]
-        if runtime:
-            cmd += ["-l", "h_rt={}".format(runtime)]
-        if shell:
-            cmd += ["-S", shell]
-        if threads:
-            cmd += ["-pe mpi", str(threads)]
-
-        stdout = cexec(cmd + script)
-        if nscripts == 1:
-            jobid = int(stdout.split()[2])
+    def _run(self):
+        """Method to initialise :obj:`~pyjob.sge.SunGridEngineTask` execution"""
+        runscript = Script(
+            directory=self.directory,
+            prefix='sge_',
+            suffix='.script',
+            stem=str(uuid.uuid1().int))
+        runscript.append('#$ -V')
+        runscript.append('#$ -w e')
+        runscript.append('#$ -j y')
+        if self.dependency:
+            runscript.append(
+                '#$ -hold_jid %s' % ','.join(map(str, self.dependency)))
+        if self.name:
+            runscript.append('#$ -N %s' % self.name)
+        if self.pe_opts:
+            runscript.append('#$ -pe %s' % ' '.join(map(str, self.pe_opts)))
+        if self.priority:
+            runscript.append('#$ -p %s' % str(self.priority))
+        if self.queue:
+            runscript.append('#$ -q %s' % self.queue)
+        if self.runtime:
+            runscript.append('#$ -l h_rt=%s' % str(self.runtime))
+        if self.shell:
+            runscript.append('#$ -S %s' % self.shell)
+        if self.nprocesses:
+            runscript.append('#$ -pe mpi %d' % self.nprocesses)
+        if self.directory:
+            runscript.append('#$ -wd %s' % self.directory)
         else:
-            jobid = int(stdout.split()[2].split('.')[0])
-        self.queue.append(jobid)
+            runscript.append('#$ -cwd')
 
-    def wait(self):
-        while len(self.queue) > 0:
-            i = len(self.queue)
-            while i > 0:
-                cmd = ['qstat', '-j', str(self.queue[i - 1])]
-                stdout = cexec(cmd, permit_nonzero=True)
-                for line in stdout.split(os.linesep):
-                    if 'jobs do not exist' in line:
-                        self.queue.pop(i - 1)
-                i -= 1
-            sleep(5)
+        if len(self.script) > 1:
+            logf = runscript.path.replace('.script', '.log')
+            jobsf = runscript.path.replace('.script', '.jobs')
+            with open(jobsf, 'w') as f_out:
+                f_out.write(os.linesep.join(self.script))
+
+            runscript.append('#$ -t %d-%d -tc %d' % (1, len(self.script),
+                                                     self.max_array_size))
+            runscript.append('#$ -o %s' % logf)
+            runscript.append('script=$(awk "NR==${}" {})'.format(
+                SunGridEngineTask.TASK_ENV, jobsf))
+            runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
+            runscript.append("$script > $log 2>&1")
+        else:
+            runscript.append('#$ -o %s' % self.log[0])
+            runscript.append(self.script[0])
+
+        runscript.write()
+        stdout = cexec(['qsub', runscript.path], directory=self.directory)
+        if len(self.script) > 1:
+            self.pid = int(stdout.split()[2].split(".")[0])
+        else:
+            self.pid = int(stdout.split()[2])
+        logger.debug('%s [%d] submission script is %s',
+                     self.__class__.__name__, self.pid, runscript.path)

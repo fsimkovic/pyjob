@@ -23,117 +23,115 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
-from time import sleep
-
 import logging
 import os
+import time
+import uuid
 
 from pyjob.cexec import cexec
-from pyjob.queue import ClusterQueue
+from pyjob.task import Task
 
 logger = logging.getLogger(__name__)
 
 
-class LoadSharingFacility(ClusterQueue):
+class LoadSharingFacilityTask(Task):
     """
 
     Examples
     --------
-
-    The recommended way to use a :obj:`~pyjob.queue.Queue` is by
-    creating a context and perform all actions within. The context will
-    not be left until all submitted scripts have executed.
-
-    >>> with LoadSharingFacility() as queue:
-    ...     queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
-    
-    A :obj:`~pyjob.queue.Queue` instance can also be assigned to a
-    variable and used throughout. However, it is required to close the 
-    :obj:`~pyjob.queue.Queue` explicitly.
-
-    >>> queue = LoadSharingFacility()
-    >>> queue.submit(['script1.py', 'script2.sh', 'script3.pl'])
-    >>> queue.close()
 
     """
 
     ARRAY_TASK_ID = 'LSB_JOBINDEX'
 
     def __init__(self, *args, **kwargs):
-        super(LoadSharingFacility, self).__init__(*args, **kwargs)
+        """Instantiate a new :obj:`~pyjob.lsf.LoadSharingFacilityTask`"""
+        super(LoadSharingFacilityTask, self).__init__(*args, **kwargs)
+        self.dependency = kwargs.get('dependency', [])
+        self.directory = os.path.abspath(kwargs.get('directory', '.'))
+        self.max_array_size = kwargs.get('max_array_size', len(self.script))
+        self.name = kwargs.get('name', None)
+        self.priority = kwargs.get('priority', None)
+        self.queue = kwargs.get('queue', None)
+        self.runtime = kwargs.get('runtime', None)
+        self.shell = kwargs.get('shell', None)
+        self.nprocesses = kwargs.get('nprocesses', 1)
+
+    @property
+    def info(self):
+        """:obj:`~pyjob.lsf.LoadSharingFacilityTask` information"""
+        stdout = cexec(['bjobs', '-l', str(jobid)])
+        if 'Done successfully' in stdout:
+            return {}
+        else:
+            return {'job_number': self.pid, 'status': 'Running'}
 
     def kill(self):
-        if len(self.queue) > 0:
-            cmd = ['bkill', str(jobid)]
-            stdout = cexec(cmd, permit_nonzero=True)
-            if "is in progress" in stdout:
-                stdout = cexec(['bkill', '-b', str(jobid)], permit_nonzero=True)
-                sleep(10)
-            if any(text in stdout for text in ["has already finished", "is being terminated", "is in progress"]):
-                self.queue = []
-            else:
-                raise RuntimeError('Cannot delete jobs from %s!' % self.__class__.__name__)
+        """Immediately terminate the :obj:`~pyjob.lsf.LoadSharingFacilityTask`
+        
+        Raises
+        ------
+        :exc:`RuntimeError`
+           Cannot delete :obj:`~pyjob.lsf.LoadSharingFacilityTask`
 
-    def submit(self,
-               script,
-               array=None,
-               deps=None,
-               hold=False,
-               log=None,
-               name=None,
-               priority=None,
-               queue=None,
-               runtime=None,
-               shell=None,
-               threads=None):
+        """
+        stdout = cexec(['bkill', str(self.pid)], permit_nonzero=True)
+        if "is in progress" in stdout:
+            stdout = cexec(['bkill', '-b', str(self.pid)], permit_nonzero=True)
+            time.sleep(10)
+        if any(
+                text in stdout for text in
+            ["has already finished", "is being terminated", "is in progress"]):
+            logger.debug("Terminated task: %d", self.pid)
+        else:
+            raise RuntimeError('Cannot delete task!')
 
-        script, log = self.__class__.check_script(script)
-        nscripts = len(script)
+    def _run(self):
+        """Method to initialise :obj:`~pyjob.lsf.LoadSharingFacilityTask` execution"""
+        runscript = Script(
+            directory=self.directory,
+            prefix='lsf_',
+            suffix='.script',
+            stem=str(uuid.uuid1().int))
+        if self.dependency:
+            runscript.append('#BSUB -w %s' % ' && '.join(
+                ['deps(%s)' % str(d) for d in self.dependency]))
+        if self.directory:
+            runscript.append('#BSUB -cwd %s' % self.directory)
+        if self.name:
+            runscript.append('#BSUB -J %s' % self.name)
+        if self.priority:
+            runscript.append('#BSUB -sp %s' % str(self.priority))
+        if self.queue:
+            runscript.append('#BSUB -q %s' % self.queue)
+        if self.runtime:
+            runscript.append('#BSUB -W %s' % str(self.runtime))
+        if self.shell:
+            runscript.append('#BSUB -L %s' % self.shell)
+        if self.nprocesses:
+            runscript.append(
+                '#BSUB -R %s' % '"span[ptile={}]"'.format(self.nprocesses))
 
-        if nscripts > 1:
-            master, _ = self.prep_array_script(script, '.')
-            script = [master]
-            log = [os.devnull]
-            shell = '/bin/sh'
-            if array is None:
-                array = [1, nscripts, nscripts]
+        if len(self.script) > 1:
+            logf = runscript.path.replace('.script', '.log')
+            jobsf = runscript.path.replace('.script', '.jobs')
+            with open(jobsf, 'w') as f_out:
+                f_out.write(os.linesep.join(self.script))
 
-        cmd = ['bsub', '-cwd', os.getcwd()]
-        if array:
-            name = "pyjob" if name is None else name
-            if len(array) == 3:
-                cmd += ["-J", "{0}[{1}-{2}%{3}]".format(name, array[0], array[1], array[2])]
-            elif len(array) == 2:
-                cmd += ["-J", "{0}[{1}-{2}]".format(name, array[0], array[1])]
-            name = None  # Reset this!
-        if deps:
-            cmd += ["-w", " && ".join(["done(%s)" % dep for dep in map(str, deps)])]
-        if log:
-            cmd += ["-o", log]
-        if name:
-            cmd += ["-J", '"{0}"'.format(name)]
-        if priority:
-            cmd += ["-sp", str(priority)]
-        if queue:
-            cmd += ["-q", queue]
-        if shell:
-            cmd += ["-L", shell]
-        if threads:
-            cmd += ["-R", '"span[ptile={0}]"'.format(threads)]
-        if runtime:
+            runscript.append('#BSUB -J {}[{}-{}%{}]'.format(
+                1, len(self.script), self.max_array_size))
+            runscript.append('#BSUB -o %s' % logf)
+            runscript.append('script=$(awk "NR==${}" {})'.format(
+                LoadSharingFacilityTask.TASK_ENV, jobsf))
+            runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
+            runscript.append("$script > $log 2>&1")
+        else:
+            runscript.append('#BSUB -o %s' % self.log[0])
+            runscript.append(self.script[0])
 
-            cmd += ["-W", str(runtime)]
-        stdout = cexec(cmd, stdin=open(script[0]).read())
-        jobid = int(stdout.split()[1][1:-1])
-        self.queue.append(jobid)
-
-    def wait(self):
-        while len(self.queue) > 0:
-            i = len(self.queue)
-            while i > 0:
-                cmd = ['bjobs', '-l', str(self.queue[i - 1])]
-                stdout = cexec(cmd)
-                if "Done successfully" in stdout:
-                    self.queue.pop(i - 1)
-                i -= 1
-            sleep(5)
+        runscript.write()
+        stdout = cexec(
+            ['bsub'], stdin=str(runscript), directory=self.directory)
+        self.pid = int(stdout.split()[1][1:-1])
+        logger.debug('%s [%d] submission script is %s',
+                     self.__class__.__name__, self.pid, runscript.path)
