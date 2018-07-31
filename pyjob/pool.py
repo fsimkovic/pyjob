@@ -30,10 +30,6 @@ from multiprocessing import Pool
 @contextmanager
 def Pool(*args, **kwargs):
     """:obj:`~multiprocessing.pool.Pool` of processes to allow concurrent method calls
-    
-    This function creates a context for normal :obj:`multiprocessing.pool.Pool` 
-    instances. This allows controlled termination for :exc:`RuntimeError` 
-    and :exc:`KeyboardInterrupt` exceptions.
 
     Examples
     --------
@@ -45,14 +41,25 @@ def Pool(*args, **kwargs):
     Parameters
     ----------
     *args : tuple
-       Positional arguments for :obj:`multiprocessing.pool.Pool`
+       Positional arguments for :obj:`~multiprocessing.pool.Pool`
     **kwargs : dict
-       Keyword arguments for :obj:`multiprocessing.pool.Pool`
+       Keyword arguments for :obj:`~multiprocessing.pool.Pool`
 
     Yields
     ------
     :obj:`~multiprocessing.pool.Pool`
-       An instance to a :obj:`multiprocessing.pool.Pool`
+       An instance to a :obj:`~multiprocessing.pool.Pool`
+
+    Raises
+    ------
+    :exc:`Exception`
+       Case-dependent exception
+
+    Note
+    ----
+    This function creates a context for normal :obj:`multiprocessing.pool.Pool` 
+    instances. This allows controlled termination for :exc:`RuntimeError` and 
+    :exc:`KeyboardInterrupt` exceptions.
 
     """
     pool = Pool(*args, **kwargs)
