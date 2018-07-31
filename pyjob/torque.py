@@ -23,6 +23,8 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
+from pyjob.pbs import PortableBatchSystemTask
+
 
 class TorqueTask(PortableBatchSystemTask):
     """TORQUE executable :obj:`~pyjob.task.Task`
