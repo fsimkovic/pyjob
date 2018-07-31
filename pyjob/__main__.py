@@ -21,27 +21,27 @@
 # SOFTWARE.
 
 __author__ = 'Felix Simkovic'
-__version__ = '1.0'
 
 import argparse
 import logging
 import os
 import sys
 
-from pyjob import QueueFactory
-from pyjob.queue import QUEUES
-from pyjob import version
+from pyjob import TaskFactory, __version__
+from pyjob.factory import TASK_PLATFORMS
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('-d', '--directory', default='.')
-    p.add_argument('-p', '--platform', choices=QUEUES.keys(), default='local')
-    p.add_argument('-t', '--threads', default=1, type=int)
+    p.add_argument(
+        '-p', '--platform', choices=TASK_PLATFORMS.keys(), default='local')
+    p.add_argument('-t', '--threads', default=1, type=int, dest='nprocesses')
     p.add_argument('--change-dir', default=False, action='store_true')
     p.add_argument('--permit-nonzero', default=False, action='store_true')
     p.add_argument('--verbose', action='count')
-    p.add_argument('--version', action='version', version='pyjob ' + version.__version__)
+    p.add_argument(
+        '--version', action='version', version='pyjob ' + __version__)
     p.add_argument('executables', nargs='+')
 
     kwargs = vars(p.parse_args())
@@ -55,8 +55,8 @@ def main():
     else:
         logging.basicConfig(level=logging.DEBUG)
 
-    with QueueFactory(platform, **kwargs) as queue:
-        queue.submit(executables)
+    with TaskFactory(platform, executables, **kwargs) as task:
+        task.run()
 
     sys.exit(0)
 

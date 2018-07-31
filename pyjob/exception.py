@@ -27,8 +27,14 @@ __version__ = '1.0'
 class PyJobError(Exception):
     pass
 
+
+class PyJobExecutionError(PyJobError):
+    pass
+
+
 class PyJobTaskLockedError(PyJobError):
     pass
 
-class PyJobExecutionError(PyJobError):
+
+class PyJobUnknownTaskPlatform(PyJobError):
     pass
