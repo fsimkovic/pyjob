@@ -49,17 +49,18 @@ CLASSIFIERS = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3.3",
-    "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
 ]
+
+ENTRY_POINTS = {'console_scripts': ['pyjob = pyjob.__main__:main']}
 
 setup(
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     name=PACKAGE_NAME,
     description=DESCRIPTION,
+    entry_points=ENTRY_POINTS,
     long_description=LONG_DESCRIPTION,
     license=LICENSE,
     version=VERSION,

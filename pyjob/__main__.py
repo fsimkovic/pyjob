@@ -32,7 +32,8 @@ from pyjob import QueueFactory
 from pyjob.queue import QUEUES
 from pyjob import version
 
-if __name__ == '__main__':
+
+def main():
     p = argparse.ArgumentParser()
     p.add_argument('-d', '--directory', default='.')
     p.add_argument('-p', '--platform', choices=QUEUES.keys(), default='local')
@@ -58,3 +59,7 @@ if __name__ == '__main__':
         queue.submit(executables)
 
     sys.exit(0)
+
+
+if __name__ == '__main__':
+    main()
