@@ -27,100 +27,49 @@ import os
 import sys
 import tempfile
 
-if sys.platform.startswith('win'):
-    EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', '', '.bat')
-else:
-    EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
+from pyjob.deprecate import deprecate
 
 
+@deprecate(0.3, msg='use pyjob.stopwatch.StopWatch')
 def StopWatch():
-    """Import the :obj:`StopWatch <pyjob.misc.stopwatch.StopWatch>`"""
-    from pyjob.misc.stopwatch import StopWatch
+    from pyjob.stopwatch import StopWatch
     return StopWatch()
 
 
+@deprecate(0.3, msg='use pyjob.stopwatch.StopWatch')
 def is_script(f):
-    """Confirm if a script file is executable"""
-    return os.path.isfile(f) and os.access(f, os.X_OK)
+    from pyjob.script import is_valid_script_path
+    return is_valid_script_path(f)
 
 
-def make_script(cmd, directory=None, prefix="tmp", shebang=SCRIPT_HEADER, stem=None, suffix=SCRIPT_EXT):
-    """Create an executable script
-    
-    Parameters
-    ----------
-    cmd : list
-       The command to be written to the script. This can be a 1-dimensional 
-       or 2-dimensional list, depending on the commands to run.
-    directory : str, optional
-       The directory to create the script in
-    prefix : str, optional
-       The script prefix [default: None]
-    stem : str, optional
-       The steam part of the script name
-    suffix : str, optional
-       The script suffix [default: POSIX - ``.sh``, Windows - ``.bat``]
-    
-    Returns
-    -------
-    str
-       The path to the script
-
-    See Also
-    --------
-    make_python_script
-
-    """
-    content = [shebang]
+@deprecate(0.3, msg='use pyjob.script.Script')
+def make_script(cmd, **kwargs):
+    from pyjob.script import Script
+    script = Script(**kwargs)
     if isinstance(cmd, list) and isinstance(cmd[0], list) \
             or isinstance(cmd, tuple) and isinstance(cmd[0], tuple) \
             or isinstance(cmd, list) and isinstance(cmd[0], tuple) \
             or isinstance(cmd, tuple) and isinstance(cmd[0], list):
         for c in cmd:
-            content.append(' '.join(map(str, c)))
+            script.append(' '.join(map(str, c)))
     elif isinstance(cmd, list) or isinstance(cmd, tuple):
-            content.append(' '.join(map(str, cmd)))
-    script = tmp_file(delete=True, directory=directory, prefix=prefix,
-                      stem=stem, suffix=suffix)
-    with open(script, 'w') as f_out:
-        f_out.write(os.linesep.join(content))
-    os.chmod(script, 0o777)
-    return script
+        script.append(' '.join(map(str, cmd)))
+    script.write()
+    return script.path
 
 
+@deprecate(0.3, msg='use pyjob.script.Script')
 def make_python_script(cmd, directory=None, prefix="tmp", stem=None):
-    """Create an executable Python script
-
-    Parameters
-    ----------
-    cmd : list
-       The command to be written to the script. This can be a 1-dimensional 
-       or 2-dimensional list, depending on the Python commands to run.
-    directory : str, optional
-       The directory to create the script in
-    prefix : str, optional
-       The script prefix [default: None]
-    stem : str, optional
-       The steam part of the script name
-    suffix : str, optional
-       The script suffix [default: ``.py``]
-
-    Returns
-    -------
-    str
-       The path to the script
-
-    See Also
-    --------
-    make_script
-
-    """
     return make_script(
-        cmd, directory=directory, shebang="#!/usr/bin/env python",
-        prefix=prefix, stem=stem, suffix=".py"
-    )
+        cmd,
+        directory=directory,
+        shebang="#!/usr/bin/env python",
+        prefix=prefix,
+        stem=stem,
+        suffix=".py")
 
 
+@deprecate(0.3)
 def tmp_dir(directory=None, prefix="tmp", suffix=""):
     """Return a filename for a temporary directory 
 
@@ -137,6 +86,7 @@ def tmp_dir(directory=None, prefix="tmp", suffix=""):
     return tempfile.mkdtemp(dir=directory, prefix=prefix, suffix=suffix)
 
 
+@deprecate(0.3)
 def tmp_file(delete=False, directory=None, prefix="tmp", stem=None, suffix=""):
     """Return a filename for a temporary file
 
@@ -159,8 +109,8 @@ def tmp_file(delete=False, directory=None, prefix="tmp", stem=None, suffix=""):
     if directory is None:
         directory = tempfile.gettempdir()
     if stem is None:
-        tmpf = tempfile.NamedTemporaryFile(delete=delete, dir=directory,
-                                           prefix=prefix, suffix=suffix)
+        tmpf = tempfile.NamedTemporaryFile(
+            delete=delete, dir=directory, prefix=prefix, suffix=suffix)
         tmpf.close()
         return tmpf.name
     else:
