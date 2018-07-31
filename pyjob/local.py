@@ -49,7 +49,7 @@ class LocalTask(Task):
         self.queue = multiprocessing.Queue()
         self.kill_switch = multiprocessing.Event()
         self.processes = []
-        self.nprocesses = kwargs.get('nprocesses', 1)
+        self.nprocesses = kwargs.get('processes', 1)
         self.directory = kwargs.get('directory', '.')
         self.chdir = kwargs.get('chdir', False)
         self.permit_nonzero = kwargs.get('permit_nonzero', False)

@@ -57,7 +57,7 @@ class SunGridEngineTask(Task):
         self.queue = kwargs.get('queue', None)
         self.runtime = kwargs.get('runtime', None)
         self.shell = kwargs.get('shell', None)
-        self.nprocesses = kwargs.get('nprocesses', 1)
+        self.nprocesses = kwargs.get('processes', 1)
 
     @property
     def info(self):
