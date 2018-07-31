@@ -34,9 +34,11 @@ from pyjob.exception import PyJobError, PyJobUnknownQueue
 from pyjob.misc import EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT, is_script
 
 ABC = abc.ABCMeta('ABC', (object, ), {})
+
 # TODO: make this dynamic
 QUEUES = {
     'local': ('pyjob.local', 'LocalJobServer'),
+    'pbs': ('pyjob.pbs', 'PortableBatchSystem'),
     'sge': ('pyjob.sge', 'SunGridEngine'),
 }
 
@@ -73,6 +75,9 @@ def QueueFactory(platform, *args, **kwargs):
 class Queue(ABC):
     """Abstract Base Class to create new :obj:`~pyjob.queue.Queue` objects with
     """
+
+    TASK_ENV = None
+    ARRAY_TASK_ID = TASK_ENV
 
     def __init__(self, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.queue.Queue`"""

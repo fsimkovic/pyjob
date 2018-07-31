@@ -51,12 +51,12 @@ The first argument to the :obj:`~pyjob.queue.QueueFactory` defines the platform 
 +=========================+==========+
 | Local Machine           | `local`  |
 +-------------------------+----------+
+| Portable Batch System   | `pbs`    |
++-------------------------+----------+
 | Sun Grid Engine         | `sge`    |
 +-------------------------+----------+
 
 .. | Load Sharing Facility   | `lsf`    |
-.. +-------------------------+----------+
-.. | Portable Batch System   | `pbs`    |
 .. +-------------------------+----------+
 .. | TORQUE Resource Manager | `torque` |
 .. +-------------------------+----------+
