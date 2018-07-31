@@ -46,6 +46,8 @@ Quickstart
 
 The first argument to the :obj:`~pyjob.queue.QueueFactory` defines the platform for which the :obj:`~pyjob.queue.Queue` is created. Different platforms are available, and their commonly used abbreviations can be used. 
 
+.. rst-class:: table-hover
+
 +-------------------------+----------+
 | Platform                | Argument | 
 +=========================+==========+
