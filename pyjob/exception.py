@@ -26,12 +26,15 @@ __version__ = '1.0'
 
 
 class PyJobError(Exception):
+    """Generic PyJob exception"""
     pass
 
 
 class PyJobUnknownQueue(PyJobError):
+    """Unknown :obj:`~pyjob.queue.Queue` exception"""
     pass
 
 
 class PyJobExecutionError(PyJobError):
+    """Generic PyJob execution exception"""
     pass

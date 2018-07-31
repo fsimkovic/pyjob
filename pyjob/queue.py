@@ -30,7 +30,7 @@ import abc
 import logging
 import os
 
-from pyjob.exception import PyJobError
+from pyjob.exception import PyJobError, PyJobUnknownQueue
 from pyjob.misc import EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT, is_script
 
 ABC = abc.ABCMeta('ABC', (object, ), {})
@@ -57,8 +57,8 @@ def QueueFactory(platform, *args, **kwargs):
 
     Raises
     ------
-    :exc:`ValueError`
-       Unknown platform
+    :exc:`~pyjob.exception.PyJobUnknownQueue`
+       Unknown queue
 
     """
     platform = platform.lower()
@@ -67,7 +67,7 @@ def QueueFactory(platform, *args, **kwargs):
         module, class_ = QUEUES[platform]
         return getattr(import_module(module), class_)(*args, **kwargs)
     else:
-        raise ValueError('Unknown platform: %s' % platform)
+        raise PyJobUnknownQueue('Unknown queue: %s' % platform)
 
 
 class Queue(ABC):
