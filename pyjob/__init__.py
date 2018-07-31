@@ -23,6 +23,7 @@
 __author__ = 'Felix Simkovic'
 
 from pyjob.cexec import cexec
-from pyjob.script import Script
 from pyjob.factory import TaskFactory
+from pyjob.script import Script
+from pyjob.stopwatch import StopWatch
 from pyjob.version import __version__
