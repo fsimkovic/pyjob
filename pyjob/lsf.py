@@ -90,23 +90,16 @@ class LoadSharingFacilityTask(Task):
         if "is in progress" in stdout:
             stdout = cexec(['bkill', '-b', str(self.pid)], permit_nonzero=True)
             time.sleep(10)
-        if any(
-                text in stdout for text in
-            ["has already finished", "is being terminated", "is in progress"]):
+        if any(text in stdout for text in ["has already finished", "is being terminated", "is in progress"]):
             logger.debug("Terminated task: %d", self.pid)
         else:
             raise RuntimeError('Cannot delete task!')
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.lsf.LoadSharingFacilityTask` execution"""
-        runscript = Script(
-            directory=self.directory,
-            prefix='lsf_',
-            suffix='.script',
-            stem=str(uuid.uuid1().int))
+        runscript = Script(directory=self.directory, prefix='lsf_', suffix='.script', stem=str(uuid.uuid1().int))
         if self.dependency:
-            runscript.append('#BSUB -w %s' % ' && '.join(
-                ['deps(%s)' % str(d) for d in self.dependency]))
+            runscript.append('#BSUB -w %s' % ' && '.join(['deps(%s)' % str(d) for d in self.dependency]))
         if self.directory:
             runscript.append('#BSUB -cwd %s' % self.directory)
         if self.name:
@@ -120,8 +113,7 @@ class LoadSharingFacilityTask(Task):
         if self.shell:
             runscript.append('#BSUB -L %s' % self.shell)
         if self.nprocesses:
-            runscript.append(
-                '#BSUB -R %s' % '"span[ptile={}]"'.format(self.nprocesses))
+            runscript.append('#BSUB -R %s' % '"span[ptile={}]"'.format(self.nprocesses))
 
         if len(self.script) > 1:
             logf = runscript.path.replace('.script', '.log')
@@ -129,11 +121,9 @@ class LoadSharingFacilityTask(Task):
             with open(jobsf, 'w') as f_out:
                 f_out.write(os.linesep.join(self.script))
 
-            runscript.append('#BSUB -J {}[{}-{}%{}]'.format(
-                1, len(self.script), self.max_array_size))
+            runscript.append('#BSUB -J {}[{}-{}%{}]'.format(1, len(self.script), self.max_array_size))
             runscript.append('#BSUB -o %s' % logf)
-            runscript.append('script=$(awk "NR==${}" {})'.format(
-                LoadSharingFacilityTask.TASK_ENV, jobsf))
+            runscript.append('script=$(awk "NR==${}" {})'.format(LoadSharingFacilityTask.TASK_ENV, jobsf))
             runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
             runscript.append("$script > $log 2>&1")
         else:
@@ -141,8 +131,6 @@ class LoadSharingFacilityTask(Task):
             runscript.append(self.script[0])
 
         runscript.write()
-        stdout = cexec(
-            ['bsub'], stdin=str(runscript), directory=self.directory)
+        stdout = cexec(['bsub'], stdin=str(runscript), directory=self.directory)
         self.pid = int(stdout.split()[1][1:-1])
-        logger.debug('%s [%d] submission script is %s',
-                     self.__class__.__name__, self.pid, runscript.path)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)

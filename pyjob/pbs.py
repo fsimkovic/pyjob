@@ -94,11 +94,7 @@ class PortableBatchSystemTask(Task):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.pbs.PortableBatchSystemTask` execution"""
-        runscript = Script(
-            directory=self.directory,
-            prefix='pbs_',
-            suffix='.script',
-            stem=str(uuid.uuid1().int))
+        runscript = Script(directory=self.directory, prefix='pbs_', suffix='.script', stem=str(uuid.uuid1().int))
         runscript.append('#PBS -V')
         if self.directory:
             runscript.append('#PBS -w %s' % self.directory)
@@ -121,12 +117,10 @@ class PortableBatchSystemTask(Task):
             with open(jobsf, 'w') as f_out:
                 f_out.write(os.linesep.join(self.script))
 
-            runscript.append('#PBS -t {}-{}%{}'.format(1, len(self.script),
-                                                       self.max_array_size))
+            runscript.append('#PBS -t {}-{}%{}'.format(1, len(self.script), self.max_array_size))
             runscript.append('#PBS -o %s' % logf)
             runscript.append('#PBS -e %s' % logf)
-            runscript.append('script=$(awk "NR==${}" {})'.format(
-                SunGridEngineTask.TASK_ENV, jobsf))
+            runscript.append('script=$(awk "NR==${}" {})'.format(SunGridEngineTask.TASK_ENV, jobsf))
             runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
             runscript.append("$script > $log 2>&1")
         else:
@@ -137,5 +131,4 @@ class PortableBatchSystemTask(Task):
         runscript.write()
         stdout = cexec(['qsub', runscript.path], directory=self.directory)
         jobid = cexec(cmd, directory=directory)
-        logger.debug('%s [%d] submission script is %s',
-                     self.__class__.__name__, self.pid, runscript.path)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
