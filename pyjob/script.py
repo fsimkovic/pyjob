@@ -80,6 +80,30 @@ class Script(list):
             f_out.write(str(self))
         os.chmod(fname, 0o777)
 
+    @staticmethod
+    def read(path):
+        """Read a script file to construct a :obj:`~pyjob.script.Script`
+
+        Parameters
+        ----------
+        path : str
+           The path to a script file
+
+        Returns
+        -------
+        :obj:`~pyjob.script.Script`
+        
+        """
+        directory, fname = os.path.split(path)
+        fname, ext = os.path.splitext(fname)
+        script = Script(directory=directory, prefix='', stem=fname, suffix=ext)
+        with open(path, 'r') as f_in:
+            lines = [line.rstrip() for line in f_in.readlines()]
+        if lines[0][:2] == '#!':
+            script.shebang = lines.pop(0)
+        script.extend(lines)
+        return script
+
 
 def is_valid_script_path(fname):
     """Validate a script path
