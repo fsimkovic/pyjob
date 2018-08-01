@@ -34,14 +34,12 @@ from pyjob.factory import TASK_PLATFORMS
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('-d', '--directory', default='.')
-    p.add_argument(
-        '-p', '--platform', choices=TASK_PLATFORMS.keys(), default='local')
-    p.add_argument('-t', '--threads', default=1, type=int, dest='nprocesses')
-    p.add_argument('--change-dir', default=False, action='store_true')
+    p.add_argument('-p', '--platform', choices=TASK_PLATFORMS.keys(), default='local')
+    p.add_argument('-t', '--threads', default=1, type=int, dest='processes')
+    p.add_argument('--chdir', default=False, action='store_true')
     p.add_argument('--permit-nonzero', default=False, action='store_true')
     p.add_argument('--verbose', action='count')
-    p.add_argument(
-        '--version', action='version', version='pyjob ' + __version__)
+    p.add_argument('--version', action='version', version='pyjob ' + __version__)
     p.add_argument('executables', nargs='+')
 
     kwargs = vars(p.parse_args())

@@ -25,9 +25,10 @@ __version__ = '1.0'
 
 import logging
 import multiprocessing
-import uuid
+import os
 import sys
 import time
+import uuid
 
 from pyjob.cexec import cexec
 from pyjob.task import Task
@@ -50,7 +51,7 @@ class LocalTask(Task):
         self.kill_switch = multiprocessing.Event()
         self.processes = []
         self.nprocesses = kwargs.get('processes', 1)
-        self.directory = kwargs.get('directory', '.')
+        self.directory = os.path.abspath(kwargs.get('directory', '.'))
         self.chdir = kwargs.get('chdir', False)
         self.permit_nonzero = kwargs.get('permit_nonzero', False)
 
@@ -73,20 +74,13 @@ class LocalTask(Task):
         """
         self.kill_switch.set()
         for proc in self.processes:
-            self.queue.put(None)
-        self.queue.close()
-        for proc in self.processes:
             proc.join()
         for proc in self.processes:
             proc.terminate()
 
-
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.local.LocalTask`"""
         self.kill_switch.set()
-        for proc in self.processes:
-            self.queue.put(None)
-        self.queue.close()
         for proc in self.processes:
             proc.terminate()
         logger.debug("Terminated task: %d", self.pid)
@@ -107,19 +101,14 @@ class LocalTask(Task):
         for _ in self.processes:
             self.queue.put(None)
         self.queue.close()
-        time.sleep(0.1)
         self.pid = uuid.uuid1().int
+        time.sleep(0.1)
 
 
 class LocalProcess(multiprocessing.Process):
-    """Extension to :obj:`~multiprocessing.Process` for :obj:`~pyjob.local.LocalTask`"""
+    """Extension to :obj:`multiprocessing.Process` for :obj:`~pyjob.local.LocalTask`"""
 
-    def __init__(self,
-                 queue,
-                 kill_switch,
-                 directory=None,
-                 permit_nonzero=False,
-                 chdir=False):
+    def __init__(self, queue, kill_switch, directory=None, permit_nonzero=False, chdir=False):
         """Instantiate a :obj:`~pyjob.local.LocalProcess`
 
         Parameters
