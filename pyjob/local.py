@@ -33,6 +33,8 @@ import uuid
 from pyjob.cexec import cexec
 from pyjob.task import Task
 
+CPU_COUNT = multiprocessing.cpu_count()
+
 logger = logging.getLogger(__name__)
 
 
@@ -54,6 +56,18 @@ class LocalTask(Task):
         self.directory = os.path.abspath(kwargs.get('directory', '.'))
         self.chdir = kwargs.get('chdir', False)
         self.permit_nonzero = kwargs.get('permit_nonzero', False)
+
+    @property
+    def nprocesses(self):
+        """Getter for the number of concurrent :obj:`~pyjob.local.LocalProcess`"""
+        return self._nprocesses
+
+    @nprocesses.setter
+    def nprocesses(self, nprocesses):
+        """Setter for the number of concurrent :obj:`~pyjob.local.LocalProcess`"""
+        if nprocesses > CPU_COUNT:
+            logger.warning('More processes requested than available CPUs')
+        self._nprocesses = nprocesses
 
     @property
     def info(self):
