@@ -2,6 +2,7 @@
 
 .eggs
 .idea
+.pytest_cache
 
 # Sphinx/Jupyter files
 _build
