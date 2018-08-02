@@ -35,7 +35,12 @@ else:
 class Script(list):
     """Simple extension to :obj:`list` to hold the contents for an executable script"""
 
-    def __init__(self, shebang=SCRIPT_HEADER, directory='.', prefix='tmp', stem='pyjob', suffix=SCRIPT_EXT):
+    def __init__(self,
+                 shebang=SCRIPT_HEADER,
+                 directory='.',
+                 prefix='tmp',
+                 stem='pyjob',
+                 suffix=SCRIPT_EXT):
         """Instantiate a new :obj:`~pyjob.script.Script`
 
         Parameters
@@ -60,7 +65,16 @@ class Script(list):
 
     def __str__(self):
         """Content of :obj:`~pyjob.script.Script`"""
-        return os.linesep.join([self.shebang] + self)
+        if self.shebang:
+            preamble = [self.shebang]
+        else:
+            preamble = []
+        return os.linesep.join(preamble + self)
+
+    @property
+    def content(self):
+        """Getter method for :attr:`~pyjob.script.Script` content"""
+        return self
 
     @property
     def directory(self):
@@ -75,7 +89,8 @@ class Script(list):
     @property
     def path(self):
         """Path to the :obj:`~pyjob.script.Script`"""
-        return os.path.join(self.directory, self.prefix + self.stem + self.suffix)
+        return os.path.join(self.directory,
+                            self.prefix + self.stem + self.suffix)
 
     def write(self):
         """Write the :obj:`~pyjob.script.Script` to :attr:`~pyjob.script.Script.path`"""
@@ -103,8 +118,10 @@ class Script(list):
         script = Script(directory=directory, prefix='', stem=fname, suffix=ext)
         with open(path, 'r') as f_in:
             lines = [line.rstrip() for line in f_in.readlines()]
-        if lines[0][:2] == '#!':
+        if len(lines) > 0 and lines[0][:2] == '#!':
             script.shebang = lines.pop(0)
+        else:
+            script.shebang = None
         script.extend(lines)
         return script
 

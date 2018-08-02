@@ -68,7 +68,7 @@ setup(
     packages=PACKAGES,
     package_dir={PACKAGE_NAME: PACKAGE_DIR},
     classifiers=CLASSIFIERS,
-    test_suite='nose.collector',
-    tests_require=['nose >=1.3.7'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     zip_safe=False,
 )
