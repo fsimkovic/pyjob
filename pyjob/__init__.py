@@ -28,3 +28,6 @@ from pyjob.job import Job
 from pyjob.script import Script
 from pyjob.stopwatch import StopWatch
 from pyjob.version import __version__
+
+# Expose this utility function
+read_script = Script.read

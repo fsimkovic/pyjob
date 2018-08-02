@@ -17,6 +17,14 @@ Quickstart
    './example.sh'
    >>> script.write()
 
+.. code-block:: python
+
+   >>> from pyjob import read_script
+   >>> script = read_script('./example.sh')
+   >>> print(script)
+   #!/bin/bash
+   sleep 5
+
 **Execution of single script on a local machine**
 
 .. code-block:: python
