@@ -35,12 +35,8 @@ else:
 class Script(list):
     """Simple extension to :obj:`list` to hold the contents for an executable script"""
 
-    def __init__(self,
-                 shebang=SCRIPT_HEADER,
-                 directory='.',
-                 prefix='tmp',
-                 stem='pyjob',
-                 suffix=SCRIPT_EXT):
+    def __init__(self, shebang=SCRIPT_HEADER, directory='.', prefix='tmp', 
+                 stem='pyjob', suffix=SCRIPT_EXT):
         """Instantiate a new :obj:`~pyjob.script.Script`
 
         Parameters
@@ -89,8 +85,7 @@ class Script(list):
     @property
     def path(self):
         """Path to the :obj:`~pyjob.script.Script`"""
-        return os.path.join(self.directory,
-                            self.prefix + self.stem + self.suffix)
+        return os.path.join(self.directory, self.prefix + self.stem + self.suffix)
 
     def write(self):
         """Write the :obj:`~pyjob.script.Script` to :attr:`~pyjob.script.Script.path`"""

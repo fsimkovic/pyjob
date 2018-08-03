@@ -57,8 +57,8 @@ class Task(ABC):
 
         if isinstance(script, str) and is_valid_script_path(script):
             self.script = [script]
-        elif (isinstance(script, list) or isinstance(script, tuple)) and all(
-                is_valid_script_path(fpath) for fpath in script):
+        elif (isinstance(script, list) or isinstance(script, tuple)) \
+                and all(is_valid_script_path(fpath) for fpath in script):
             self.script = list(script)
         else:
             raise PyJobError('One or more scripts cannot be found or are not executable')
