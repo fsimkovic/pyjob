@@ -88,12 +88,12 @@ class LocalTask(Task):
         """
         for proc in self.processes:
             proc.join()
-        self.kill_switch.set()
-        for proc in self.processes:
-            proc.terminate()
+        self.kill()
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.local.LocalTask`"""
+        if not self.kill_switch.is_set():
+            self.kill_switch.set()
         self.kill_switch.set()
         for proc in self.processes:
             proc.terminate()
@@ -158,7 +158,6 @@ class LocalProcess(multiprocessing.Process):
                     directory = os.path.dirname(job)
                 else:
                     directory = self.directory
-
                 stdout = cexec([job], directory=directory, permit_nonzero=self.permit_nonzero)
                 with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
                     f_out.write(stdout)
