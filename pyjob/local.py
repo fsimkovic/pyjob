@@ -86,9 +86,9 @@ class LocalTask(Task):
         :obj:`~pyjob.task.Task` without context manager.
         
         """
-        self.kill_switch.set()
         for proc in self.processes:
             proc.join()
+        self.kill_switch.set()
         for proc in self.processes:
             proc.terminate()
 

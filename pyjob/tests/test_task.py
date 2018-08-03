@@ -35,4 +35,41 @@ class TestLocalPerformance(object):
             task.run()
         for path, log in zip(paths, logs):
             assert os.path.isfile(log)
-        map(os.unlink, paths + logs)
+        for f in paths + logs:
+            os.unlink(f)
+
+    def test_2(self):
+        scripts = [get_py_script(i, 1000) for i in range(16)]
+        [s.write() for s in scripts]
+        paths = [s.path for s in scripts]
+        logs = [s.path.replace('.py', '.log') for s in scripts]
+        with LocalTask(paths, processes=CPU_COUNT) as task:
+            task.run()
+        for path, log in zip(paths, logs):
+            assert os.path.isfile(log)
+        for f in paths + logs:
+            os.unlink(f)
+
+    def test_3(self):
+        scripts = [get_py_script(i, 1000) for i in range(32)]
+        [s.write() for s in scripts]
+        paths = [s.path for s in scripts]
+        logs = [s.path.replace('.py', '.log') for s in scripts]
+        with LocalTask(paths, processes=CPU_COUNT) as task:
+            task.run()
+        for path, log in zip(paths, logs):
+            assert os.path.isfile(log)
+        for f in paths + logs:
+            os.unlink(f)
+
+    def test_4(self):
+        scripts = [get_py_script(i, 10000) for i in range(64)]
+        [s.write() for s in scripts]
+        paths = [s.path for s in scripts]
+        logs = [s.path.replace('.py', '.log') for s in scripts]
+        with LocalTask(paths, processes=CPU_COUNT) as task:
+            task.run()
+        for path, log in zip(paths, logs):
+            assert os.path.isfile(log)
+        for f in paths + logs:
+            os.unlink(f)
