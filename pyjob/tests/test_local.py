@@ -67,16 +67,20 @@ class TestLocalTaskTermination(object):
         for f in paths + logs:
             os.unlink(f)
 
-    # ----- This test fails to wait for full job completion ----- #
-    #  def test_terminate_4(self):
-    #      scripts = [get_py_script(i, 1000000) for i in range(1000)]
-    #      [s.write() for s in scripts]
-    #      paths = [s.path for s in scripts]
-    #      logs = [s.path.replace('.py', '.log') for s in scripts]
-    #      task = LocalTask(paths, processes=1)
-    #      task.run()
+    def test_terminate_4(self):
+        def nestedf():
+            scripts = [get_py_script(i, 1000000) for i in range(5)]
+            [s.write() for s in scripts]
+            paths = [s.path for s in scripts]
+            logs = [s.path.replace('.py', '.log') for s in scripts]
+            task = LocalTask(paths, processes=CPU_COUNT)
+            task.run()
+            return paths, logs
 
-    # ----- This test causes a deadlock ----- #
+        paths, logs = nestedf()
+        for f in paths + logs:
+            os.unlink(f)
+
     #  def test_terminate_5(self):
     #      scripts = [get_py_script(i, 1000000) for i in range(1000)]
     #      [s.write() for s in scripts]
