@@ -1,60 +1,26 @@
-**[unreleased]**
-
-**[0.2]**
+**[develop]**
 
 *Added*
 
-- Extended total number of independent jobs allowed on local server
-- :obj:`~pyjob.pool.Pool` contextmanager added to allow proper clear-up ... built around :obj:`multiprocessing.Pool`
+- [`#3 <https://github.com/fsimkovic/pyjob/issues/3>`_] - :obj:`~pyjob.script.Script` interface to read/write scripts conveniently
+- [`#8 <https://github.com/fsimkovic/pyjob/issues/8>`_] - Sphinx documentation added [hosted on ReadTheDocs.org]
+- [`#9 <https://github.com/fsimkovic/pyjob/issues/9>`_] - Codecov support added
+- [`#10 <https://github.com/fsimkovic/pyjob/issues/10>`_] - Contextmanager support for all :obj:`~pyjob.task.Task` instances
+- [`#11 <https://github.com/fsimkovic/pyjob/issues/11>`_] - Contextmanager support for :obj:`~pyjob.stopwatch.StopWatch` instances 
+- [`#12 <https://github.com/fsimkovic/pyjob/issues/12>`_] - `pyjob` command-line executable to provide conveniont script submission without active Python interpreter
+- Convenience function :meth:`~pyjob.misc.deprecate` for faster/more readable deprecation tagging
+- Better execution handling of all cluster platforms wrt running directory
 
 *Changed*
 
-- :obj:`~pyjob.job.Job` renamed to `~pyjob.queue.Queue` although backwards compatible
-- :obj:`~pyjob.queue.Queue` can be used as context
-
-**[0.1.5]**
-
-*Added*
-
-- `MANIFEST.in` file added - thanks @mobiusklein
-
-**[0.1.4]**
-
-*Added*
-
-- Support for PBS/TORQUE added [experimental]
-
-*Changed*
-
-- Renamed :func:`~pyjob.platform.platform_factory` to :func:`~pyjob.platform.Platform()`
-- Renamed :const:`~pyjob.platform.platform.Platform.TASK_ID` to :const:`~pyjob.platform.platform.Platform.ARRAY_TASK_ID`
+- Backend architecture refactored. Previous :obj:`~pyjob.job.Job` class merged with :obj:`~pyjob.platform.platform.Platform` class to become abstract base class :obj:`~pyjob.task.Task`. Backwards-compatibility maintained but is going to be deprecated with release 0.3
 
 *Fixed*
 
-- :obj:`~pyjob.platform.worker.Worker` terminates properly
+- [`#6 <https://github.com/fsimkovic/pyjob/issues/6>`_] - Bug fix in :func:`pyjob.cexec.cexec` to enable decoding of other :obj:`bytes` encodings than ASCII, which may be returned by :meth:`subprocess.Popen.communicate`
+- Bug fix in :obj:`~pyjob.local.LocalTask` to prevent deadlock when processes did not terminate properly
+- Bug fix in :meth:`~pyjob.task.Task.wait` that attempted to call a :obj:`bool` in rare occasions
 
-**[0.1.3]**
+*Removed*
 
-*Changed*
-
-- Critical bug fix in :func:`~pyjob.platform.prep_array_script` for cluster job submission
-
-**[0.1.2]**
-
-*Changed*
-
-- :exc:`~pyjob.exception.PyJobNotImplementedError` replaced with :exc:`NotImplementedError`
-- Bug fix for script submission in :meth:`~pyjob.job.Job.submit`
-
-**[0.1.1]**
-
-*Changed*
-
-- Fix for PyPi installation
-- Added additional information to `README.rst` file
-
-**[0.1]**
-
-*Added*
-
-- Initial release
+- :mod:`pyjob.misc` and :mod:`pyjob.platform` deprecated in favour of (temporary) modules

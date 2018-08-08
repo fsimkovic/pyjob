@@ -182,15 +182,13 @@ class Task(ABC):
         do_check_success = bool(check_success and callable(check_success))
         if do_check_success:
             msg = 'Checking for %s %d success with function %s'
-            logger.debug(msg, self.__class__.__name__, self.pid,
-                         check_success.__name__)
+            logger.debug(msg, self.__class__.__name__, self.pid, check_success.__name__)
         do_monitor = bool(monitor and callable(monitor))
         while not self.completed:
             if do_check_success:
                 for log in self.log:
                     if os.path.isfile(log) and check_success(log):
-                        logger.debug("%s %d succeeded, run log: %s",
-                                     self.__class__.__name__, self.pid, log)
+                        logger.debug("%s %d succeeded, run log: %s", self.__class__.__name__, self.pid, log)
                         self.kill()
             if do_monitor:
                 monitor()
