@@ -40,12 +40,12 @@ class Task(ABC):
 
     def __init__(self, script, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.task.Task`
-        
+
         Parameters
         ----------
         script : str, list, tuple
-           A :obj:`str`, :obj:`list` or :obj:`tuple` of one or more script paths 
-        
+           A :obj:`str`, :obj:`list` or :obj:`tuple` of one or more script paths
+
         Raises
         ------
         :exc:`PyJobError`
@@ -70,7 +70,7 @@ class Task(ABC):
 
     def __enter__(self):
         """Contextmanager entry function
-        
+
         Note
         ----
         For further details see `PEP 343 <https://www.python.org/dev/peps/pep-0343/>`_.
@@ -128,7 +128,7 @@ class Task(ABC):
 
     def add_script(self, script):
         """Add further scripts to this :obj:`~pyjob.task.Task`
-        
+
         Parameters
         ----------
         script : str
@@ -147,7 +147,7 @@ class Task(ABC):
 
     def run(self):
         """Start the execution of this :obj:`~pyjob.sge.SunGridEngineTask`
-        
+
         Raises
         ------
         :exc:`~pyjob.exception.PyJobTaskLockedError`

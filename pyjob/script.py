@@ -35,12 +35,7 @@ else:
 class Script(list):
     """Simple extension to :obj:`list` to hold the contents for an executable script"""
 
-    def __init__(self,
-                 shebang=SCRIPT_HEADER,
-                 directory='.',
-                 prefix='tmp',
-                 stem='pyjob',
-                 suffix=SCRIPT_EXT):
+    def __init__(self, shebang=SCRIPT_HEADER, directory='.', prefix='tmp', stem='pyjob', suffix=SCRIPT_EXT):
         """Instantiate a new :obj:`~pyjob.script.Script`
 
         Parameters
@@ -55,7 +50,7 @@ class Script(list):
            The :obj:`~pyjob.script.Script` filename middle
         suffix : str, optional
            The :obj:`~pyjob.script.Script` filename suffix
- 
+
         """
         self.directory = directory
         self.prefix = prefix

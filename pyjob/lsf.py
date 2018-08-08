@@ -68,18 +68,18 @@ class LoadSharingFacilityTask(Task):
 
     def close(self):
         """Close this :obj:`~pyjob.lsf.LoadSharingFacilityTask` after completion
-       
+
         Warning
         -------
-        It is essential to call this method if you are using any 
+        It is essential to call this method if you are using any
         :obj:`~pyjob.task.Task` without context manager.
-        
+
         """
         self.wait()
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.lsf.LoadSharingFacilityTask`
-        
+
         Raises
         ------
         :exc:`RuntimeError`

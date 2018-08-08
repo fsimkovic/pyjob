@@ -83,9 +83,9 @@ class LocalTask(Task):
 
         Warning
         -------
-        It is essential to call this method if you are using any 
+        It is essential to call this method if you are using any
         :obj:`~pyjob.task.Task` without context manager.
-        
+
         """
         if self._killed:
             return
@@ -107,13 +107,16 @@ class LocalTask(Task):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.local.LocalTask` execution"""
+        if self._killed:
+            return
         for _ in range(self.nprocesses):
             proc = LocalProcess(
                 self.queue,
                 self.kill_switch,
                 directory=self.directory,
                 chdir=self.chdir,
-                permit_nonzero=self.permit_nonzero)
+                permit_nonzero=self.permit_nonzero
+            )
             proc.start()
             self.processes.append(proc)
         for script in self.script:
@@ -128,24 +131,19 @@ class LocalTask(Task):
 class LocalProcess(multiprocessing.Process):
     """Extension to :obj:`multiprocessing.Process` for :obj:`~pyjob.local.LocalTask`"""
 
-    def __init__(self,
-                 queue,
-                 kill_switch,
-                 directory=None,
-                 permit_nonzero=False,
-                 chdir=False):
+    def __init__(self, queue, kill_switch, directory=None, permit_nonzero=False, chdir=False):
         """Instantiate a :obj:`~pyjob.local.LocalProcess`
 
         Parameters
         ----------
-        queue : :obj:`~multiprocessing.Queue` 
+        queue : :obj:`~multiprocessing.Queue`
            An instance of a :obj:`~multiprocessing.Queue`
         kill_switch : obj
            An instance of a :obj:`~multiprocessing.Event`
         directory : str, optional
            The directory to execute the jobs in
         permit_nonzero : bool, optional
-           Allow non-zero return codes 
+           Allow non-zero return codes
 
         Warning
         -------
@@ -169,9 +167,6 @@ class LocalProcess(multiprocessing.Process):
                     directory = os.path.dirname(job)
                 else:
                     directory = self.directory
-                stdout = cexec(
-                    [job],
-                    directory=directory,
-                    permit_nonzero=self.permit_nonzero)
+                stdout = cexec([job], directory=directory, permit_nonzero=self.permit_nonzero)
                 with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
                     f_out.write(stdout)

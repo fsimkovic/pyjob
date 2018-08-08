@@ -109,6 +109,7 @@ class TestLocalTaskTermination(object):
         logs = [s.path.replace('.py', '.log') for s in scripts]
         with LocalTask(paths, processes=CPU_COUNT) as task:
             task.run()
+            time.sleep(1)
             task.kill()
         assert all(os.path.isfile(path) for path in paths)
         assert any(os.path.isfile(log) for log in logs)

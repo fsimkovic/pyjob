@@ -37,7 +37,7 @@ def decode(byte_s):
 
     Parameters
     ----------
-    byte_s : bytes 
+    byte_s : bytes
        The :obj:`bytes` to decode
 
     Returns
@@ -64,7 +64,7 @@ def decode(byte_s):
 
 def deprecate(version, msg=None):
     """Decorator to deprecate Python classes and functions
-    
+
     Parameters
     ----------
     version : str
@@ -72,16 +72,16 @@ def deprecate(version, msg=None):
     msg : str, optional
        An additional message that will be displayed alongside the default message
 
-    
+
     Examples
     --------
     Enable :obj:`~DeprecationWarning` messages to be displayed.
 
     >>> import warnings
     >>> warnings.simplefilter('default')
-    
+
     Decorate a simple Python function without additional message
-    
+
     >>> @deprecate('0.0.0')
     ... def sum(a, b):
     ...     return a + b
@@ -96,7 +96,7 @@ def deprecate(version, msg=None):
     ... def sum(a, b):
     ...     return a + b
     >>> sum(2, 2)
-    deprecated.py:34: DeprecationWarning: sum has been deprecated and will be removed in version 0.0.0! - Use XXX instead!
+    deprecated.py:34: DeprecationWarning: sum has been deprecated and will be removed in version 0.0.0!
       warnings.warn(message, DeprecationWarning)
     4
 
@@ -124,13 +124,13 @@ def deprecate(version, msg=None):
     6
 
     Decorate a Python class staticmethod
-    
+
     >>> class Obj(object):
     ...     @staticmethod
     ...     @deprecate('0.0.4')
     ...     def sub(a, b):
     ...         return a - b
-    ... 
+    ...
     >>> Obj.sub(2, 1)
     deprecated.py:34: DeprecationWarning: sub has been deprecated and will be removed in version 0.0.4!
       warnings.warn(message, DeprecationWarning)
@@ -144,7 +144,7 @@ def deprecate(version, msg=None):
     ...     @deprecate('0.0.5')
     ...     def sub(cls, a):
     ...         return a - cls.CONST
-    ... 
+    ...
     >>> Obj().sub(5)
     deprecated.py:34: DeprecationWarning: sub has been deprecated and will be removed in version 0.0.5!
       warnings.warn(message, DeprecationWarning)
@@ -207,7 +207,7 @@ def make_python_script(cmd, directory=None, prefix="tmp", stem=None):
 
 @deprecate(0.3)
 def tmp_dir(directory=None, prefix="tmp", suffix=""):
-    """Return a filename for a temporary directory 
+    """Return a filename for a temporary directory
 
     Parameters
     ----------

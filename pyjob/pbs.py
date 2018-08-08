@@ -78,10 +78,10 @@ class PortableBatchSystemTask(Task):
 
     def close(self):
         """Close this :obj:`~pyjob.pbs.PortableBatchSystemTask` after completion
-        
+
         Warning
         -------
-        It is essential to call this method if you are using any 
+        It is essential to call this method if you are using any
         :obj:`~pyjob.task.Task` without context manager.
 
         """
