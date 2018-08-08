@@ -13,7 +13,7 @@ def fib(n):
     for i in range(n):
         tmp = cache[0]
         cache[0] = cache[1]
-        cache[1] += tmp 
+        cache[1] += tmp
     return cache[1]
 n = {}; print('%dth fib is: %d' % (n, fib(n)))
 """
@@ -73,7 +73,7 @@ class TestLocalTaskTermination(object):
             [s.write() for s in scripts]
             paths = [s.path for s in scripts]
             logs = [s.path.replace('.py', '.log') for s in scripts]
-            task = LocalTask(paths, processes=CPU_COUNT)
+            task = LocalTask(paths, processes=min(CPU_COUNT, 2))
             task.run()
             return paths, logs
 
@@ -81,15 +81,26 @@ class TestLocalTaskTermination(object):
         for f in paths + logs:
             os.unlink(f)
 
-    #  def test_terminate_5(self):
-    #      scripts = [get_py_script(i, 1000000) for i in range(1000)]
-    #      [s.write() for s in scripts]
-    #      paths = [s.path for s in scripts]
-    #      logs = [s.path.replace('.py', '.log') for s in scripts]
-    #      task = LocalTask(paths, processes=CPU_COUNT)
-    #      task.run()
-    #      for path in paths[800:]:
-    #          os.unlink(path)
+    def test_terminate_5(self):
+        def nestedf():
+            scripts = [get_py_script(i, 1000000) for i in range(5)]
+            [s.write() for s in scripts]
+            paths = [s.path for s in scripts]
+            logs = [s.path.replace('.py', '.log') for s in scripts]
+            task = LocalTask(paths, processes=min(CPU_COUNT, 2))
+            task.run()
+            for path in paths[4:]:
+                os.unlink(path)
+            return paths, logs
+
+        paths, logs = nestedf()
+        assert all(os.path.isfile(f) for f in paths[:4])
+        assert not any(os.path.isfile(f) for f in paths[4:])
+        assert all(os.path.isfile(f) for f in logs[:4])
+        assert not any(os.path.isfile(f) for f in logs[4:])
+        for f in paths + logs:
+            if os.path.isfile(f):
+                os.unlink(f)
 
     def test_terminate_6(self):
         scripts = [get_py_script(i, 10000) for i in range(100)]

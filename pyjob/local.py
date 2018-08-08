@@ -56,6 +56,7 @@ class LocalTask(Task):
         self.directory = os.path.abspath(kwargs.get('directory', '.'))
         self.chdir = kwargs.get('chdir', False)
         self.permit_nonzero = kwargs.get('permit_nonzero', False)
+        self._killed = False
 
     @property
     def nprocesses(self):
@@ -86,18 +87,23 @@ class LocalTask(Task):
         :obj:`~pyjob.task.Task` without context manager.
         
         """
+        if self._killed:
+            return
         for proc in self.processes:
             proc.join()
         self.kill()
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.local.LocalTask`"""
+        if self._killed:
+            return
         if not self.kill_switch.is_set():
             self.kill_switch.set()
         self.kill_switch.set()
         for proc in self.processes:
             proc.terminate()
         logger.debug("Terminated task: %d", self.pid)
+        self._killed = True
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.local.LocalTask` execution"""
@@ -122,7 +128,12 @@ class LocalTask(Task):
 class LocalProcess(multiprocessing.Process):
     """Extension to :obj:`multiprocessing.Process` for :obj:`~pyjob.local.LocalTask`"""
 
-    def __init__(self, queue, kill_switch, directory=None, permit_nonzero=False, chdir=False):
+    def __init__(self,
+                 queue,
+                 kill_switch,
+                 directory=None,
+                 permit_nonzero=False,
+                 chdir=False):
         """Instantiate a :obj:`~pyjob.local.LocalProcess`
 
         Parameters
@@ -158,6 +169,9 @@ class LocalProcess(multiprocessing.Process):
                     directory = os.path.dirname(job)
                 else:
                     directory = self.directory
-                stdout = cexec([job], directory=directory, permit_nonzero=self.permit_nonzero)
+                stdout = cexec(
+                    [job],
+                    directory=directory,
+                    permit_nonzero=self.permit_nonzero)
                 with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
                     f_out.write(stdout)

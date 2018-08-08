@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 def TaskFactory(platform, *args, **kwargs):
     """Accessibility function for any :obj:`~pyjob.task.Task`
-    
+ 
     Parameters
     ----------
     platform : str

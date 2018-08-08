@@ -82,9 +82,9 @@ class SunGridEngineTask(Task):
 
         Warning
         -------
-        It is essential to call this method if you are using any 
+        It is essential to call this method if you are using any
         :obj:`~pyjob.task.Task` without context manager.
- 
+
         """
         self.wait()
 
@@ -95,12 +95,17 @@ class SunGridEngineTask(Task):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.sge.SunGridEngineTask` execution"""
-        runscript = Script(directory=self.directory, prefix='sge_', suffix='.script', stem=str(uuid.uuid1().int))
+        runscript = Script(
+            directory=self.directory,
+            prefix='sge_',
+            suffix='.script',
+            stem=str(uuid.uuid1().int))
         runscript.append('#$ -V')
         runscript.append('#$ -w e')
         runscript.append('#$ -j y')
         if self.dependency:
-            runscript.append('#$ -hold_jid %s' % ','.join(map(str, self.dependency)))
+            runscript.append(
+                '#$ -hold_jid %s' % ','.join(map(str, self.dependency)))
         if self.name:
             runscript.append('#$ -N %s' % self.name)
         if self.pe_opts:
@@ -126,9 +131,11 @@ class SunGridEngineTask(Task):
             with open(jobsf, 'w') as f_out:
                 f_out.write(os.linesep.join(self.script))
 
-            runscript.append('#$ -t %d-%d -tc %d' % (1, len(self.script), self.max_array_size))
+            runscript.append('#$ -t %d-%d -tc %d' % (1, len(self.script),
+                                                     self.max_array_size))
             runscript.append('#$ -o %s' % logf)
-            runscript.append('script=$(awk "NR==${}" {})'.format(SunGridEngineTask.TASK_ENV, jobsf))
+            runscript.append('script=$(awk "NR==${}" {})'.format(
+                SunGridEngineTask.TASK_ENV, jobsf))
             runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
             runscript.append("$script > $log 2>&1")
         else:
@@ -141,4 +148,5 @@ class SunGridEngineTask(Task):
             self.pid = int(stdout.split()[2].split(".")[0])
         else:
             self.pid = int(stdout.split()[2])
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
+        logger.debug('%s [%d] submission script is %s',
+                     self.__class__.__name__, self.pid, runscript.path)

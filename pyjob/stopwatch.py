@@ -19,7 +19,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 """Module to store a stopwatch class"""
 
 __author__ = "Felix Simkovic"
@@ -35,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 class _Time(object):
     """Generic time class"""
+
     def __init__(self, index):
         """Instantiate a new :obj:`Lap`"""
         self.index = index
@@ -42,8 +42,8 @@ class _Time(object):
         self._end_time = 0.0
 
     def __repr__(self):
-        return "{0}(index={1} time={2}s)".format(
-            self.__class__.__name__, self.index, self.time)
+        return "{0}(index={1} time={2}s)".format(self.__class__.__name__,
+                                                 self.index, self.time)
 
     def __add__(self, other):
         """Add the lap times"""
@@ -61,13 +61,15 @@ class _Time(object):
     @property
     def time_pretty(self):
         """Convert (seconds) to (days, hours, minutes, seconds)"""
-        d = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=self.time)
+        d = datetime.datetime(1970, 1,
+                              1) + datetime.timedelta(seconds=self.time)
         # Leave -1 in day as we start on the first day of the year
         return d.day - 1, d.hour, d.minute, d.second
 
 
 class _Lap(_Time):
     """Lap time"""
+
     def __init__(self, index):
         """Instantiate a new :obj:`Lap`"""
         super(_Lap, self).__init__(index)
@@ -170,9 +172,9 @@ class StopWatch(_Time):
         return self._intervals[id]
 
     def __repr__(self):
-        return "{0}(time={1}s intervals={2})".format(
-            self.__class__.__name__, self.time, len(self._intervals)
-        )
+        return "{0}(time={1}s intervals={2})".format(self.__class__.__name__,
+                                                     self.time,
+                                                     len(self._intervals))
 
     @property
     def intervals(self):
@@ -196,7 +198,7 @@ class StopWatch(_Time):
     @property
     def running(self):
         """Stopwatch status"""
-        return len(self._intervals) > 0 and self._intervals[-1]._running 
+        return len(self._intervals) > 0 and self._intervals[-1]._running
 
     @property
     def time(self):
@@ -206,7 +208,8 @@ class StopWatch(_Time):
     @property
     def time_pretty(self):
         """Convert (seconds) to (days, hours, minutes, seconds)"""
-        d = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=self.time)
+        d = datetime.datetime(1970, 1,
+                              1) + datetime.timedelta(seconds=self.time)
         # Leave -1 in day as we start on the first day of the year
         return d.day - 1, d.hour, d.minute, d.second
 

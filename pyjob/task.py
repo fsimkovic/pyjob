@@ -61,7 +61,8 @@ class Task(ABC):
                 and all(is_valid_script_path(fpath) for fpath in script):
             self.script = list(script)
         else:
-            raise PyJobError('One or more scripts cannot be found or are not executable')
+            raise PyJobError(
+                'One or more scripts cannot be found or are not executable')
 
     def __del__(self):
         """Exit function at instance deletion"""
@@ -156,7 +157,8 @@ class Task(ABC):
         if self.locked:
             raise PyJobTaskLockedError('This task is locked!')
         self._run()
-        logger.debug('Started execution of %s [%d]', self.__class__.__name__, self.pid)
+        logger.debug('Started execution of %s [%d]', self.__class__.__name__,
+                     self.pid)
         self.locked = True
 
     def wait(self, check_success=None, interval=30, monitor=None):
@@ -169,24 +171,26 @@ class Task(ABC):
         interval : int, optional
            The interval to wait between checking (in seconds)
         monitor : func, optional
-           A :obj:`callable` that is regularly invoked 
-        
+           A :obj:`callable` that is regularly invoked
+
         Note
         ----
-        The `check_success` argument needs to accept a log file as input and return 
+        The `check_success` argument needs to accept a log file as input and return
         a :obj:`bool`.
 
         """
         do_check_success = bool(check_success and callable(check_success))
         if do_check_success:
             msg = 'Checking for %s %d success with function %s'
-            logger.debug(msg, self.__class__.__name__, self.pid, check_success.__name__)
+            logger.debug(msg, self.__class__.__name__, self.pid,
+                         check_success.__name__)
         do_monitor = bool(monitor and callable(monitor))
         while not self.completed:
             if do_check_success:
                 for log in self.log:
                     if os.path.isfile(log) and check_success(log):
-                        logger.debug("%s %d succeeded, run log: %s", self.__class__.__name__, self.pid, log)
+                        logger.debug("%s %d succeeded, run log: %s",
+                                     self.__class__.__name__, self.pid, log)
                         self.kill()
             if do_monitor:
                 monitor()

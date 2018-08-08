@@ -40,7 +40,6 @@ VERSION = version()
 
 PACKAGES = [
     'pyjob',
-    'pyjob/misc',
 ]
 
 CLASSIFIERS = [
@@ -69,6 +68,6 @@ setup(
     package_dir={PACKAGE_NAME: PACKAGE_DIR},
     classifiers=CLASSIFIERS,
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    tests_require=['codecov', 'pytest', 'pytest-cov', 'pytest-pep8'],
     zip_safe=False,
 )

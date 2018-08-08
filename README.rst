@@ -6,15 +6,19 @@ PyJob
 
 .. image:: https://img.shields.io/pypi/v/pyjob.svg
    :target: https://pypi.python.org/pypi/pyjob
-   :alt: PyPi package
+   :alt: PyPi Package
 
 .. image:: https://travis-ci.org/fsimkovic/pyjob.svg
    :target: https://travis-ci.org/fsimkovic/pyjob
    :alt: Build Status
 
+.. image:: https://codecov.io/gh/codecov/pyjob/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/codecov/pyjob
+   :alt: Codecov Status
+
 .. image:: https://img.shields.io/pypi/pyversions/pyjob.svg
    :target: https://pypi.python.org/pypi/pyjob
-   :alt: Python version
+   :alt: Python Version
 
 Installation
 ++++++++++++
