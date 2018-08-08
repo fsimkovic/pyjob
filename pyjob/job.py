@@ -23,12 +23,11 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
-from pyjob.deprecate import deprecate
 from pyjob.factory import TaskFactory
+from pyjob.misc import deprecate
 
 
 class Job(object):
-    
     @deprecate(0.3, msg='use pyjob.factory.TaskFactory')
     def __init__(self, qtype):
         self.qtype = qtype
