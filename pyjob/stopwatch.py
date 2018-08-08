@@ -32,18 +32,17 @@ import time
 logger = logging.getLogger(__name__)
 
 
-class _Time(object):
+class Time(object):
     """Generic time class"""
 
     def __init__(self, index):
-        """Instantiate a new :obj:`Lap`"""
+        """Instantiate a new :obj:`~pyjob.stopwatch.Lap`"""
         self.index = index
         self._start_time = 0.0
         self._end_time = 0.0
 
     def __repr__(self):
-        return "{0}(index={1} time={2}s)".format(self.__class__.__name__,
-                                                 self.index, self.time)
+        return "{}(index={} time={}s)".format(self.__class__.__name__, self.index, self.time)
 
     def __add__(self, other):
         """Add the lap times"""
@@ -61,26 +60,25 @@ class _Time(object):
     @property
     def time_pretty(self):
         """Convert (seconds) to (days, hours, minutes, seconds)"""
-        d = datetime.datetime(1970, 1,
-                              1) + datetime.timedelta(seconds=self.time)
+        d = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=self.time)
         # Leave -1 in day as we start on the first day of the year
         return d.day - 1, d.hour, d.minute, d.second
 
 
-class _Lap(_Time):
+class Lap(Time):
     """Lap time"""
 
     def __init__(self, index):
-        """Instantiate a new :obj:`Lap`"""
-        super(_Lap, self).__init__(index)
+        """Instantiate a new :obj:`~pyjob.stopwatch.Lap`"""
+        super(Lap, self).__init__(index)
 
 
-class _Interval(_Time):
+class Interval(Time):
     """Interval time"""
 
     def __init__(self, index):
-        """Instantiate a new :obj:`Interval`"""
-        super(_Interval, self).__init__(index)
+        """Instantiate a new :obj:`~pyjob.stopwatch.Interval`"""
+        super(Interval, self).__init__(index)
 
         self._laps = []
         self._locked = False
@@ -106,13 +104,13 @@ class _Interval(_Time):
         """Take a lap snapshot"""
         if self._locked:
             logger.critical("Cannot add a lap, interval finished!")
-            return None
+            return
         elif not self._running:
             logger.critical("Cannot add a lap, interval not running!")
-            return None
+            return
 
         self._ilap += 1
-        lap = _Lap(self._ilap)
+        lap = Lap(self._ilap)
         lap._start_time = self._start_time + sum([l.time for l in self._laps])
         lap._end_time = time.time()
         self._laps += [lap]
@@ -159,22 +157,41 @@ class _Interval(_Time):
             logger.warning("Interval not running!")
 
 
-class StopWatch(_Time):
+class StopWatch(Time):
     """Stopwatch class"""
 
     def __init__(self):
-        """Instantiate a new :obj:`StopWatch`"""
+        """Instantiate a new :obj:`~pyjob.stopwatch.StopWatch`"""
         super(StopWatch, self).__init__(1)
         self.reset()
+
+    def __enter__(self):
+        """Contextmanager entry function
+
+        Note
+        ----
+        For further details see `PEP 343 <https://www.python.org/dev/peps/pep-0343/>`_.
+
+        """
+        self.start()
+        return self
+
+    def __exit__(self, *exc):
+        """Contextmanager exit function
+
+        Note
+        ----
+        For further details see `PEP 343 <https://www.python.org/dev/peps/pep-0343/>`_.
+
+        """
+        self.stop()
 
     def __getitem__(self, id):
         """Slice the intervals"""
         return self._intervals[id]
 
     def __repr__(self):
-        return "{0}(time={1}s intervals={2})".format(self.__class__.__name__,
-                                                     self.time,
-                                                     len(self._intervals))
+        return "{}(time={}s intervals={})".format(self.__class__.__name__, self.time, len(self._intervals))
 
     @property
     def intervals(self):
@@ -188,7 +205,6 @@ class StopWatch(_Time):
             return self._intervals[-1].lap
         else:
             logger.critical("Cannot add a lap, stopwatch not running!")
-            return None
 
     @property
     def nintervals(self):
@@ -205,14 +221,6 @@ class StopWatch(_Time):
         """Time in seconds"""
         return sum([interval.time for interval in self._intervals])
 
-    @property
-    def time_pretty(self):
-        """Convert (seconds) to (days, hours, minutes, seconds)"""
-        d = datetime.datetime(1970, 1,
-                              1) + datetime.timedelta(seconds=self.time)
-        # Leave -1 in day as we start on the first day of the year
-        return d.day - 1, d.hour, d.minute, d.second
-
     def reset(self):
         """Reset the timer"""
         self._intervals = []
@@ -226,7 +234,7 @@ class StopWatch(_Time):
         else:
             logger.debug("Starting stopwatch ...")
             self._iinterval += 1
-            interval = _Interval(self._iinterval)
+            interval = Interval(self._iinterval)
             interval.start()
             self._intervals += [interval]
         return interval
