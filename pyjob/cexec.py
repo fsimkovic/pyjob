@@ -30,6 +30,7 @@ import subprocess
 import sys
 
 from pyjob.exception import PyJobExecutionError
+from pyjob.misc import decode
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
 
     Raises
     ------
-    PyJobExecutionError
+    :exc:`PyJobExecutionError`
        Execution exited with non-zero return code
 
     """
@@ -74,7 +75,7 @@ def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
         os.kill(p.pid, signal.SIGTERM)
         sys.exit(signal.SIGTERM)
     else:
-        stdout = stdout.decode()
+        stdout = decode(stdout)
         if p.returncode == 0:
             return stdout.strip()
         elif permit_nonzero:

@@ -23,19 +23,49 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
+import chardet.universaldetector
 import os
 import sys
 import tempfile
-import warnings
 
 from pyjob.deprecate import deprecate
+from pyjob.exception import PyJobError
 
-warnings.warn('This subpackage will be removed in release 0.3')
 
 @deprecate(0.3, msg='use pyjob.stopwatch.StopWatch')
 def StopWatch():
     from pyjob.stopwatch import StopWatch
     return StopWatch()
+
+
+def decode(s):
+    """Decode a string by guessing the encoding
+
+    Parameters
+    ----------
+    s : str
+       The :obj:`str` to decode
+
+    Returns
+    -------
+    :obj:`str`
+       `s` decoded
+
+    Raises
+    ------
+    :exc:`PyJobError`
+       Unable to infer string encoding
+    
+    """
+    detector = chardet.universaldetector.UniversalDetector()
+    for line in s.split(os.linesep):
+        detector.feed(line)
+        if detector.done:
+            break
+    detector.close()
+    if detector.result['confidence'] < 0.98:
+        raise PyJobError('Unable to infer string encoding')
+    return s.decode(detector.result['encoding'])
 
 
 @deprecate(0.3, msg='use pyjob.stopwatch.StopWatch')
