@@ -68,6 +68,8 @@ setup(
     package_dir={PACKAGE_NAME: PACKAGE_DIR},
     classifiers=CLASSIFIERS,
     setup_requires=['pytest-runner'],
-    tests_require=['codecov', 'pytest', 'pytest-cov', 'pytest-pep8'],
+    tests_require=[
+        'codecov', 'coverage', 'pytest', 'pytest-cov', 'pytest-pep8'
+    ],
     zip_safe=False,
 )
