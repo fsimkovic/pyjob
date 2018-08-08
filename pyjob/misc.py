@@ -23,7 +23,7 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
-import chardet
+import chardet.universaldetector
 import os
 import sys
 import tempfile
@@ -32,34 +32,34 @@ import warnings
 from pyjob.exception import PyJobError
 
 
-def decode(s):
+def decode(byte_s):
     """Decode a string by guessing the encoding
 
     Parameters
     ----------
-    s : str
-       The :obj:`str` to decode
+    byte_s : bytes 
+       The :obj:`bytes` to decode
 
     Returns
     -------
     :obj:`str`
-       `s` decoded
+       `byte_s` decoded
 
     Raises
     ------
     :exc:`PyJobError`
        Unable to infer string encoding
-    
+
     """
     detector = chardet.universaldetector.UniversalDetector()
-    for line in s.split(os.linesep):
+    for line in byte_s.splitlines():
         detector.feed(line)
         if detector.done:
             break
     detector.close()
-    if not detector.done:
+    if detector.result['confidence'] < 0.98:
         raise PyJobError('Unable to infer string encoding')
-    return s.decode(detector.result['encoding'])
+    return byte_s.decode(detector.result['encoding'])
 
 
 def deprecate(version, msg=None):
