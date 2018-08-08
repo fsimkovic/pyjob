@@ -20,10 +20,9 @@ install:
 
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
-  - python setup.py develop
 
 script:
-  - pytest --cov=pyjob
+  - python setup.py test
 
 after_success:
   - codecov 
