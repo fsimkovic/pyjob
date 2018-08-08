@@ -63,6 +63,10 @@ class Task(ABC):
         else:
             raise PyJobError('One or more scripts cannot be found or are not executable')
 
+    def __del__(self):
+        """Exit function at instance deletion"""
+        self.close()
+
     def __enter__(self):
         """Contextmanager entry function
         
