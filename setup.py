@@ -19,6 +19,12 @@ def readme():
         return f_in.read()
 
 
+def dependencies():
+    with open('requirements.txt', 'r') as f_in:
+        deps = f_in.read().splitlines()
+    return deps
+
+
 def version():
     """Get the current PyJob version"""
     main_ns = {}
@@ -67,9 +73,8 @@ setup(
     packages=PACKAGES,
     package_dir={PACKAGE_NAME: PACKAGE_DIR},
     classifiers=CLASSIFIERS,
+    install_requires=dependencies(),
     setup_requires=['pytest-runner'],
-    tests_require=[
-        'codecov', 'coverage', 'pytest', 'pytest-cov', 'pytest-pep8'
-    ],
+    tests_require=['codecov', 'coverage', 'pytest', 'pytest-cov', 'pytest-pep8'],
     zip_safe=False,
 )
