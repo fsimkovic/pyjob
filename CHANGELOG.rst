@@ -2,7 +2,7 @@
 
 *Added*
 
-- :func:`~pyjob.cexec.cexec` accepts all :obj:`~subprocess.Popen` keyword arguments
+- [`#13 <https://github.com/fsimkovic/pyjob/issues/13>`_] - :func:`~pyjob.cexec.cexec` accepts all :obj:`~subprocess.Popen` keyword arguments
 - [`#12 <https://github.com/fsimkovic/pyjob/issues/12>`_] - `pyjob` command-line executable to provide conveniont script submission without active Python interpreter
 - [`#11 <https://github.com/fsimkovic/pyjob/issues/11>`_] - Contextmanager support for :obj:`~pyjob.stopwatch.StopWatch` instances 
 - [`#10 <https://github.com/fsimkovic/pyjob/issues/10>`_] - Contextmanager support for all :obj:`~pyjob.task.Task` instances
