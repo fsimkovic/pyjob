@@ -12,8 +12,8 @@ PyJob
    :target: https://travis-ci.org/fsimkovic/pyjob
    :alt: Build Status
 
-.. image:: https://codecov.io/gh/codecov/pyjob/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/codecov/pyjob
+.. image:: https://codecov.io/gh/fsimkovic/pyjob/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/fsimkovic/pyjob
    :alt: Codecov Status
 
 .. image:: https://img.shields.io/pypi/pyversions/pyjob.svg
