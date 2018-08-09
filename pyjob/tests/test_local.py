@@ -4,6 +4,7 @@ import os
 import pytest
 import time
 
+from pyjob.exception import PyJobError
 from pyjob.local import CPU_COUNT, LocalTask
 from pyjob.script import Script
 
@@ -57,7 +58,7 @@ class TestLocalTaskTermination(object):
         logs = [s.path.replace('.py', '.log') for s in scripts]
         task = LocalTask(paths, processes=CPU_COUNT)
         task.run()
-        assert all(os.path.isfile(f) for f in logs)
+        assert not all(os.path.isfile(f) for f in logs)
         task.close()
         for f in paths + logs:
             os.unlink(f)
@@ -77,22 +78,16 @@ class TestLocalTaskTermination(object):
             os.unlink(f)
 
     def test_terminate_5(self):
-        def nestedf():
-            scripts = [get_py_script(i, 1000000) for i in range(10)]
-            [s.write() for s in scripts]
-            paths = [s.path for s in scripts]
-            logs = [s.path.replace('.py', '.log') for s in scripts]
-            task = LocalTask(paths, processes=min(CPU_COUNT, 2))
+        scripts = [get_py_script(i, 1000000) for i in range(10)]
+        [s.write() for s in scripts]
+        paths = [s.path for s in scripts]
+        logs = [s.path.replace('.py', '.log') for s in scripts]
+        task = LocalTask(paths, processes=min(CPU_COUNT, 2))
+        with pytest.raises(PyJobError):
             task.run()
             for path in paths[4:]:
                 os.unlink(path)
-            return paths, logs
 
-        paths, logs = nestedf()
-        assert all(os.path.isfile(f) for f in paths[:4])
-        assert not any(os.path.isfile(f) for f in paths[4:])
-        assert all(os.path.isfile(f) for f in logs[:4])
-        assert not all(os.path.isfile(f) for f in logs[4:])
         for f in paths + logs:
             if os.path.isfile(f):
                 os.unlink(f)
@@ -108,7 +103,7 @@ class TestLocalTaskTermination(object):
             task.kill()
         assert all(os.path.isfile(path) for path in paths)
         assert any(os.path.isfile(log) for log in logs)
-        assert all(os.path.isfile(log) for log in logs)
+        assert not all(os.path.isfile(log) for log in logs)
         for f in paths + logs:
             if os.path.isfile(f):
                 os.unlink(f)

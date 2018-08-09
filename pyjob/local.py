@@ -146,7 +146,7 @@ class LocalProcess(multiprocessing.Process):
 
         Warning
         -------
-        This object should not be instantiated by itself!
+        This object should only be instantiated by :obj:`~pyjob.local.LocalTask`!
 
         """
         super(LocalProcess, self).__init__()
@@ -161,10 +161,10 @@ class LocalProcess(multiprocessing.Process):
         for job in iter(self.queue.get, None):
             if self.kill_switch.is_set():
                 continue
+            if self.chdir:
+                directory = os.path.dirname(job)
             else:
-                if self.chdir:
-                    directory = os.path.dirname(job)
-                else:
-                    directory = self.directory
-                with open(job.rsplit('.', 1)[0] + '.log', 'w') as f:
-                    cexec([job], cwd=directory, stdout=f, permit_nonzero=self.permit_nonzero)
+                directory = self.directory
+            log = os.path.splitext(job)[0] + '.log'
+            with open(log, 'w') as f:
+                cexec([job], cwd=directory, stdout=f, permit_nonzero=self.permit_nonzero)
