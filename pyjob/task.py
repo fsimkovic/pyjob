@@ -94,22 +94,22 @@ class Task(ABC):
     # ------------------ Abstract methods and properties ------------------
 
     @abc.abstractproperty
-    def info(self):
+    def info(self):  # pragma: no cover
         """Abstract property to provide info about the :obj:`~pyjob.task.Task`"""
         pass
 
     @abc.abstractmethod
-    def close(self):
+    def close(self):  # pragma: no cover
         """Abstract method to end :obj:`~pyjob.task.Task`"""
         pass
 
     @abc.abstractmethod
-    def kill(self):
+    def kill(self):  # pragma: no cover
         """Abstract method to forcefully terminate :obj:`~pyjob.task.Task`"""
         pass
 
     @abc.abstractmethod
-    def _run(self):
+    def _run(self):  # pragma: no cover
         """Abstract property to start execution of the :obj:`~pyjob.task.Task`"""
         pass
 

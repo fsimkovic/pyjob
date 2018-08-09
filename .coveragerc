@@ -4,9 +4,12 @@ source = pyjob
 
 [report]
 exclude_lines =
+    pragma: no cover
     if self.debug:
     raise NotImplementedError
     if __name__ == .__main__.:
+    @deprecate(.*)
 ignore_errors = True
 omit =
+    pyjob/__main__.py
     pyjob/tests/*
