@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 __author__ = 'Felix Simkovic'
+__contibutors__ = ['Jens Thomas']
 __version__ = '1.0'
 
 import logging
@@ -28,6 +29,7 @@ import os
 import signal
 import subprocess
 import sys
+import warnings
 
 from pyjob.exception import PyJobExecutionError
 from pyjob.misc import decode
@@ -35,24 +37,27 @@ from pyjob.misc import decode
 logger = logging.getLogger(__name__)
 
 
-def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
+def _insert_or_ignore(d, k, v):
+    if k not in d:
+        d[k] = v
+
+
+def cexec(cmd, permit_nonzero=False, **kwargs):
     """Function to execute a command
 
     Parameters
     ----------
     cmd : list
        The command to call
-    directory : str, optional
-       The directory to execute the job in
-    stdin : str, optional
-       Additional keywords provided to the command
     permit_nonzero : bool, optional
        Allow non-zero return codes [default: False]
+    **kwargs : dict, option
+       Any keyword arguments accepted by :obj:`~subprocess.Popen`
 
     Returns
     -------
     str
-       The processes standard out
+       The processes' standard out
 
     Raises
     ------
@@ -61,27 +66,38 @@ def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
 
     """
     logger.debug("Executing '%s'", " ".join(cmd))
-    kwargs = {"bufsize": 0, "shell": "False"} if os.name == "nt" else {}
-    kwargs['cwd'] = directory
-    kwargs['stdin'] = subprocess.PIPE
-    kwargs['stdout'] = subprocess.PIPE
-    kwargs['stderr'] = subprocess.STDOUT
+
+    if os.name == 'nt':
+        _insert_or_ignore(kwargs, 'bufsize', 0)
+        _insert_or_ignore(kwargs, 'shell', 'False')
+    if 'directory' in kwargs:
+        warnings.warn('directory keywoard has been deprecated, use cwd instead', DeprecationWarning)
+        kwargs['cwd'] = kwargs['directory']
+        kwargs.pop('directory')
+    _insert_or_ignore(kwargs, 'cwd', os.getcwd())
+    _insert_or_ignore(kwargs, 'stdout', subprocess.PIPE)
+    _insert_or_ignore(kwargs, 'stderr', subprocess.STDOUT)
+
+    stdinstr = kwargs.get('stdin', None)
+    if stdinstr and isinstance(stdinstr, str):
+        kwargs['stdin'] = subprocess.PIPE
+
     try:
         p = subprocess.Popen(cmd, **kwargs)
-        if stdin:
-            stdin = stdin.encode()
-        stdout, _ = p.communicate(input=stdin)
+        if stdinstr:
+            stdinstr = stdinstr.encode()
+        stdout, stderr = p.communicate(input=stdinstr)
     except KeyboardInterrupt:
         os.kill(p.pid, signal.SIGTERM)
         sys.exit(signal.SIGTERM)
     else:
-        stdout = decode(stdout)
+        if stdout:
+            stdout = decode(stdout).strip()
         if p.returncode == 0:
-            return stdout.strip()
+            return stdout
         elif permit_nonzero:
-            logger.debug("Ignoring non-zero returncode %d for '%s'",
-                         p.returncode, " ".join(cmd))
-            return stdout.strip()
+            logger.debug("Ignoring non-zero returncode %d for '%s'", p.returncode, " ".join(cmd))
+            return stdout
         else:
             msg = "Execution of '{}' exited with non-zero return code ({})"
             raise PyJobExecutionError(msg.format(' '.join(cmd), p.returncode))

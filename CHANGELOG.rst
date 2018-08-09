@@ -2,12 +2,13 @@
 
 *Added*
 
-- [`#3 <https://github.com/fsimkovic/pyjob/issues/3>`_] - :obj:`~pyjob.script.Script` interface to read/write scripts conveniently
-- [`#8 <https://github.com/fsimkovic/pyjob/issues/8>`_] - Sphinx documentation added [hosted on ReadTheDocs.org]
-- [`#9 <https://github.com/fsimkovic/pyjob/issues/9>`_] - Codecov support added
-- [`#10 <https://github.com/fsimkovic/pyjob/issues/10>`_] - Contextmanager support for all :obj:`~pyjob.task.Task` instances
-- [`#11 <https://github.com/fsimkovic/pyjob/issues/11>`_] - Contextmanager support for :obj:`~pyjob.stopwatch.StopWatch` instances 
+- :func:`~pyjob.cexec.cexec` accepts all :obj:`~subprocess.Popen` keyword arguments
 - [`#12 <https://github.com/fsimkovic/pyjob/issues/12>`_] - `pyjob` command-line executable to provide conveniont script submission without active Python interpreter
+- [`#11 <https://github.com/fsimkovic/pyjob/issues/11>`_] - Contextmanager support for :obj:`~pyjob.stopwatch.StopWatch` instances 
+- [`#10 <https://github.com/fsimkovic/pyjob/issues/10>`_] - Contextmanager support for all :obj:`~pyjob.task.Task` instances
+- [`#9 <https://github.com/fsimkovic/pyjob/issues/9>`_] - Codecov support added
+- [`#8 <https://github.com/fsimkovic/pyjob/issues/8>`_] - Sphinx documentation added [hosted on ReadTheDocs.org]
+- [`#3 <https://github.com/fsimkovic/pyjob/issues/3>`_] - :obj:`~pyjob.script.Script` interface to read/write scripts conveniently
 - Convenience function :meth:`~pyjob.misc.deprecate` for faster/more readable deprecation tagging
 - Better execution handling of all cluster platforms wrt running directory
 
