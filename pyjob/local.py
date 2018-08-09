@@ -115,8 +115,7 @@ class LocalTask(Task):
                 self.kill_switch,
                 directory=self.directory,
                 chdir=self.chdir,
-                permit_nonzero=self.permit_nonzero
-            )
+                permit_nonzero=self.permit_nonzero)
             proc.start()
             self.processes.append(proc)
         for script in self.script:
@@ -167,6 +166,5 @@ class LocalProcess(multiprocessing.Process):
                     directory = os.path.dirname(job)
                 else:
                     directory = self.directory
-                stdout = cexec([job], directory=directory, permit_nonzero=self.permit_nonzero)
-                with open(job.rsplit('.', 1)[0] + '.log', 'w') as f_out:
-                    f_out.write(stdout)
+                with open(job.rsplit('.', 1)[0] + '.log', 'w') as f:
+                    cexec([job], cwd=directory, stdout=f, permit_nonzero=self.permit_nonzero)

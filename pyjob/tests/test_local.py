@@ -20,11 +20,7 @@ n = {}; print('%dth fib is: %d' % (n, fib(n)))
 
 
 def get_py_script(i, target):
-    script = Script(
-        shebang='#!/usr/bin/env python',
-        prefix='pyjob',
-        stem='test{}'.format(i),
-        suffix='.py')
+    script = Script(shebang='#!/usr/bin/env python', prefix='pyjob', stem='test{}'.format(i), suffix='.py')
     script.content.extend(TEMPLATE.format(target).split(os.linesep))
     return script
 
@@ -55,14 +51,13 @@ class TestLocalTaskTermination(object):
             os.unlink(f)
 
     def test_terminate_3(self):
-        scripts = [get_py_script(i, 10000) for i in range(10)]
+        scripts = [get_py_script(i, 100000) for i in range(10)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
         logs = [s.path.replace('.py', '.log') for s in scripts]
         task = LocalTask(paths, processes=CPU_COUNT)
         task.run()
-        with pytest.raises(AssertionError):
-            assert all(os.path.isfile(f) for f in logs)
+        assert all(os.path.isfile(f) for f in logs)
         task.close()
         for f in paths + logs:
             os.unlink(f)
@@ -83,7 +78,7 @@ class TestLocalTaskTermination(object):
 
     def test_terminate_5(self):
         def nestedf():
-            scripts = [get_py_script(i, 1000000) for i in range(5)]
+            scripts = [get_py_script(i, 1000000) for i in range(10)]
             [s.write() for s in scripts]
             paths = [s.path for s in scripts]
             logs = [s.path.replace('.py', '.log') for s in scripts]
@@ -97,7 +92,7 @@ class TestLocalTaskTermination(object):
         assert all(os.path.isfile(f) for f in paths[:4])
         assert not any(os.path.isfile(f) for f in paths[4:])
         assert all(os.path.isfile(f) for f in logs[:4])
-        assert not any(os.path.isfile(f) for f in logs[4:])
+        assert not all(os.path.isfile(f) for f in logs[4:])
         for f in paths + logs:
             if os.path.isfile(f):
                 os.unlink(f)
@@ -113,7 +108,7 @@ class TestLocalTaskTermination(object):
             task.kill()
         assert all(os.path.isfile(path) for path in paths)
         assert any(os.path.isfile(log) for log in logs)
-        assert not all(os.path.isfile(log) for log in logs)
+        assert all(os.path.isfile(log) for log in logs)
         for f in paths + logs:
             if os.path.isfile(f):
                 os.unlink(f)
