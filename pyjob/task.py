@@ -61,8 +61,7 @@ class Task(ABC):
                 and all(is_valid_script_path(fpath) for fpath in script):
             self.script = list(script)
         else:
-            raise PyJobError(
-                'One or more scripts cannot be found or are not executable')
+            raise PyJobError('One or more scripts cannot be found or are not executable')
 
     def __del__(self):
         """Exit function at instance deletion"""
@@ -119,7 +118,7 @@ class Task(ABC):
     @property
     def completed(self):
         """Boolean to indicate :obj:`~pyjob.task.Task` completion"""
-        return not bool(self.info)
+        return self.locked and not bool(self.info)
 
     @property
     def log(self):
@@ -157,8 +156,7 @@ class Task(ABC):
         if self.locked:
             raise PyJobTaskLockedError('This task is locked!')
         self._run()
-        logger.debug('Started execution of %s [%d]', self.__class__.__name__,
-                     self.pid)
+        logger.debug('Started execution of %s [%d]', self.__class__.__name__, self.pid)
         self.locked = True
 
     def wait(self, check_success=None, interval=30, monitor=None):
