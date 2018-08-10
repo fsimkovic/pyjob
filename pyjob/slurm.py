@@ -25,29 +25,30 @@ __version__ = '1.0'
 
 import logging
 import os
-import time
+import re
 import uuid
 
 from pyjob.cexec import cexec
+from pyjob.script import Script
 from pyjob.task import Task
 
 logger = logging.getLogger(__name__)
 
 
-class LoadSharingFacilityTask(Task):
-    """
+class SlurmTask(Task):
+    """SunGridEngine executable :obj:`~pyjob.task.Task`
 
     Examples
     --------
 
     """
 
-    JOB_ARRAY_INDEX = 'LSB_JOBINDEX'
-    SCRIPT_DIRECTIVE = '#BSUB'
+    JOB_ARRAY_INDEX = 'SLURM_ARRAY_TASK_ID'
+    SCRIPT_DIRECTIVE = '#SBATCH'
 
     def __init__(self, *args, **kwargs):
-        """Instantiate a new :obj:`~pyjob.lsf.LoadSharingFacilityTask`"""
-        super(LoadSharingFacilityTask, self).__init__(*args, **kwargs)
+        """Instantiate a new :obj:`~pyjob.slurm.SlurmTask`"""
+        super(SlurmTask, self).__init__(*args, **kwargs)
         self.dependency = kwargs.get('dependency', [])
         self.directory = os.path.abspath(kwargs.get('directory', '.'))
         self.max_array_size = kwargs.get('max_array_size', len(self.script))
@@ -55,20 +56,20 @@ class LoadSharingFacilityTask(Task):
         self.priority = kwargs.get('priority', None)
         self.queue = kwargs.get('queue', None)
         self.runtime = kwargs.get('runtime', None)
-        self.shell = kwargs.get('shell', None)
         self.nprocesses = kwargs.get('processes', 1)
 
     @property
     def info(self):
-        """:obj:`~pyjob.lsf.LoadSharingFacilityTask` information"""
-        stdout = cexec(['bjobs', '-l', str(jobid)])
-        if 'Done successfully' in stdout:
+        """:obj:`~pyjob.slurm.SlurmTask` information"""
+        try:
+            cexec(['squeue', '-j', str(self.pid)])
+        except Exception:
             return {}
         else:
             return {'job_number': self.pid, 'status': 'Running'}
 
     def close(self):
-        """Close this :obj:`~pyjob.lsf.LoadSharingFacilityTask` after completion
+        """Close this :obj:`~pyjob.slurm.SlurmTask` after completion
 
         Warning
         -------
@@ -79,65 +80,44 @@ class LoadSharingFacilityTask(Task):
         self.wait()
 
     def kill(self):
-        """Immediately terminate the :obj:`~pyjob.lsf.LoadSharingFacilityTask`
-
-        Raises
-        ------
-        :exc:`RuntimeError`
-           Cannot delete :obj:`~pyjob.lsf.LoadSharingFacilityTask`
-
-        """
-        stdout = cexec(['bkill', str(self.pid)], permit_nonzero=True)
-        if "is in progress" in stdout:
-            stdout = cexec(['bkill', '-b', str(self.pid)], permit_nonzero=True)
-            time.sleep(10)
-        if any(text in stdout for text in ["has already finished", "is being terminated", "is in progress"]):
-            logger.debug("Terminated task: %d", self.pid)
-        else:
-            raise RuntimeError('Cannot delete task!')
+        """Immediately terminate the :obj:`~pyjob.slurm.SlurmTask`"""
+        cexec(['scancel', str(self.pid)])
+        logger.debug("Terminated task: %d", self.pid)
 
     def _run(self):
-        """Method to initialise :obj:`~pyjob.lsf.LoadSharingFacilityTask` execution"""
+        """Method to initialise :obj:`~pyjob.slurm.SlurmTask` execution"""
         runscript = self._create_runscript()
         runscript.write()
-        stdout = cexec(['bsub'], stdin=str(runscript), directory=self.directory)
-        self.pid = int(stdout.split()[1][1:-1])
+        stdout = cexec(['sbatch', runscript.path], directory=self.directory)
+        self.pid = int(stdout.strip().split()[-1])
         logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""
-        runscript = Script(directory=self.directory, prefix='lsf_', suffix='.script', stem=str(uuid.uuid1().int))
-        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -J {}'.format(self.name))
+        runscript = Script(directory=self.directory, prefix='slurm_', suffix='.script', stem=str(uuid.uuid1().int))
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' --export=ALL')
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' --job-name={}'.format(self.name))
         if self.dependency:
-            cmd = '-w {}'.format(' && '.join(['deps(%s)' % str(d) for d in self.dependency]))
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-        if self.directory:
-            cmd = '-cwd {}'.format(self.directory)
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-        if self.priority:
-            cmd = '-sp {}'.format(self.priority)
+            cmd = '--depend=afterok:{}'.format(':'.join(map(str, self.dependency)))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.queue:
-            cmd = '-q {}'.format(self.queue)
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-        if self.runtime:
-            cmd = '-W {}'.format(self.runtime)
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-        if self.shell:
-            cmd = '-L {}'.format(self.shell)
+            cmd = '-p {}'.format(self.queue)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.nprocesses:
-            cmd = '-R "span[ptile={}]"'.format(self.nprocesses)
+            cmd = '-n {}'.format(self.nprocesses)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.directory:
+            cmd = '--workdir={}'.format(self.directory)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if len(self.script) > 1:
             logf = runscript.path.replace('.script', '.log')
             jobsf = runscript.path.replace('.script', '.jobs')
             with open(jobsf, 'w') as f_out:
                 f_out.write(os.linesep.join(self.script))
-            cmd = 'J {}[{}-{}%{}]'.format(self.name, 1, len(self.script), self.max_array_size)
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + cmd)
+            cmd = '--array={}-{}%{}'.format(1, len(self.script), self.max_array_size)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
-            runscript.append('script=$(awk "NR==${}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
+            runscript.append('script=$(awk "NR==${}" {})'.format(SlurmTask.JOB_ARRAY_INDEX, jobsf))
             runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
             runscript.append("$script > $log 2>&1")
         else:

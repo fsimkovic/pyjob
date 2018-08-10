@@ -11,5 +11,6 @@ exclude_lines =
     @deprecate(.*)
 ignore_errors = True
 omit =
+    pyjob/__init__.py
     pyjob/__main__.py
     pyjob/tests/*

@@ -34,8 +34,6 @@ class TorqueTask(PortableBatchSystemTask):
 
     """
 
-    TASK_ENV = 'PBS_ARRAYID'
-
     def __init__(self, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.pbs.TorqueTask`"""
         super(TorqueTask, self).__init__(*args, **kwargs)

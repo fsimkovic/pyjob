@@ -43,14 +43,15 @@ class PortableBatchSystemTask(Task):
 
     """
 
-    TASK_ENV = 'PBS_ARRAYID'
+    JOB_ARRAY_INDEX = 'PBS_ARRAYID'
+    SCRIPT_DIRECTIVE = '#PBS'
 
     def __init__(self, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.pbs.PortableBatchSystemTask`"""
         super(PortableBatchSystemTask, self).__init__(*args, **kwargs)
         self.directory = os.path.abspath(kwargs.get('directory', '.'))
         self.max_array_size = kwargs.get('max_array_size', len(self.script))
-        self.name = kwargs.get('name', None)
+        self.name = kwargs.get('name', 'pyjob')
         self.priority = kwargs.get('priority', None)
         self.queue = kwargs.get('queue', None)
         self.runtime = kwargs.get('runtime', None)
@@ -94,41 +95,48 @@ class PortableBatchSystemTask(Task):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.pbs.PortableBatchSystemTask` execution"""
+        runscript = self._create_runscript()
+        runscript.write()
+        stdout = cexec(['qsub', runscript.path], directory=self.directory)
+        jobid = cexec(cmd, directory=directory)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
+
+    def _create_runscript(self):
+        """Utility method to create runscript"""
         runscript = Script(directory=self.directory, prefix='pbs_', suffix='.script', stem=str(uuid.uuid1().int))
-        runscript.append('#PBS -V')
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -V')
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -N {}'.format(self.name))
         if self.directory:
-            runscript.append('#PBS -w %s' % self.directory)
-        if self.name:
-            runscript.append('#PBS -N %s' % self.name)
+            cmd = '-w {}'.format(self.directory)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.priority:
-            runscript.append('#PBS -p %s' % str(self.priority))
+            cmd = '-p {}'.format(self.priority)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.queue:
-            runscript.append('#PBS -q %s' % self.queue)
+            cmd = '-q {}'.format(self.queue)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.runtime:
             m, s = divmod(self.runtime, 60)
             h, m = divmod(m, 60)
-            runscript.append('#PBS -l walltime={}:{}:{}'.format(h, m, s))
+            cmd = '-l walltime={}:{}:{}'.format(h, m, s)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.shell:
-            runscript.append('#PBS -S %s' % self.shell)
-
+            cmd = '-S {}'.format(self.shell)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if len(self.script) > 1:
             logf = runscript.path.replace('.script', '.log')
             jobsf = runscript.path.replace('.script', '.jobs')
             with open(jobsf, 'w') as f_out:
                 f_out.write(os.linesep.join(self.script))
-
-            runscript.append('#PBS -t {}-{}%{}'.format(1, len(self.script), self.max_array_size))
-            runscript.append('#PBS -o %s' % logf)
-            runscript.append('#PBS -e %s' % logf)
+            cmd = '-t {}-{}%{}'.format(1, len(self.script), self.max_array_size)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -e {}'.format(logf))
             runscript.append('script=$(awk "NR==${}" {})'.format(SunGridEngineTask.TASK_ENV, jobsf))
             runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
             runscript.append("$script > $log 2>&1")
         else:
-            runscript.append('#PBS -o %s' % self.log[0])
-            runscript.append('#PBS -e %s' % self.log[0])
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(self.log[0]))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -e {}'.format(self.log[0]))
             runscript.append(self.script[0])
-
-        runscript.write()
-        stdout = cexec(['qsub', runscript.path], directory=self.directory)
-        jobid = cexec(cmd, directory=directory)
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
+        return runscript

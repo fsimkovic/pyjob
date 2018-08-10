@@ -32,6 +32,7 @@ TASK_PLATFORMS = {
     'local': ('pyjob.local', 'LocalTask'),
     'lsf': ('pyjob.lsf', 'LoadSharingFacilityTask'),
     'pbs': ('pyjob.pbs', 'PortableBatchSystemTask'),
+    'slurm': ('pyjob.slurm', 'SlurmTask'),
     'sge': ('pyjob.sge', 'SunGridEngineTask'),
     'torque': ('pyjob.torque', 'TorqueTask'),
 }
@@ -61,7 +62,6 @@ def TaskFactory(platform, *args, **kwargs):
     if platform in TASK_PLATFORMS:
         logger.debug('Found requested platform in available task list')
         module, class_ = TASK_PLATFORMS[platform]
-        return getattr(importlib.import_module(module), class_)(*args,
-                                                                **kwargs)
+        return getattr(importlib.import_module(module), class_)(*args, **kwargs)
     else:
         raise PyJobUnknownTaskPlatform('Unknown platform: %s' % platform)

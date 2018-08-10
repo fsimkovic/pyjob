@@ -75,6 +75,8 @@ can try this by installing PyJob on such a machine and substituting any of below
 +-------------------------+------------+-------------------------------------------+
 | Sun Grid Engine         | ``sge``    | :obj:`~pyjob.sge.SunGridEngineTask`       |
 +-------------------------+------------+-------------------------------------------+
+| Sun Grid Engine         | ``slurm``  | :obj:`~pyjob.slurm.SlurmTask`             |
++-------------------------+------------+-------------------------------------------+
 | Load Sharing Facility   | ``lsf``    | :obj:`~pyjob.lsf.LoadSharingFacilityTask` |
 +-------------------------+------------+-------------------------------------------+
 | Portable Batch System   | ``pbs``    | :obj:`~pyjob.pbs.PortableBatchSystemTas`  |

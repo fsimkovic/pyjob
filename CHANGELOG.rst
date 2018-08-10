@@ -2,6 +2,7 @@
 
 *Added*
 
+- [`#14 <https://github.com/fsimkovic/pyjob/issues/14>`_] - :obj:`~pyjob.slurm.SlurmTask` support added
 - [`#13 <https://github.com/fsimkovic/pyjob/issues/13>`_] - :func:`~pyjob.cexec.cexec` accepts all :obj:`~subprocess.Popen` keyword arguments
 - [`#12 <https://github.com/fsimkovic/pyjob/issues/12>`_] - `pyjob` command-line executable to provide conveniont script submission without active Python interpreter
 - [`#11 <https://github.com/fsimkovic/pyjob/issues/11>`_] - Contextmanager support for :obj:`~pyjob.stopwatch.StopWatch` instances 

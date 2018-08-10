@@ -43,7 +43,8 @@ class SunGridEngineTask(Task):
 
     """
 
-    TASK_ENV = 'SGE_TASK_ID'
+    JOB_ARRAY_INDEX = 'SGE_TASK_ID'
+    SCRIPT_DIRECTIVE = '#$'
 
     def __init__(self, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.sge.SunGridEngineTask`"""
@@ -51,7 +52,7 @@ class SunGridEngineTask(Task):
         self.dependency = kwargs.get('dependency', [])
         self.directory = os.path.abspath(kwargs.get('directory', '.'))
         self.max_array_size = kwargs.get('max_array_size', len(self.script))
-        self.name = kwargs.get('name', None)
+        self.name = kwargs.get('name', 'pyjob')
         self.pe_opts = kwargs.get('pe_opts', [])
         self.priority = kwargs.get('priority', None)
         self.queue = kwargs.get('queue', None)
@@ -95,58 +96,58 @@ class SunGridEngineTask(Task):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.sge.SunGridEngineTask` execution"""
-        runscript = Script(
-            directory=self.directory,
-            prefix='sge_',
-            suffix='.script',
-            stem=str(uuid.uuid1().int))
-        runscript.append('#$ -V')
-        runscript.append('#$ -w e')
-        runscript.append('#$ -j y')
-        if self.dependency:
-            runscript.append(
-                '#$ -hold_jid %s' % ','.join(map(str, self.dependency)))
-        if self.name:
-            runscript.append('#$ -N %s' % self.name)
-        if self.pe_opts:
-            runscript.append('#$ -pe %s' % ' '.join(map(str, self.pe_opts)))
-        if self.priority:
-            runscript.append('#$ -p %s' % str(self.priority))
-        if self.queue:
-            runscript.append('#$ -q %s' % self.queue)
-        if self.runtime:
-            runscript.append('#$ -l h_rt=%s' % str(self.runtime))
-        if self.shell:
-            runscript.append('#$ -S %s' % self.shell)
-        if self.nprocesses:
-            runscript.append('#$ -pe mpi %d' % self.nprocesses)
-        if self.directory:
-            runscript.append('#$ -wd %s' % self.directory)
-        else:
-            runscript.append('#$ -cwd')
-
-        if len(self.script) > 1:
-            logf = runscript.path.replace('.script', '.log')
-            jobsf = runscript.path.replace('.script', '.jobs')
-            with open(jobsf, 'w') as f_out:
-                f_out.write(os.linesep.join(self.script))
-
-            runscript.append('#$ -t %d-%d -tc %d' % (1, len(self.script),
-                                                     self.max_array_size))
-            runscript.append('#$ -o %s' % logf)
-            runscript.append('script=$(awk "NR==${}" {})'.format(
-                SunGridEngineTask.TASK_ENV, jobsf))
-            runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
-            runscript.append("$script > $log 2>&1")
-        else:
-            runscript.append('#$ -o %s' % self.log[0])
-            runscript.append(self.script[0])
-
+        runscript = self._create_runscript()
         runscript.write()
         stdout = cexec(['qsub', runscript.path], directory=self.directory)
         if len(self.script) > 1:
             self.pid = int(stdout.split()[2].split(".")[0])
         else:
             self.pid = int(stdout.split()[2])
-        logger.debug('%s [%d] submission script is %s',
-                     self.__class__.__name__, self.pid, runscript.path)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
+
+    def _create_runscript(self):
+        """Utility method to create runscript"""
+        runscript = Script(directory=self.directory, prefix='sge_', suffix='.script', stem=str(uuid.uuid1().int))
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -V')
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -w e')
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -j y')
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -N {}'.format(self.name))
+        if self.dependency:
+            cmd = '-hold_jid {}'.format(','.join(map(str, self.dependency)))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.pe_opts:
+            cmd = '-pe {}'.format(' '.join(map(str, self.pe_opts)))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.priority:
+            cmd = '-p {}'.format(self.priority)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.queue:
+            cmd = '-q {}'.format(self.queue)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.runtime:
+            cmd = '-l h_rt={}'.format(self.runtime)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.shell:
+            cmd = '-S {}'.format(self.shell)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.nprocesses:
+            cmd = '-pe mpi {}'.format(self.nprocesses)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.directory:
+            cmd = '-wd {}'.format(self.directory)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if len(self.script) > 1:
+            logf = runscript.path.replace('.script', '.log')
+            jobsf = runscript.path.replace('.script', '.jobs')
+            with open(jobsf, 'w') as f_out:
+                f_out.write(os.linesep.join(self.script))
+            cmd = '-t {}-{} -tc {}'.format(1, len(self.script), self.max_array_size)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
+            runscript.append('script=$(awk "NR==${}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
+            runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
+            runscript.append("$script > $log 2>&1")
+        else:
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(self.log[0]))
+            runscript.append(self.script[0])
+        return runscript
