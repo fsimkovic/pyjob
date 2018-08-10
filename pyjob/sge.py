@@ -43,7 +43,7 @@ class SunGridEngineTask(Task):
 
     """
 
-    JOB_ARRAY_INDEX = 'SGE_TASK_ID'
+    JOB_ARRAY_INDEX = '$SGE_TASK_ID'
     SCRIPT_DIRECTIVE = '#$'
 
     def __init__(self, *args, **kwargs):
@@ -137,7 +137,7 @@ class SunGridEngineTask(Task):
             cmd = '-t {}-{} -tc {}'.format(1, len(self.script), self.max_array_size)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
-            runscript.append('script=$(awk "NR==${}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
+            runscript.append('script=$(awk "NR=={}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
             runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
             runscript.append("$script > $log 2>&1")
         else:

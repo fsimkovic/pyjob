@@ -42,7 +42,7 @@ class LoadSharingFacilityTask(Task):
 
     """
 
-    JOB_ARRAY_INDEX = 'LSB_JOBINDEX'
+    JOB_ARRAY_INDEX = '$LSB_JOBINDEX'
     SCRIPT_DIRECTIVE = '#BSUB'
 
     def __init__(self, *args, **kwargs):
@@ -130,7 +130,7 @@ class LoadSharingFacilityTask(Task):
             cmd = 'J {}[{}-{}%{}]'.format(self.name, 1, len(self.script), self.max_array_size)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + cmd)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
-            runscript.append('script=$(awk "NR==${}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
+            runscript.append('script=$(awk "NR=={}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
             runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
             runscript.append("$script > $log 2>&1")
         else:
