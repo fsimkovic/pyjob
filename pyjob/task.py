@@ -65,6 +65,8 @@ class Task(ABC):
 
     def __del__(self):
         """Exit function at instance deletion"""
+        if not self.locked:
+            self.locked = True
         self.close()
 
     def __enter__(self):
@@ -85,6 +87,8 @@ class Task(ABC):
         For further details see `PEP 343 <https://www.python.org/dev/peps/pep-0343/>`_.
 
         """
+        if not self.locked:
+            self.locked = True
         self.close()
 
     def __repr__(self):

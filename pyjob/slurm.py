@@ -43,7 +43,7 @@ class SlurmTask(Task):
 
     """
 
-    JOB_ARRAY_INDEX = 'SLURM_ARRAY_TASK_ID'
+    JOB_ARRAY_INDEX = '$SLURM_ARRAY_TASK_ID'
     SCRIPT_DIRECTIVE = '#SBATCH'
 
     def __init__(self, *args, **kwargs):
@@ -110,7 +110,7 @@ class SlurmTask(Task):
             cmd = '--array={}-{}%{}'.format(1, len(self.script), self.max_array_size)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
-            runscript.append('script=$(awk "NR==${}" {})'.format(SlurmTask.JOB_ARRAY_INDEX, jobsf))
+            runscript.append('script=$(awk "NR=={}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
             runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
             runscript.append("$script > $log 2>&1")
         else:
