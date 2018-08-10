@@ -68,14 +68,7 @@ class LoadSharingFacilityTask(Task):
             return {'job_number': self.pid, 'status': 'Running'}
 
     def close(self):
-        """Close this :obj:`~pyjob.lsf.LoadSharingFacilityTask` after completion
-
-        Warning
-        -------
-        It is essential to call this method if you are using any
-        :obj:`~pyjob.task.Task` without context manager.
-
-        """
+        """Close this :obj:`~pyjob.lsf.LoadSharingFacilityTask` after completion"""
         self.wait()
 
     def kill(self):

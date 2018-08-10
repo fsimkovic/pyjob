@@ -79,14 +79,7 @@ class LocalTask(Task):
             return {}
 
     def close(self):
-        """Close this :obj:`~pyjob.local.LocalTask` after completion
-
-        Warning
-        -------
-        It is essential to call this method if you are using any
-        :obj:`~pyjob.task.Task` without context manager.
-
-        """
+        """Close this :obj:`~pyjob.local.LocalTask` after completion"""
         if self._killed:
             return
         for proc in self.processes:
