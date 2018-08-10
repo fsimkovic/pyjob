@@ -1,5 +1,7 @@
 __author__ = 'Felix Simkovic'
 
+import os
+
 from pyjob.slurm import SlurmTask
 from pyjob.tests.util import get_py_script
 
