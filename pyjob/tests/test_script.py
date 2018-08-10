@@ -1,3 +1,5 @@
+__author__ = 'Felix Simkovic'
+
 from pyjob.script import Script, is_valid_script_path
 
 import os
@@ -50,8 +52,7 @@ class TestScriptRead(object):
         os.unlink(fh.name)
 
     def test_read_6(self):
-        fh = tempfile.NamedTemporaryFile(
-            mode='w', dir='.', delete=True, prefix='pyjob', suffix='.sh')
+        fh = tempfile.NamedTemporaryFile(mode='w', dir='.', delete=True, prefix='pyjob', suffix='.sh')
         script = Script.read(fh.name)
         fh.close()
         assert script.directory == os.getcwd()
