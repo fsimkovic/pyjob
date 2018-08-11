@@ -30,6 +30,7 @@ import time
 import uuid
 
 from pyjob.cexec import cexec
+from pyjob.script import Script
 from pyjob.task import Task
 
 logger = logging.getLogger(__name__)
@@ -56,6 +57,7 @@ class PortableBatchSystemTask(Task):
         self.queue = kwargs.get('queue', None)
         self.runtime = kwargs.get('runtime', None)
         self.shell = kwargs.get('shell', None)
+        self.nprocesses = kwargs.get('processes', 1)
 
     @property
     def info(self):
@@ -109,12 +111,15 @@ class PortableBatchSystemTask(Task):
             cmd = '-q {}'.format(self.queue)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.runtime:
-            m, s = divmod(self.runtime, 60)
-            h, m = divmod(m, 60)
+            h, m = divmod(self.runtime, 60)
+            m, s = divmod(m, 60)
             cmd = '-l walltime={}:{}:{}'.format(h, m, s)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.shell:
             cmd = '-S {}'.format(self.shell)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.nprocesses:
+            cmd = '-n {}'.format(self.nprocesses)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if len(self.script) > 1:
             logf = runscript.path.replace('.script', '.log')
