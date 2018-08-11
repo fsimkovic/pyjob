@@ -29,6 +29,7 @@ import time
 import uuid
 
 from pyjob.cexec import cexec
+from pyjob.script import Script
 from pyjob.task import Task
 
 logger = logging.getLogger(__name__)
@@ -128,7 +129,7 @@ class LoadSharingFacilityTask(Task):
             with open(jobsf, 'w') as f_out:
                 f_out.write(os.linesep.join(self.script))
             cmd = 'J {}[{}-{}%{}]'.format(self.name, 1, len(self.script), self.max_array_size)
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + cmd)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
             runscript.append('script=$(awk "NR=={}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
             runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
