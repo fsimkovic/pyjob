@@ -44,7 +44,7 @@ class TestCexec(object):
         assert stdout is None
         with open(fname, 'r') as f:
             assert f.read().strip() == 'hello'
-        os.unlink(fname)
+        pytest.helpers.unlink([fname])
 
     def test_7(self):
         cmd = [sys.executable, '-c', 'import os, sys; print(os.getcwd()); sys.exit("error message")']
@@ -56,5 +56,4 @@ class TestCexec(object):
             assert f.read().strip() == directory
         with open('stderr.log', 'r') as f:
             assert f.read().strip() == 'error message'
-        os.unlink('stdout.log')
-        os.unlink('stderr.log')
+        pytest.helpers.unlink(['stdout.log', 'stderr.log'])

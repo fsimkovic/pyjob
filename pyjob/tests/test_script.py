@@ -1,9 +1,10 @@
 __author__ = 'Felix Simkovic'
 
-from pyjob.script import Script, is_valid_script_path
-
 import os
+import pytest
 import tempfile
+
+from pyjob.script import Script, is_valid_script_path
 
 
 class TestScriptRead(object):
@@ -14,7 +15,7 @@ class TestScriptRead(object):
         script = Script.read(fh.name)
         assert script.shebang == '#!/usr/bin/env python'
         assert script.content == ['print("PyJob is cool!")']
-        os.unlink(fh.name)
+        pytest.helpers.unlink([fh.name])
 
     def test_read_2(self):
         fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
@@ -23,7 +24,7 @@ class TestScriptRead(object):
         script = Script.read(fh.name)
         assert script.shebang is None
         assert script.content == ['print("PyJob is cool!")']
-        os.unlink(fh.name)
+        pytest.helpers.unlink([fh.name])
 
     def test_read_3(self):
         fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
@@ -31,7 +32,7 @@ class TestScriptRead(object):
         script = Script.read(fh.name)
         assert script.shebang is None
         assert script.content == []
-        os.unlink(fh.name)
+        pytest.helpers.unlink([fh.name])
 
     def test_read_4(self):
         fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
@@ -40,7 +41,7 @@ class TestScriptRead(object):
         script = Script.read(fh.name)
         assert script.shebang == '#!/bin/bash'
         assert script.content == []
-        os.unlink(fh.name)
+        pytest.helpers.unlink([fh.name])
 
     def test_read_5(self):
         fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
@@ -49,7 +50,7 @@ class TestScriptRead(object):
         script = Script.read(fh.name)
         assert script.shebang is None
         assert script.content == ['', '#!/bin/bash']
-        os.unlink(fh.name)
+        pytest.helpers.unlink([fh.name])
 
     def test_read_6(self):
         fh = tempfile.NamedTemporaryFile(mode='w', dir='.', delete=True, prefix='pyjob', suffix='.sh')

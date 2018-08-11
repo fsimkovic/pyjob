@@ -30,7 +30,7 @@ def version():
     main_ns = {}
     ver_path = convert_path(os.path.join('pyjob', 'version.py'))
     with open(ver_path) as f_in:
-        exec(f_in.read(), main_ns)
+        exec (f_in.read(), main_ns)
     return main_ns['__version__']
 
 
@@ -75,6 +75,6 @@ setup(
     classifiers=CLASSIFIERS,
     install_requires=dependencies(),
     setup_requires=['pytest-runner'],
-    tests_require=['codecov', 'coverage', 'pytest', 'pytest-cov', 'pytest-pep8'],
+    tests_require=['codecov', 'coverage', 'pytest', 'pytest-cov', 'pytest-pep8', 'pytest-helpers-namespace'],
     zip_safe=False,
 )
