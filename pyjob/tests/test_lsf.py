@@ -162,3 +162,16 @@ class TestCreateRunscript(object):
             '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
+
+    def test_12(self):
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
+        [s.write() for s in scripts]
+        paths = [s.path for s in scripts]
+        task = LoadSharingFacilityTask(paths, extra=['-M 100', '-r'])
+        runscript = task._create_runscript()
+        assert runscript.shebang == '#!/bin/bash'
+        assert runscript.content == [
+            '#BSUB -J pyjob', '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB -M 100 -r',
+            '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
+        ]
+        pytest.helpers.unlink(paths)

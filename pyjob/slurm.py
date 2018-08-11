@@ -30,12 +30,12 @@ import uuid
 
 from pyjob.cexec import cexec
 from pyjob.script import Script
-from pyjob.task import Task
+from pyjob.task import ClusterTask
 
 logger = logging.getLogger(__name__)
 
 
-class SlurmTask(Task):
+class SlurmTask(ClusterTask):
     """SunGridEngine executable :obj:`~pyjob.task.Task`
 
     Examples
@@ -49,14 +49,6 @@ class SlurmTask(Task):
     def __init__(self, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.slurm.SlurmTask`"""
         super(SlurmTask, self).__init__(*args, **kwargs)
-        self.dependency = kwargs.get('dependency', [])
-        self.directory = os.path.abspath(kwargs.get('directory', '.'))
-        self.max_array_size = kwargs.get('max_array_size', len(self.script))
-        self.name = kwargs.get('name', 'pyjob')
-        self.priority = kwargs.get('priority', None)
-        self.queue = kwargs.get('queue', None)
-        self.runtime = kwargs.get('runtime', None)
-        self.nprocesses = kwargs.get('processes', 1)
 
     @property
     def info(self):
@@ -101,6 +93,9 @@ class SlurmTask(Task):
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.directory:
             cmd = '--workdir={}'.format(self.directory)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.extra:
+            cmd = ' '.join(map(str, self.extra))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if len(self.script) > 1:
             logf = runscript.path.replace('.script', '.log')

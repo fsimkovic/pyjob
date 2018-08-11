@@ -125,3 +125,16 @@ class TestCreateRunscript(object):
             '#SBATCH --workdir=' + os.getcwd(), '#SBATCH -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
+
+    def test_9(self):
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
+        [s.write() for s in scripts]
+        paths = [s.path for s in scripts]
+        task = SlurmTask(paths, extra=['--mem=100M', '--requeue'])
+        runscript = task._create_runscript()
+        assert runscript.shebang == '#!/bin/bash'
+        assert runscript.content == [
+            '#SBATCH --export=ALL', '#SBATCH --job-name=pyjob', '#SBATCH -n 1', '#SBATCH --workdir=' + os.getcwd(),
+            '#SBATCH --mem=100M --requeue', '#SBATCH -o ' + paths[0].replace('.py', '.log'), paths[0]
+        ]
+        pytest.helpers.unlink(paths)

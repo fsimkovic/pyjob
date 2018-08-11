@@ -30,12 +30,12 @@ import uuid
 
 from pyjob.cexec import cexec
 from pyjob.script import Script
-from pyjob.task import Task
+from pyjob.task import ClusterTask
 
 logger = logging.getLogger(__name__)
 
 
-class SunGridEngineTask(Task):
+class SunGridEngineTask(ClusterTask):
     """SunGridEngine executable :obj:`~pyjob.task.Task`
 
     Examples
@@ -49,16 +49,6 @@ class SunGridEngineTask(Task):
     def __init__(self, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.sge.SunGridEngineTask`"""
         super(SunGridEngineTask, self).__init__(*args, **kwargs)
-        self.dependency = kwargs.get('dependency', [])
-        self.directory = os.path.abspath(kwargs.get('directory', '.'))
-        self.max_array_size = kwargs.get('max_array_size', len(self.script))
-        self.name = kwargs.get('name', 'pyjob')
-        self.pe_opts = kwargs.get('pe_opts', [])
-        self.priority = kwargs.get('priority', None)
-        self.queue = kwargs.get('queue', None)
-        self.runtime = kwargs.get('runtime', None)
-        self.shell = kwargs.get('shell', None)
-        self.nprocesses = kwargs.get('processes', 1)
 
     @property
     def info(self):
@@ -103,13 +93,10 @@ class SunGridEngineTask(Task):
         runscript = Script(directory=self.directory, prefix='sge_', suffix='.script', stem=str(uuid.uuid1().int))
         runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -V')
         runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -w e')
-        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -j y')
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -j yes')
         runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -N {}'.format(self.name))
         if self.dependency:
             cmd = '-hold_jid {}'.format(','.join(map(str, self.dependency)))
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-        if self.pe_opts:
-            cmd = '-pe {}'.format(' '.join(map(str, self.pe_opts)))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.priority:
             cmd = '-p {}'.format(self.priority)
@@ -128,6 +115,9 @@ class SunGridEngineTask(Task):
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.directory:
             cmd = '-wd {}'.format(self.directory)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.extra:
+            cmd = ' '.join(map(str, self.extra))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if len(self.script) > 1:
             logf = runscript.path.replace('.script', '.log')

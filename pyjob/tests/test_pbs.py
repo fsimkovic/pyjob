@@ -149,3 +149,16 @@ class TestCreateRunscript(object):
             '#PBS -o ' + paths[0].replace('.py', '.log'), '#PBS -e ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
+
+    def test_11(self):
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
+        [s.write() for s in scripts]
+        paths = [s.path for s in scripts]
+        task = PortableBatchSystemTask(paths, extra=['-l mem=100', '-r y'])
+        runscript = task._create_runscript()
+        assert runscript.shebang == '#!/bin/bash'
+        assert runscript.content == [
+            '#PBS -V', '#PBS -N pyjob', '#PBS -w ' + os.getcwd(), '#PBS -n 1', '#PBS -l mem=100 -r y',
+            '#PBS -o ' + paths[0].replace('.py', '.log'), '#PBS -e ' + paths[0].replace('.py', '.log'), paths[0]
+        ]
+        pytest.helpers.unlink(paths)

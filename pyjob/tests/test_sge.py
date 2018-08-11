@@ -15,7 +15,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
             '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -30,7 +30,7 @@ class TestCreateRunscript(object):
         jobsf = runscript.path.replace('.script', '.jobs')
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(), '#$ -t 1-3 -tc 3',
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(), '#$ -t 1-3 -tc 3',
             '#$ -o {}'.format(logf), 'script=$(awk "NR==$SGE_TASK_ID" {})'.format(jobsf),
             "log=$(echo $script | sed 's/\.sh/\.log/')", '$script > $log 2>&1'
         ]
@@ -49,7 +49,7 @@ class TestCreateRunscript(object):
         jobsf = runscript.path.replace('.script', '.jobs')
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(), '#$ -t 1-3 -tc 1',
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(), '#$ -t 1-3 -tc 1',
             '#$ -o {}'.format(logf), 'script=$(awk "NR==$SGE_TASK_ID" {})'.format(jobsf),
             "log=$(echo $script | sed 's/\.sh/\.log/')", '$script > $log 2>&1'
         ]
@@ -66,7 +66,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N foobar', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N foobar', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
             '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -79,7 +79,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N pyjob', '#$ -pe mpi 5', '#$ -wd ' + os.getcwd(),
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -pe mpi 5', '#$ -wd ' + os.getcwd(),
             '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -92,7 +92,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N pyjob', '#$ -q barfoo', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -q barfoo', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
             '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -106,7 +106,7 @@ class TestCreateRunscript(object):
         wd = os.path.abspath(os.path.join(os.getcwd(), '..'))
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + wd,
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + wd,
             '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -119,8 +119,8 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N pyjob', '#$ -hold_jid 1,3,2', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
-            '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -hold_jid 1,3,2', '#$ -pe mpi 1',
+            '#$ -wd ' + os.getcwd(), '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
 
@@ -132,7 +132,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N pyjob', '#$ -l h_rt=120', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -l h_rt=120', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
             '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -145,7 +145,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N pyjob', '#$ -S /bin/csh', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -S /bin/csh', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
             '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -158,7 +158,20 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j y', '#$ -N pyjob', '#$ -p -1', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -p -1', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
             '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
+        ]
+        pytest.helpers.unlink(paths)
+
+    def test_12(self):
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
+        [s.write() for s in scripts]
+        paths = [s.path for s in scripts]
+        task = SunGridEngineTask(paths, extra=['-l mem=100', '-r yes'])
+        runscript = task._create_runscript()
+        assert runscript.shebang == '#!/bin/bash'
+        assert runscript.content == [
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
+            '#$ -l mem=100 -r yes', '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)

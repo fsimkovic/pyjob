@@ -55,6 +55,10 @@ class Task(ABC):
         self.pid = None
         self.locked = False
 
+        # These arguments are universal to all Task entities
+        self.directory = os.path.abspath(kwargs.get('directory', '.'))
+        self.nprocesses = kwargs.get('processes', 1)
+
         if isinstance(script, str) and is_valid_script_path(script):
             self.script = [script]
         elif (isinstance(script, list) or isinstance(script, tuple)) \
@@ -195,3 +199,24 @@ class Task(ABC):
             if do_monitor:
                 monitor()
             time.sleep(interval)
+
+
+class ClusterTask(Task):
+    """Abstract base class for executable cluster tasks"""
+
+    def __init__(self, *args, **kwargs):
+        """Instantiate a new :obj:`~pyjob.task.ClusterTask`"""
+        super(ClusterTask, self).__init__(*args, **kwargs)
+        self.dependency = kwargs.get('dependency', [])
+        self.max_array_size = kwargs.get('max_array_size', len(self.script))
+        self.priority = kwargs.get('priority', None)
+        self.queue = kwargs.get('queue', None)
+        self.runtime = kwargs.get('runtime', None)
+        self.shell = kwargs.get('shell', None)
+        self.name = kwargs.get('name', 'pyjob')
+        self.extra = kwargs.get('extra', [])
+
+    @abc.abstractmethod
+    def _create_runscript(self):
+        """Utility method to create a :obj:`~pyjob.task.ClusterTask` runscript"""
+        pass

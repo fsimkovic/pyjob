@@ -31,12 +31,12 @@ import uuid
 
 from pyjob.cexec import cexec
 from pyjob.script import Script
-from pyjob.task import Task
+from pyjob.task import ClusterTask
 
 logger = logging.getLogger(__name__)
 
 
-class PortableBatchSystemTask(Task):
+class PortableBatchSystemTask(ClusterTask):
     """PortableBatchSystem executable :obj:`~pyjob.task.Task`
 
     Examples
@@ -50,14 +50,6 @@ class PortableBatchSystemTask(Task):
     def __init__(self, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.pbs.PortableBatchSystemTask`"""
         super(PortableBatchSystemTask, self).__init__(*args, **kwargs)
-        self.directory = os.path.abspath(kwargs.get('directory', '.'))
-        self.max_array_size = kwargs.get('max_array_size', len(self.script))
-        self.name = kwargs.get('name', 'pyjob')
-        self.priority = kwargs.get('priority', None)
-        self.queue = kwargs.get('queue', None)
-        self.runtime = kwargs.get('runtime', None)
-        self.shell = kwargs.get('shell', None)
-        self.nprocesses = kwargs.get('processes', 1)
 
     @property
     def info(self):
@@ -120,6 +112,9 @@ class PortableBatchSystemTask(Task):
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.nprocesses:
             cmd = '-n {}'.format(self.nprocesses)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.extra:
+            cmd = ' '.join(map(str, self.extra))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if len(self.script) > 1:
             logf = runscript.path.replace('.script', '.log')
