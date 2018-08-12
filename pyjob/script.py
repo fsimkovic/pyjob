@@ -26,10 +26,99 @@ __version__ = '1.0'
 import os
 import sys
 
+from pyjob.exception import PyJobError
+
 if sys.platform.startswith('win'):
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', '', '.bat')
 else:
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
+
+
+class ScriptContainer(object):
+    """A :obj:`~pyjob.script.ScriptContainer` to store executable :obj:`~pyjob.script.Script` instances"""
+
+    def __init__(self, scripts):
+        """Instantiate a new :obj:`~pyjob.script.ScriptContainer`"""
+        self._scripts = []
+        self._save_script(scripts)
+
+    def __iter__(self):
+        """Iterator function"""
+        for script in self.scripts:
+            yield script
+
+    def __len__(self):
+        """Length function"""
+        return len(self.scripts)
+
+    @property
+    def scripts(self):
+        """The script file paths"""
+        return self._scripts
+
+    @scripts.setter
+    def scripts(self, scripts):
+        """The script file paths
+
+        Parameters
+        ----------
+        script : :obj:`~pyjob.script.Script`, str, list, tuple
+           Something representing one or more scripts
+
+        Raises
+        ------
+        :exc:`~pyjob.exception.PyJobError`
+           Script cannot be found or is not executable
+
+        """
+        self._scripts = []
+        self._save_script(scripts)
+
+    def add(self, scripts):
+        """Add one or more script file paths
+
+        Parameters
+        ----------
+        script : :obj:`~pyjob.script.Script`, str, list, tuple
+           Something representing one or more scripts
+
+        Raises
+        ------
+        :exc:`~pyjob.exception.PyJobError`
+           Script cannot be found or is not executable
+
+        """
+        self._save_script(scripts)
+
+    def _save_script(self, script):
+        """Helper function to assess/standardise executable input
+
+        Parameters
+        ----------
+        script : :obj:`~pyjob.executable.Script`, str, list, tuple
+           Something representing one or more executables
+
+        Raises
+        ------
+        :exc:`~pyjob.exception.PyJobError`
+           Unrecognised executable input
+
+        """
+        if isinstance(script, Script):
+            self._scripts.append(script)
+        elif isinstance(script, str):
+            script = Script.read(script)
+            self._scripts.append(script)
+        elif isinstance(script, list) or isinstance(script, tuple):
+            for s in script:
+                if isinstance(s, Script):
+                    self._scripts.append(s)
+                elif isinstance(s, str):
+                    self._scripts.append(Script.read(s))
+                else:
+                    raise PyJobError('Unrecognised executable input')
+        else:
+            raise PyJobError('Unrecognised executable input')
 
 
 class Script(list):
@@ -84,8 +173,7 @@ class Script(list):
     @property
     def path(self):
         """Path to the :obj:`~pyjob.script.Script`"""
-        return os.path.join(self.directory,
-                            self.prefix + self.stem + self.suffix)
+        return os.path.join(self.directory, self.prefix + self.stem + self.suffix)
 
     def write(self):
         """Write the :obj:`~pyjob.script.Script` to :attr:`~pyjob.script.Script.path`"""

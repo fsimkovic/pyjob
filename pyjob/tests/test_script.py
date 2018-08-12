@@ -4,7 +4,81 @@ import os
 import pytest
 import tempfile
 
-from pyjob.script import Script, is_valid_script_path
+from pyjob.exception import PyJobError
+from pyjob.script import Script, ScriptContainer, is_valid_script_path
+
+
+class TestScriptContainer(object):
+    def test_1(self):
+        sc = ScriptContainer([])
+        assert sc.scripts == []
+
+    def test_2(self):
+        script = pytest.helpers.get_py_script(0, 1)
+        sc = ScriptContainer(script)
+        assert sc.scripts == [script]
+
+    def test_3(self):
+        script = pytest.helpers.get_py_script(0, 1)
+        script.write()
+        sc = ScriptContainer(script.path)
+        assert len(sc.scripts) == 1
+        assert isinstance(sc.scripts[0], Script)
+        pytest.helpers.unlink([script.path])
+
+    def test_4(self):
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
+        sc = ScriptContainer(scripts)
+        assert sc.scripts == scripts
+
+    def test_5(self):
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
+        [s.write() for s in scripts]
+        sc = ScriptContainer([s.path for s in scripts])
+        assert len(sc.scripts) == 2
+        assert all(isinstance(s, Script) for s in sc)
+        pytest.helpers.unlink([s.path for s in scripts])
+
+    def test_6(self):
+        with pytest.raises(PyJobError):
+            ScriptContainer([1])
+
+    def test_7(self):
+        with pytest.raises(IOError):
+            ScriptContainer(['test'])
+
+    def test_8(self):
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
+        sc = ScriptContainer(scripts[:1])
+        sc.add(scripts[1:])
+        assert sc.scripts == scripts
+
+    def test_9(self):
+        sc = ScriptContainer([])
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
+        sc.add(scripts)
+        assert sc.scripts == scripts
+
+    def test_10(self):
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
+        sc = ScriptContainer(scripts)
+        sc.add([])
+        assert sc.scripts == scripts
+
+    def test_11(self):
+        scripts1 = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
+        sc = ScriptContainer(scripts1)
+        assert sc.scripts == scripts1
+        scripts2 = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
+        sc.scripts = scripts2
+        assert sc.scripts == scripts2
+
+    def test_12(self):
+        scripts1 = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
+        sc = ScriptContainer(scripts1)
+        assert sc.scripts == scripts1
+        sc.scripts = []
+        assert sc.scripts == []
 
 
 class TestScriptRead(object):
