@@ -80,6 +80,15 @@ class TestScriptContainer(object):
         sc.scripts = []
         assert sc.scripts == []
 
+    def test_13(self):
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
+        sc = ScriptContainer(scripts)
+        assert sc.scripts == scripts
+        sc.dump()
+        paths = [s.path for s in scripts]
+        assert all(os.path.isfile(p) for p in paths)
+        pytest.helpers.unlink(paths)
+
 
 class TestScriptRead(object):
     def test_read_1(self):

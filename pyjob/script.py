@@ -39,22 +39,22 @@ class ScriptContainer(object):
 
     def __init__(self, scripts):
         """Instantiate a new :obj:`~pyjob.script.ScriptContainer`"""
-        self._scripts = []
+        self._container = []
         self._save_script(scripts)
 
     def __iter__(self):
         """Iterator function"""
-        for script in self.scripts:
+        for script in self._container:
             yield script
 
     def __len__(self):
         """Length function"""
-        return len(self.scripts)
+        return len(self._container)
 
     @property
     def scripts(self):
         """The script file paths"""
-        return self._scripts
+        return self._container
 
     @scripts.setter
     def scripts(self, scripts):
@@ -71,7 +71,7 @@ class ScriptContainer(object):
            Script cannot be found or is not executable
 
         """
-        self._scripts = []
+        self._container = []
         self._save_script(scripts)
 
     def add(self, scripts):
@@ -90,6 +90,12 @@ class ScriptContainer(object):
         """
         self._save_script(scripts)
 
+    def dump(self):
+        """Write all scripts to disk if not already done"""
+        for script in self._container:
+            if not os.path.isfile(script.path):
+                script.write()
+
     def _save_script(self, script):
         """Helper function to assess/standardise executable input
 
@@ -105,16 +111,16 @@ class ScriptContainer(object):
 
         """
         if isinstance(script, Script):
-            self._scripts.append(script)
+            self._container.append(script)
         elif isinstance(script, str):
             script = Script.read(script)
-            self._scripts.append(script)
+            self._container.append(script)
         elif isinstance(script, list) or isinstance(script, tuple):
             for s in script:
                 if isinstance(s, Script):
-                    self._scripts.append(s)
+                    self._container.append(s)
                 elif isinstance(s, str):
-                    self._scripts.append(Script.read(s))
+                    self._container.append(Script.read(s))
                 else:
                     raise PyJobError('Unrecognised executable input')
         else:
