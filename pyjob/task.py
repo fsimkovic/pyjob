@@ -29,7 +29,7 @@ import os
 import time
 
 from pyjob.exception import PyJobError
-from pyjob.script import is_valid_script_path
+from pyjob.script import ScriptContainer, is_valid_script_path
 
 ABC = abc.ABCMeta('ABC', (object, ), {})
 logger = logging.getLogger(__name__)
@@ -46,26 +46,13 @@ class Task(ABC):
         script : str, list, tuple
            A :obj:`str`, :obj:`list` or :obj:`tuple` of one or more script paths
 
-        Raises
-        ------
-        :exc:`PyJobError`
-           One or more scripts cannot be found or are not executable
-
         """
         self.pid = None
         self.locked = False
-
+        self.script_container = ScriptContainer(script)
         # These arguments are universal to all Task entities
         self.directory = os.path.abspath(kwargs.get('directory', '.'))
         self.nprocesses = kwargs.get('processes', 1)
-
-        if isinstance(script, str) and is_valid_script_path(script):
-            self.script = [script]
-        elif (isinstance(script, list) or isinstance(script, tuple)) \
-                and all(is_valid_script_path(fpath) for fpath in script):
-            self.script = list(script)
-        else:
-            raise PyJobError('One or more scripts cannot be found or are not executable')
 
     def __del__(self):
         """Exit function at instance deletion"""
@@ -133,24 +120,21 @@ class Task(ABC):
         """The log file path"""
         return [script.rsplit('.', 1)[0] + '.log' for script in self.script]
 
+    @property
+    def script(self):
+        """The script file path"""
+        return [script.path for script in self.script_container]
+
     def add_script(self, script):
         """Add further scripts to this :obj:`~pyjob.task.Task`
 
         Parameters
         ----------
-        script : str
-           A :obj:`str` of script path
-
-        Raises
-        ------
-        :exc:`~pyjob.exception.PyJobError`
-           Script cannot be found or is not executable
+        script : :obj:`~pyjob.script.Script`, str, list, tuple
+           Something representing one or more scripts
 
         """
-        if is_valid_script_path(script):
-            self.script.append(script)
-        else:
-            raise PyJobError('Script cannot be found or is not executable')
+        self.script_container.add(script)
 
     def run(self):
         """Start the execution of this :obj:`~pyjob.sge.SunGridEngineTask`
@@ -163,6 +147,7 @@ class Task(ABC):
         """
         if self.locked:
             raise PyJobTaskLockedError('This task is locked!')
+        self.script_container.dump()
         self._run()
         logger.debug('Started execution of %s [%d]', self.__class__.__name__, self.pid)
         self.locked = True
