@@ -1,9 +1,10 @@
 .. _quickstart:
 
 Quickstart
-++++++++++
+----------
 
-**Script creation**
+Script creation
+~~~~~~~~~~~~~~~
 
 A :obj:`~pyjob.script.Script` is easily created by simply providing some optional information. Content can be stored just like any other Python :obj:`list`. 
 
@@ -39,7 +40,8 @@ If we are provided with a script written to disk, i.e. reverse the previous few 
    #!/bin/bash
    sleep 5
 
-**Execution of single script on a local machine**
+Execution of single script on a local machine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :obj:`~pyjob.script.Script` created in the previous step can be easily executed across all supported platforms, i.e. operating systems and HPC queueing systems. To do so, we simply select a platform (`local` in the example below), provide one or more :obj:`~pyjob.script.Script` instances or paths to scripts, and then execute with the :meth:`~pyjob.task.Task.run` method. To simplify the selection of the correct platform, a :obj:`~pyjob.factory.TaskFactory` is provided.
 
@@ -51,7 +53,8 @@ The :obj:`~pyjob.script.Script` created in the previous step can be easily execu
 
 In the example, the :obj:`~pyjob.task.Task` is handled with a Python context, which is the recommended way to handle all :obj:`~pyjob.task.Task` instances.
 
-**Execution of multiple scripts on a local machine**
+Execution of multiple scripts on a local machine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -88,7 +91,8 @@ If a list of :obj:`~pyjob.script.Script` instances is inconvenient to maintain, 
    >>> with TaskFactory('local', collector, processes=2) as task:
    ...     task.run()
 
-**Execution of multiple scripts on non-local platforms**
+Execution of multiple scripts on non-local platforms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -117,7 +121,8 @@ can try this by installing PyJob on such a machine and substituting any of below
 | TORQUE Resource Manager | ``torque`` | :obj:`~pyjob.torque.TorqueTask`           |
 +-------------------------+------------+-------------------------------------------+
 
-**Execution of Python functions**
+Execution of Python functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This little nugget is simply an extension to :obj:`multiprocessing.Pool` to simplify and tidy imports in your own code. It also provides a backwards-compatible context for the :obj:`multiprocessing.Pool`, which is standard in Python3.
 

@@ -21,7 +21,7 @@ PyJob
    :alt: Python Version
 
 Installation
-++++++++++++
+------------
 
 **Latest official release**
 
