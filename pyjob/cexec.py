@@ -92,7 +92,7 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
         if stdinstr:
             stdinstr = stdinstr.encode()
         stdout, stderr = p.communicate(input=stdinstr)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
         os.kill(p.pid, signal.SIGTERM)
         sys.exit(signal.SIGTERM)
     else:
