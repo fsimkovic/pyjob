@@ -10,11 +10,11 @@ from pyjob.factory import TaskFactory, TASK_PLATFORMS
 
 class TestFactory(object):
     def test_1(self):
-        task = TaskFactory(TASK_PLATFORMS.keys()[0], None)
+        task = TaskFactory(next(iter(TASK_PLATFORMS)), None)
         assert task.script == []
 
     def test_2(self):
-        task = TaskFactory(TASK_PLATFORMS.keys()[0].upper(), None)
+        task = TaskFactory(next(iter(TASK_PLATFORMS)).upper(), None)
         assert task.script == []
 
     def test_3(self):

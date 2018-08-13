@@ -5,6 +5,8 @@ Quickstart
 
 **Script creation**
 
+A :obj:`~pyjob.script.Script` is easily created by simply providing some optional information. Content can be stored just like any other Python :obj:`list`. 
+
 .. code-block:: python
    
    >>> from pyjob import Script
@@ -13,9 +15,21 @@ Quickstart
    >>> print(script)
    #!/bin/bash
    sleep 5
+
+The path to the :obj:`~pyjob.script.Script` can be retrieved by accessing the associated :attr:`~pyjob.script.Script.path` attribute.
+
+.. code-block:: python
+
    >>> print(script.path)
    './example.sh'
+
+We could also :meth:`~pyjob.script.Script.write` the :obj:`~pyjob.script.Script` to disk, but do not worry, the :obj:`~pyjob.task.Task` would do this for you in case you forget before execution.
+
+.. code-block:: python
+
    >>> script.write()
+
+If we are provided with a script written to disk, i.e. reverse the previous few steps, we could simply use the :func:`~pyjob.read_script` function, and obtain a :obj:`~pyjob.script.Script` instance. This would also allow us to conveniently edit a :obj:`~pyjob.script.Script` if necessary.
 
 .. code-block:: python
 
@@ -27,11 +41,15 @@ Quickstart
 
 **Execution of single script on a local machine**
 
+The :obj:`~pyjob.script.Script` created in the previous step can be easily executed across all supported platforms, i.e. operating systems and HPC queueing systems. To do so, we simply select a platform (`local` in the example below), provide one or more :obj:`~pyjob.script.Script` instances or paths to scripts, and then execute with the :meth:`~pyjob.task.Task.run` method. To simplify the selection of the correct platform, a :obj:`~pyjob.factory.TaskFactory` is provided.
+
 .. code-block:: python
 
    >>> from pyjob import TaskFactory
-   >>> with TaskFactory('local', script.path) as task:
+   >>> with TaskFactory('local', script) as task:
    ...     task.run()
+
+In the example, the :obj:`~pyjob.task.Task` is handled with a Python context, which is the recommended way to handle all :obj:`~pyjob.task.Task` instances.
 
 **Execution of multiple scripts on a local machine**
 
@@ -40,26 +58,41 @@ Quickstart
    >>> def dup_script(s, i=0):
    ...     s1 = s[:]
    ...     s1.stem = str(i)
-   ...     sq.write()
    ...     return s1
    >>> script1 = dup_script(script, i=0)
    >>> script2 = dup_script(script, i=1)
    
+This process is identical to the previous example, except that this time we provide the :obj:`~pyjob.script.Script` instances as :obj:`list`.
+
 .. code-block:: python
 
-   >>> with TaskFactory('local', [script1.path, script2.path]) as task:
+   >>> with TaskFactory('local', [script1, script2]) as task:
    ...     task.run()
 
+If we would like to use multiple processes, simply provide the `processes` keyword argument with the relevant count.
+
 .. code-block:: python
 
-   >>> with TaskFactory('local', [script1.path, script2.path], processes=2) as task:
+   >>> with TaskFactory('local', [script1, script2], processes=2) as task:
+   ...     task.run()
+
+If a list of :obj:`~pyjob.script.Script` instances is inconvenient to maintain, or you would like to use the latest implementation, you could also use the :obj:`~pyjob.script.ScriptCollector` and provide it instead.
+
+.. code-block:: python
+
+   >>> from pyjob.script import ScriptCollector
+   >>> collector = ScriptCollector(script)
+   >>> for i in range(5):
+   ...     script = dup_script(script, i=i)
+   ...     collector.add(script)
+   >>> with TaskFactory('local', collector, processes=2) as task:
    ...     task.run()
 
 **Execution of multiple scripts on non-local platforms**
 
 .. code-block:: python
 
-   >>> with TaskFactory('sge', [script1.path, script2.path]) as task:
+   >>> with TaskFactory('sge', [script1, script2]) as task:
    ...     task.run()
 
 The first argument to :obj:`~pyjob.factory.TaskFactory`, ``sge`` in this example, defines the 
@@ -85,6 +118,8 @@ can try this by installing PyJob on such a machine and substituting any of below
 +-------------------------+------------+-------------------------------------------+
 
 **Execution of Python functions**
+
+This little nugget is simply an extension to :obj:`multiprocessing.Pool` to simplify and tidy imports in your own code. It also provides a backwards-compatible context for the :obj:`multiprocessing.Pool`, which is standard in Python3.
 
 .. code-block:: python
    
