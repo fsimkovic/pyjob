@@ -2,6 +2,8 @@
 
 *Added*
 
+- :obj:`~pyjob.task.Task` backend for script collection modified to store everything in :obj:`~pyjob.script.Script` instances collected in a :obj:`~pyjob.script.ScriptCollector` instance
+- :obj:`~pyjob.script.ScriptCollector` added to support easier collection of multiple :obj:`~pyjob.script.Script` instances
 - [`#14 <https://github.com/fsimkovic/pyjob/issues/14>`_] - :obj:`~pyjob.slurm.SlurmTask` support added
 - [`#13 <https://github.com/fsimkovic/pyjob/issues/13>`_] - :func:`~pyjob.cexec.cexec` accepts all :obj:`~subprocess.Popen` keyword arguments
 - [`#12 <https://github.com/fsimkovic/pyjob/issues/12>`_] - `pyjob` command-line executable to provide conveniont script submission without active Python interpreter
