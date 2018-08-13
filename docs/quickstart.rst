@@ -30,7 +30,7 @@ We could also :meth:`~pyjob.script.Script.write` the :obj:`~pyjob.script.Script`
 
    >>> script.write()
 
-If we are provided with a script written to disk, i.e. reverse the previous few steps, we could simply use the :func:`~pyjob.read_script` function, and obtain a :obj:`~pyjob.script.Script` instance. This would also allow us to conveniently edit a :obj:`~pyjob.script.Script` if necessary.
+If we are provided with a script written to disk, i.e. reverse the previous few steps, we could simply use the :meth:`read_script <pyjob.script.Script.read>` function, and obtain a :obj:`~pyjob.script.Script` instance. This would also allow us to conveniently edit a :obj:`~pyjob.script.Script` if necessary.
 
 .. code-block:: python
 

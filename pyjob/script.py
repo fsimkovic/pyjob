@@ -202,6 +202,7 @@ class Script(list):
         Returns
         -------
         :obj:`~pyjob.script.Script`
+           A :obj:`~pyjob.script.Script` instance
 
         """
         directory, fname = os.path.split(path)
