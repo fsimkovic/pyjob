@@ -123,6 +123,8 @@ class ScriptContainer(object):
                     self._container.append(Script.read(s))
                 else:
                     raise PyJobError('Unrecognised executable input')
+        elif script is None:
+            pass
         else:
             raise PyJobError('Unrecognised executable input')
 

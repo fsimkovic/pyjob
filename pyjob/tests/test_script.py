@@ -14,11 +14,15 @@ class TestScriptContainer(object):
         assert sc.scripts == []
 
     def test_2(self):
+        sc = ScriptContainer(None)
+        assert sc.scripts == []
+
+    def test_3(self):
         script = pytest.helpers.get_py_script(0, 1)
         sc = ScriptContainer(script)
         assert sc.scripts == [script]
 
-    def test_3(self):
+    def test_4(self):
         script = pytest.helpers.get_py_script(0, 1)
         script.write()
         sc = ScriptContainer(script.path)
@@ -26,12 +30,12 @@ class TestScriptContainer(object):
         assert isinstance(sc.scripts[0], Script)
         pytest.helpers.unlink([script.path])
 
-    def test_4(self):
+    def test_5(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptContainer(scripts)
         assert sc.scripts == scripts
 
-    def test_5(self):
+    def test_6(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         [s.write() for s in scripts]
         sc = ScriptContainer([s.path for s in scripts])
@@ -39,33 +43,33 @@ class TestScriptContainer(object):
         assert all(isinstance(s, Script) for s in sc)
         pytest.helpers.unlink([s.path for s in scripts])
 
-    def test_6(self):
+    def test_7(self):
         with pytest.raises(PyJobError):
             ScriptContainer([1])
 
-    def test_7(self):
+    def test_8(self):
         with pytest.raises(IOError):
             ScriptContainer(['test'])
 
-    def test_8(self):
+    def test_9(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptContainer(scripts[:1])
         sc.add(scripts[1:])
         assert sc.scripts == scripts
 
-    def test_9(self):
+    def test_10(self):
         sc = ScriptContainer([])
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc.add(scripts)
         assert sc.scripts == scripts
 
-    def test_10(self):
+    def test_11(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptContainer(scripts)
         sc.add([])
         assert sc.scripts == scripts
 
-    def test_11(self):
+    def test_12(self):
         scripts1 = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptContainer(scripts1)
         assert sc.scripts == scripts1
@@ -73,14 +77,14 @@ class TestScriptContainer(object):
         sc.scripts = scripts2
         assert sc.scripts == scripts2
 
-    def test_12(self):
+    def test_13(self):
         scripts1 = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptContainer(scripts1)
         assert sc.scripts == scripts1
         sc.scripts = []
         assert sc.scripts == []
 
-    def test_13(self):
+    def test_14(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptContainer(scripts)
         assert sc.scripts == scripts
