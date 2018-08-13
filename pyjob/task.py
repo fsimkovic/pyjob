@@ -194,7 +194,9 @@ class Task(ABC):
             warnings.warn('This keyword argument has been deprecated, use monitor_f instead', DeprecationWarning)
             monitor_f = monitor
 
-        callable_checker = lambda f: bool(f) and callable(f)
+        def callable_checker(f):
+            return bool(f and callable(f))
+
         do_check_success = callable_checker(success_f)
         if do_check_success:
             msg = 'Checking for %s %d success with function %s'
