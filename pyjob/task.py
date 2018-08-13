@@ -49,7 +49,10 @@ class Task(ABC):
         """
         self.pid = None
         self.locked = False
-        self.script_container = ScriptContainer(script)
+        if isinstance(script, ScriptContainer):
+            self.script_contaienr = script
+        else:
+            self.script_container = ScriptContainer(script)
         # These arguments are universal to all Task entities
         self.directory = os.path.abspath(kwargs.get('directory', '.'))
         self.nprocesses = kwargs.get('processes', 1)
