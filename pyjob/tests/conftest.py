@@ -3,9 +3,12 @@ __author__ = 'Felix Simkovic'
 import inspect
 import os
 import pytest
-pytest_plugins = ['helpers_namespace']
+import random
+import string
 
 from pyjob.script import Script
+
+pytest_plugins = ['helpers_namespace']
 
 
 @pytest.helpers.register
@@ -34,3 +37,8 @@ def unlink(paths):
     for p in paths:
         if os.path.isfile(p):
             os.unlink(p)
+
+
+@pytest.helpers.register
+def randomstr(n=5):
+    return ''.join(random.choice(string.ascii_lowercase) for _ in range(n))
