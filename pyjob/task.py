@@ -28,8 +28,8 @@ import logging
 import os
 import time
 
-from pyjob.exception import PyJobError
-from pyjob.script import ScriptContainer, is_valid_script_path
+from pyjob.exception import PyJobError, PyJobTaskLockedError
+from pyjob.script import ScriptCollector, is_valid_script_path
 
 ABC = abc.ABCMeta('ABC', (object, ), {})
 logger = logging.getLogger(__name__)
@@ -43,16 +43,16 @@ class Task(ABC):
 
         Parameters
         ----------
-        script : str, list, tuple
+        script : :obj:`~pyjob.script.ScriptCollector`, :obj:`~pyjob.script.Script`, str, list, tuple
            A :obj:`str`, :obj:`list` or :obj:`tuple` of one or more script paths
 
         """
         self.pid = None
         self.locked = False
-        if isinstance(script, ScriptContainer):
-            self.script_contaienr = script
+        if isinstance(script, ScriptCollector):
+            self.script_collector = script
         else:
-            self.script_container = ScriptContainer(script)
+            self.script_collector = ScriptCollector(script)
         # These arguments are universal to all Task entities
         self.directory = os.path.abspath(kwargs.get('directory', '.'))
         self.nprocesses = kwargs.get('processes', 1)
@@ -60,7 +60,7 @@ class Task(ABC):
     def __del__(self):
         """Exit function at instance deletion"""
         if not self.locked:
-            self.locked = True
+            self.lock()
         self.close()
 
     def __enter__(self):
@@ -82,7 +82,7 @@ class Task(ABC):
 
         """
         if not self.locked:
-            self.locked = True
+            self.lock()
         self.close()
 
     def __repr__(self):
@@ -126,7 +126,7 @@ class Task(ABC):
     @property
     def script(self):
         """The script file path"""
-        return [script.path for script in self.script_container]
+        return [script.path for script in self.script_collector]
 
     def add_script(self, script):
         """Add further scripts to this :obj:`~pyjob.task.Task`
@@ -137,55 +137,77 @@ class Task(ABC):
            Something representing one or more scripts
 
         """
-        self.script_container.add(script)
+        if self.locked:
+            raise PyJobTaskLockedError('This task is locked!')
+        self.script_collector.add(script)
+
+    def lock(self):
+        """Lock this :obj:`~pyjob.task.Task`"""
+        self.locked = True
+        logger.debug('Locked %s [%d]', self.__class__.__name__, self.pid)
 
     def run(self):
-        """Start the execution of this :obj:`~pyjob.sge.SunGridEngineTask`
+        """Start the execution of this :obj:`~pyjob.task.Task`
 
         Raises
         ------
+        :exc:`~pyjob.exception.PyJobError`
+           One or more executable scripts required prior to execution
         :exc:`~pyjob.exception.PyJobTaskLockedError`
            Locked task, cannot restart or rerun
 
         """
         if self.locked:
             raise PyJobTaskLockedError('This task is locked!')
-        self.script_container.dump()
+        if len(self.script_collector) < 1:
+            raise PyJobError('One or more executable scripts required prior to execution')
+        self.script_collector.dump()
         self._run()
         logger.debug('Started execution of %s [%d]', self.__class__.__name__, self.pid)
-        self.locked = True
+        self.lock()
 
-    def wait(self, check_success=None, interval=30, monitor=None):
+    def wait(self, interval=30, monitor_f=None, success_f=None, check_success=None, monitor=None):
         """Method to wait for the completion of the current :obj:`~pyjob.task.Task`
 
         Parameters
         ----------
-        check_success : func, optional
-           A :obj:`callable` to check the success status of a :obj:`~pyjob.task.Task`
         interval : int, optional
            The interval to wait between checking (in seconds)
-        monitor : func, optional
+        monitor_f : func, optional
            A :obj:`callable` that is regularly invoked
+        success_f : func, optional
+           A :obj:`callable` to check for early termination of :obj:`~pyjob.task.Task`
 
         Note
         ----
-        The `check_success` argument needs to accept a log file as input and return
+        The `success_f` argument needs to accept a log file as input and return
         a :obj:`bool`.
 
         """
-        do_check_success = bool(check_success and callable(check_success))
+        if check_success:
+            import warnings
+            warnings.warn('This keyword argument has been deprecated, use success_f instead', DeprecationWarning)
+            success_f = check_success
+
+        if monitor:
+            import warnings
+            warnings.warn('This keyword argument has been deprecated, use monitor_f instead', DeprecationWarning)
+            monitor_f = monitor
+
+        callable_checker = lambda f: bool(f) and callable(f)
+        do_check_success = callable_checker(success_f)
         if do_check_success:
             msg = 'Checking for %s %d success with function %s'
             logger.debug(msg, self.__class__.__name__, self.pid, check_success.__name__)
-        do_monitor = bool(monitor and callable(monitor))
+        do_monitor = callable_checker(monitor_f)
         while not self.completed:
             if do_check_success:
                 for log in self.log:
-                    if os.path.isfile(log) and check_success(log):
+                    if os.path.isfile(log) and success_f(log):
                         logger.debug("%s %d succeeded, run log: %s", self.__class__.__name__, self.pid, log)
                         self.kill()
             if do_monitor:
-                monitor()
+                monitor_f()
             time.sleep(interval)
 
 
