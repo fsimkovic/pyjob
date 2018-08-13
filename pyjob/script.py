@@ -34,11 +34,11 @@ else:
     EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
 
 
-class ScriptContainer(object):
-    """A :obj:`~pyjob.script.ScriptContainer` to store executable :obj:`~pyjob.script.Script` instances"""
+class ScriptCollector(object):
+    """A :obj:`~pyjob.script.ScriptCollector` to store executable :obj:`~pyjob.script.Script` instances"""
 
     def __init__(self, scripts):
-        """Instantiate a new :obj:`~pyjob.script.ScriptContainer`"""
+        """Instantiate a new :obj:`~pyjob.script.ScriptCollector`"""
         self._container = []
         self._save_script(scripts)
 
