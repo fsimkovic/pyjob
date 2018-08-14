@@ -1,6 +1,7 @@
 __author__ = 'Felix Simkovic'
 
 import pytest
+import sys
 
 from pyjob.local import CPU_COUNT
 from pyjob.pool import Pool

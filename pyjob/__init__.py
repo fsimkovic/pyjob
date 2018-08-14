@@ -24,10 +24,13 @@ __author__ = 'Felix Simkovic'
 
 from pyjob.cexec import cexec
 from pyjob.factory import TaskFactory
-from pyjob.job import Job
 from pyjob.script import Script
 from pyjob.stopwatch import StopWatch
 from pyjob.version import __version__
+
+# To be deprecated
+from pyjob.job import Job
+from pyjob.queue import Queue
 
 # Expose this utility function
 read_script = Script.read

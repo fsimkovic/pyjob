@@ -29,10 +29,6 @@ install:
     msinttypes freetype=2.6 "libpng>=1.6.21,<1.7" zlib=1.2 tk=8.5
   - activate test-environment
   - pip install codecov coverage
-  - python setup.py install
 
 test_script:
   - python setup.py test
-
-on_finish:
-  - codecov

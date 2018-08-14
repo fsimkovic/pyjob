@@ -23,57 +23,9 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
-from pyjob.factory import TaskFactory
+from pyjob.job import Job
 from pyjob.misc import deprecate
 
 
-class Job(object):
-    @deprecate(0.3, msg='Use Task/TaskFactory instead')
-    def __init__(self, qtype):
-        self.qtype = qtype
-        self._task = None
-        self._locked = False
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self._task:
-            self._task.close()
-
-    def __del__(self):
-        if self._task:
-            self._task.close()
-
-    @property
-    def finished(self):
-        return self._task.completed
-
-    @property
-    def pid(self):
-        return self._task.pid
-
-    @property
-    def log(self):
-        return self._task.log
-
-    @property
-    def script(self):
-        return self._task.script
-
-    def kill(self):
-        self._task.kill()
-
-    def submit(self, script, *args, **kwargs):
-        if self._locked:
-            return
-        kwargs['processes'] = kwargs.get('nproc', None)
-        self._task = TaskFactory(self.qtype, script, *args, **kwargs)
-        self._task.run()
-        self._locked = True
-
-    def stat(self):
-        return self._task.info
-
-    def wait(self, *args, **kwargs):
-        self._task.wait(*args, **kwargs)
+class Queue(Job):
+    pass
