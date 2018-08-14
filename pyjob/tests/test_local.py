@@ -9,7 +9,7 @@ from pyjob.exception import PyJobError
 from pyjob.local import CPU_COUNT, LocalTask
 
 
-@pytest.mark.skipif(sys.platform.startswith('win'), reason='Deadlock on Windows')
+@pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
 class TestLocalTaskTermination(object):
     def test_terminate_1(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]

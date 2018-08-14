@@ -5,7 +5,7 @@ import pytest
 import tempfile
 
 from pyjob.exception import PyJobError
-from pyjob.script import SCRIPT_HEADER, SCRIPT_EXE, Script, ScriptCollector, is_valid_script_path
+from pyjob.script import SCRIPT_HEADER, SCRIPT_EXT, Script, ScriptCollector, is_valid_script_path
 
 
 class TestScriptCollector(object):
@@ -140,13 +140,13 @@ class TestScriptRead(object):
         pytest.helpers.unlink([fh.name])
 
     def test_read_6(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', dir='.', delete=True, prefix='pyjob', suffix=SCRIPT_EXE)
+        fh = tempfile.NamedTemporaryFile(mode='w', dir='.', delete=True, prefix='pyjob', suffix=SCRIPT_EXT)
         script = Script.read(fh.name)
         fh.close()
         assert script.directory == os.getcwd()
         assert script.prefix == ''
         assert script.stem[:5] == 'pyjob'
-        assert script.suffix == SCRIPT_EXE
+        assert script.suffix == SCRIPT_EXT
 
 
 class TestIsValidScriptPath(object):
@@ -155,7 +155,7 @@ class TestIsValidScriptPath(object):
         fh.close()
         assert not is_valid_script_path(fh.name)
 
-    @pytest.marks.skipif(sys.platform.startswith('win'), msg='Behaviour unavailable in Windows')
+    @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_is_valid_script_path_2(self):
         fh = tempfile.NamedTemporaryFile(delete=True)
         assert not is_valid_script_path(fh.name)

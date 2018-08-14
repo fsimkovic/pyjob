@@ -5,10 +5,13 @@ import os
 import pytest
 import random
 import string
+import sys
 
 from pyjob.script import Script
 
 pytest_plugins = ['helpers_namespace']
+
+pytest.on_windows = sys.platform.startswith('win')
 
 
 @pytest.helpers.register
