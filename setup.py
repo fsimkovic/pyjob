@@ -15,8 +15,14 @@ except ImportError:
 
 
 def readme():
-    with open('README.md', 'r') as f_in:
+    with open('README.rst', 'r') as f_in:
         return f_in.read()
+
+
+def dependencies():
+    with open('requirements.txt', 'r') as f_in:
+        deps = f_in.read().splitlines()
+    return deps
 
 
 def version():
@@ -35,33 +41,34 @@ LICENSE = "MIT License"
 LONG_DESCRIPTION = readme()
 PACKAGE_DIR = "pyjob"
 PACKAGE_NAME = "pyjob"
-URL = "https://github.com/fsimkovic/pyjob"
+URL = "https://pyjob.rtfd.io"
 VERSION = version()
 
 PACKAGES = [
     'pyjob',
-    'pyjob/misc',
-    'pyjob/platform',
 ]
 
 CLASSIFIERS = [
     "Development Status :: 4 - Beta",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research"
     "Programming Language :: Python",
     "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3.3",
-    "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
 ]
 
-# Do the actual setup below
+ENTRY_POINTS = {'console_scripts': ['pyjob = pyjob.__main__:main']}
+
 setup(
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     name=PACKAGE_NAME,
     description=DESCRIPTION,
+    entry_points=ENTRY_POINTS,
     long_description=LONG_DESCRIPTION,
     license=LICENSE,
     version=VERSION,
@@ -69,7 +76,8 @@ setup(
     packages=PACKAGES,
     package_dir={PACKAGE_NAME: PACKAGE_DIR},
     classifiers=CLASSIFIERS,
-    test_suite='nose.collector',
-    tests_require=['nose >=1.3.7'],
+    install_requires=dependencies(),
+    setup_requires=['pytest-runner'],
+    tests_require=['codecov', 'coverage', 'pytest', 'pytest-cov', 'pytest-pep8', 'pytest-helpers-namespace'],
     zip_safe=False,
 )

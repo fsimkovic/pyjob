@@ -23,22 +23,7 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
+import warnings
+warnings.warn('This subpackage will be removed in release 0.3')
 
-class PyJobError(Exception):
-    pass
-
-
-class PyJobExecutionError(PyJobError):
-    pass
-
-
-class PyJobExecutableNotFoundError(PyJobError):
-    pass
-
-
-class PyJobTaskLockedError(PyJobError):
-    pass
-
-
-class PyJobUnknownTaskPlatform(PyJobError):
-    pass
+from pyjob.script import *

@@ -23,22 +23,9 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
-
-class PyJobError(Exception):
-    pass
+from pyjob.pbs import PortableBatchSystemTask
 
 
-class PyJobExecutionError(PyJobError):
-    pass
-
-
-class PyJobExecutableNotFoundError(PyJobError):
-    pass
-
-
-class PyJobTaskLockedError(PyJobError):
-    pass
-
-
-class PyJobUnknownTaskPlatform(PyJobError):
+class TorqueTask(PortableBatchSystemTask):
+    """TORQUE executable :obj:`~pyjob.task.Task`"""
     pass

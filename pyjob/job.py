@@ -19,17 +19,61 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Queue container for automated launch"""
 
-__author__ = "Felix Simkovic"
-__date__ = "10 Apr 2018"
-__version__ = "0.1.1"
+__author__ = 'Felix Simkovic'
+__version__ = '1.0'
 
-import warnings
-from pyjob.queue import Queue
+from pyjob.factory import TaskFactory
+from pyjob.misc import deprecate
 
 
-class Job(Queue):
-    def __init__(self, *args, **kwargs):
-        warnings.warn('This class has been deprecated, use Queue instead!')
-        super(Job, self).__init__(*args, **kwargs)
+class Job(object):
+    @deprecate(0.3, msg='Use Task/TaskFactory instead')
+    def __init__(self, qtype):
+        self.qtype = qtype
+        self._task = None
+        self._locked = False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._task:
+            self._task.close()
+
+    def __del__(self):
+        if self._task:
+            self._task.close()
+
+    @property
+    def finished(self):
+        return self._task.completed
+
+    @property
+    def pid(self):
+        return self._task.pid
+
+    @property
+    def log(self):
+        return self._task.log
+
+    @property
+    def script(self):
+        return self._task.script
+
+    def kill(self):
+        self._task.kill()
+
+    def submit(self, script, *args, **kwargs):
+        if self._locked:
+            return
+        kwargs['processes'] = kwargs.get('nproc', None)
+        self._task = TaskFactory(self.qtype, script, *args, **kwargs)
+        self._task.run()
+        self._locked = True
+
+    def stat(self):
+        return self._task.info
+
+    def wait(self, *args, **kwargs):
+        self._task.wait(*args, **kwargs)

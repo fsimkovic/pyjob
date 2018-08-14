@@ -19,80 +19,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""PyJob library for Python-controlled job execution across multiple platforms"""
 
-import logging
-import os
-import signal
-import subprocess
-import sys
+__author__ = 'Felix Simkovic'
 
-from pyjob import version
+from pyjob.cexec import cexec
+from pyjob.factory import TaskFactory
+from pyjob.script import Script
+from pyjob.stopwatch import StopWatch
+from pyjob.version import __version__
 
-__author__ = "Felix Simkovic"
-__email__ = "felixsimkovic@me.com"
-__version__ = version.__version__
+# To be deprecated
+from pyjob.job import Job
+from pyjob.queue import Queue
 
-
-def Job(*args, **kwargs):
-    from pyjob.job import Job
-    return Job(*args, **kwargs)
-
-
-def Pool(*args, **kwargs):
-    from pyjob.pool import Pool
-    return Pool(*args, **kwargs)
-
-
-def Queue(*args, **kwargs):
-    from pyjob.queue import Queue
-    return Queue(*args, **kwargs)
-
-
-def cexec(cmd, directory=None, stdin=None, permit_nonzero=False):
-    """Execute a command
-
-    Parameters
-    ----------
-    cmd : list
-       The command to call
-    directory : str, optional
-       The directory to execute the job in
-    stdin : str, optional
-       Additional keywords provided to the command
-    permit_nonzero : bool, optional
-       Allow non-zero return codes [default: False]
-
-    Returns
-    -------
-    str
-       The processes standard out
-
-    Raises
-    ------
-    RuntimeError
-       Execution exited with non-zero return code
-
-    """
-    logger = logging.getLogger(__name__)
-    try:
-        logger.debug("Executing '%s'", " ".join(cmd))
-        kwargs = {"bufsize": 0, "shell": "False"} if os.name == "nt" else {}
-        p = subprocess.Popen(
-            cmd, cwd=directory, stdin=subprocess.PIPE, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, **kwargs)
-        # We require the str.encode() and str.decode() functions for Python 2.x and 3.x compatibility
-        stdout, _ = p.communicate(input=stdin.encode()) if stdin else p.communicate()
-        stdout = stdout.decode()
-        if p.returncode == 0:
-            return stdout.strip()
-        elif permit_nonzero:
-            logger.debug("Ignoring non-zero returncode %d for '%s'", p.returncode, " ".join(cmd))
-            return stdout.strip()
-        else:
-            msg = "Execution of '{0}' exited with non-zero return code ({1}): {2}".format(
-                ' '.join(cmd), p.returncode, stdout)
-            raise RuntimeError(msg)
-    # Allow ctrl-c's
-    except KeyboardInterrupt:
-        os.kill(p.pid, signal.SIGTERM)
-        sys.exit(signal.SIGTERM)
+# Expose this utility function
+read_script = Script.read
