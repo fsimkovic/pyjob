@@ -27,6 +27,7 @@ import abc
 import logging
 import os
 import time
+import warnings
 
 from pyjob.exception import PyJobError, PyJobTaskLockedError
 from pyjob.script import ScriptCollector, is_valid_script_path
@@ -185,12 +186,10 @@ class Task(ABC):
 
         """
         if check_success:
-            import warnings
             warnings.warn('This keyword argument has been deprecated, use success_f instead', DeprecationWarning)
             success_f = check_success
 
         if monitor:
-            import warnings
             warnings.warn('This keyword argument has been deprecated, use monitor_f instead', DeprecationWarning)
             monitor_f = monitor
 

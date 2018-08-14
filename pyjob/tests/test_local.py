@@ -8,6 +8,7 @@ from pyjob.exception import PyJobError
 from pyjob.local import CPU_COUNT, LocalTask
 
 
+@pytest.mark.skipif(sys.platform.startswith('win'), reason='Deadlock on Windows')
 class TestLocalTaskTermination(object):
     def test_terminate_1(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
@@ -97,6 +98,7 @@ class TestLocalTaskTermination(object):
         pytest.helpers.unlink(paths + logs)
 
 
+@pytest.mark.skipif(sys.platform.startswith('win'), reason='Deadlock on Windows')
 class TestLocalPerformance(object):
     def test_performance_1(self):
         scripts = [pytest.helpers.get_py_script(i, 1000) for i in range(4)]

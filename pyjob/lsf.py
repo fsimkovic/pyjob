@@ -43,7 +43,7 @@ class LoadSharingFacilityTask(ClusterTask):
     @property
     def info(self):
         """:obj:`~pyjob.lsf.LoadSharingFacilityTask` information"""
-        stdout = cexec(['bjobs', '-l', str(jobid)])
+        stdout = cexec(['bjobs', '-l', str(self.pid)], permit_nonzero=True)
         if 'Done successfully' in stdout:
             return {}
         else:
