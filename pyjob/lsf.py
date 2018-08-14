@@ -28,6 +28,7 @@ import time
 import uuid
 
 from pyjob.cexec import cexec
+from pyjob.exception import PyJobExecutableNotFoundError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 
@@ -43,7 +44,10 @@ class LoadSharingFacilityTask(ClusterTask):
     @property
     def info(self):
         """:obj:`~pyjob.lsf.LoadSharingFacilityTask` information"""
-        stdout = cexec(['bjobs', '-l', str(self.pid)], permit_nonzero=True)
+        try:
+            stdout = cexec(['bjobs', '-l', str(self.pid)], permit_nonzero=True)
+        except PyJobExecutableNotFoundError:
+            return {}
         if 'Done successfully' in stdout:
             return {}
         else:

@@ -28,10 +28,13 @@ import re
 import uuid
 
 from pyjob.cexec import cexec
+from pyjob.exception import PyJobExecutableNotFoundError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 
 logger = logging.getLogger(__name__)
+
+RE_LINE_SPLIT = re.compile(":\s+")
 
 
 class SunGridEngineTask(ClusterTask):
@@ -43,9 +46,11 @@ class SunGridEngineTask(ClusterTask):
     @property
     def info(self):
         """:obj:`~pyjob.sge.SunGridEngineTask` information"""
-        stdout = cexec(["qstat", "-j", str(self.pid)], permit_nonzero=True)
+        try:
+            stdout = cexec(["qstat", "-j", str(self.pid)], permit_nonzero=True)
+        except PyJobExecutableNotFoundError:
+            return {}
         data = {}
-        line_split = re.compile(":\s+")
         for line in stdout.splitlines():
             line = line.strip()
             if 'jobs do not exist' in line:
@@ -53,7 +58,7 @@ class SunGridEngineTask(ClusterTask):
             if not line or "=" * 30 in line:
                 continue
             else:
-                kv = line_split.split(line, 1)
+                kv = RE_LINE_SPLIT.split(line, 1)
                 if len(kv) == 2:
                     data[kv[0]] = kv[1]
         return data

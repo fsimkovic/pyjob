@@ -29,10 +29,14 @@ import time
 import uuid
 
 from pyjob.cexec import cexec
+from pyjob.exception import PyJobExecutableNotFoundError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 
 logger = logging.getLogger(__name__)
+
+RE_LINE_SPLIT_1 = re.compile(":\\s+")
+RE_LINE_SPLIT_2 = re.compile("\\s+=\\s+")
 
 
 class PortableBatchSystemTask(ClusterTask):
@@ -44,19 +48,20 @@ class PortableBatchSystemTask(ClusterTask):
     @property
     def info(self):
         """:obj:`~pyjob.pbs.PortableBatchSystemTask` information"""
-        line_split1 = re.compile(":\\s+")
-        line_split2 = re.compile("\\s+=\\s+")
-        stdout = cexec(['qstat', '-f', str(self.pid)], permit_nonzero=True)
+        try:
+            stdout = cexec(['qstat', '-f', str(self.pid)], permit_nonzero=True)
+        except PyJobExecutableNotFoundError:
+            return {}
         all_lines = stdout.splitlines()
         data = {}
-        key, job_id = line_split1.split(all_lines[0], 1)
+        key, job_id = RE_LINE_SPLIT_1.split(all_lines[0], 1)
         data[key] = job_id
         for line in all_lines[1:]:
             line = line.strip()
             if 'Unknown queue destination' in line:
                 return data
             else:
-                kv = line_split2.split(line, 1)
+                kv = RE_LINE_SPLIT_2.split(line, 1)
                 if len(kv) == 2:
                     data[kv[0]] = kv[1]
         return data

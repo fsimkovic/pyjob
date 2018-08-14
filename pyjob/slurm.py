@@ -28,6 +28,7 @@ import re
 import uuid
 
 from pyjob.cexec import cexec
+from pyjob.exception import PyJobExecutableNotFoundError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 
@@ -45,7 +46,7 @@ class SlurmTask(ClusterTask):
         """:obj:`~pyjob.slurm.SlurmTask` information"""
         try:
             cexec(['squeue', '-j', str(self.pid)])
-        except Exception:
+        except (PyJobExecutableNotFoundError, Exception):
             return {}
         else:
             return {'job_number': self.pid, 'status': 'Running'}

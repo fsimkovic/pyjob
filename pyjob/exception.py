@@ -32,6 +32,10 @@ class PyJobExecutionError(PyJobError):
     pass
 
 
+class PyJobExecutableNotFoundError(PyJobError):
+    pass
+
+
 class PyJobTaskLockedError(PyJobError):
     pass
 
