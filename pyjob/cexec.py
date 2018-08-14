@@ -31,7 +31,7 @@ import subprocess
 import sys
 import warnings
 
-from pyjob.exception import PyJobError, PyJobExecutionError
+from pyjob.exception import PyJobExecutableNotFoundError, PyJobExecutionError
 from pyjob.misc import decode
 
 logger = logging.getLogger(__name__)
@@ -61,7 +61,7 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
 
     Raises
     ------
-    :exc:`PyJobError`
+    :exc:`PyJobExecutableNotFoundError`
        Cannot find executable
     :exc:`PyJobExecutionError`
        Execution exited with non-zero return code
@@ -85,7 +85,7 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
         kwargs['stdin'] = subprocess.PIPE
 
     if not os.path.isfile(cmd[0]):
-        raise PyJobError('Cannot find executable: %s' % cmd[0])
+        raise PyJobExecutableNotFoundError('Cannot find executable: %s' % cmd[0])
 
     try:
         p = subprocess.Popen(cmd, **kwargs)

@@ -5,7 +5,7 @@ import pytest
 import sys
 
 from pyjob.cexec import cexec
-from pyjob.exception import PyJobExecutionError
+from pyjob.exception import PyJobExecutableNotFoundError, PyJobExecutionError
 
 
 class TestCexec(object):
@@ -57,3 +57,7 @@ class TestCexec(object):
         with open('stderr.log', 'r') as f:
             assert f.read().strip() == 'error message'
         pytest.helpers.unlink(['stdout.log', 'stderr.log'])
+
+    def test_8(self):
+        with pytest.raises(PyJobExecutableNotFoundError):
+            cexec(['fjezfsdkj'])
