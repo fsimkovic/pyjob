@@ -10,7 +10,11 @@ PyJob
 
 .. image:: https://travis-ci.org/fsimkovic/pyjob.svg
    :target: https://travis-ci.org/fsimkovic/pyjob
-   :alt: Build Status
+   :alt: Travis-CI Build 
+
+.. image:: https://ci.appveyor.com/api/projects/status/8ese0ymw0q2lbx3c/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/fsimkovic/pyjob
+   :alt: AppVeyor Build
 
 .. image:: https://codecov.io/gh/fsimkovic/pyjob/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/fsimkovic/pyjob
