@@ -36,19 +36,10 @@ logger = logging.getLogger(__name__)
 
 
 class SlurmTask(ClusterTask):
-    """SunGridEngine executable :obj:`~pyjob.task.Task`
-
-    Examples
-    --------
-
-    """
+    """Slurm executable :obj:`~pyjob.task.Task`"""
 
     JOB_ARRAY_INDEX = '$SLURM_ARRAY_TASK_ID'
     SCRIPT_DIRECTIVE = '#SBATCH'
-
-    def __init__(self, *args, **kwargs):
-        """Instantiate a new :obj:`~pyjob.slurm.SlurmTask`"""
-        super(SlurmTask, self).__init__(*args, **kwargs)
 
     @property
     def info(self):

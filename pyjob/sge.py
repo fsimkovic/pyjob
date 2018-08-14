@@ -36,19 +36,10 @@ logger = logging.getLogger(__name__)
 
 
 class SunGridEngineTask(ClusterTask):
-    """SunGridEngine executable :obj:`~pyjob.task.Task`
-
-    Examples
-    --------
-
-    """
+    """SunGridEngine executable :obj:`~pyjob.task.Task`"""
 
     JOB_ARRAY_INDEX = '$SGE_TASK_ID'
     SCRIPT_DIRECTIVE = '#$'
-
-    def __init__(self, *args, **kwargs):
-        """Instantiate a new :obj:`~pyjob.sge.SunGridEngineTask`"""
-        super(SunGridEngineTask, self).__init__(*args, **kwargs)
 
     @property
     def info(self):

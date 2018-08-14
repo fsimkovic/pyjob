@@ -27,13 +27,5 @@ from pyjob.pbs import PortableBatchSystemTask
 
 
 class TorqueTask(PortableBatchSystemTask):
-    """TORQUE executable :obj:`~pyjob.task.Task`
-
-    Examples
-    --------
-
-    """
-
-    def __init__(self, *args, **kwargs):
-        """Instantiate a new :obj:`~pyjob.pbs.TorqueTask`"""
-        super(TorqueTask, self).__init__(*args, **kwargs)
+    """TORQUE executable :obj:`~pyjob.task.Task`"""
+    pass

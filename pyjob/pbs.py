@@ -37,19 +37,10 @@ logger = logging.getLogger(__name__)
 
 
 class PortableBatchSystemTask(ClusterTask):
-    """PortableBatchSystem executable :obj:`~pyjob.task.Task`
-
-    Examples
-    --------
-
-    """
+    """PortableBatchSystem executable :obj:`~pyjob.task.Task`"""
 
     JOB_ARRAY_INDEX = '$PBS_ARRAYID'
     SCRIPT_DIRECTIVE = '#PBS'
-
-    def __init__(self, *args, **kwargs):
-        """Instantiate a new :obj:`~pyjob.pbs.PortableBatchSystemTask`"""
-        super(PortableBatchSystemTask, self).__init__(*args, **kwargs)
 
     @property
     def info(self):

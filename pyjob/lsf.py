@@ -36,19 +36,10 @@ logger = logging.getLogger(__name__)
 
 
 class LoadSharingFacilityTask(ClusterTask):
-    """
-
-    Examples
-    --------
-
-    """
+    """LoadSharingFacility (LSF) executable :obj:`~pyjob.task.Task`"""
 
     JOB_ARRAY_INDEX = '$LSB_JOBINDEX'
     SCRIPT_DIRECTIVE = '#BSUB'
-
-    def __init__(self, *args, **kwargs):
-        """Instantiate a new :obj:`~pyjob.lsf.LoadSharingFacilityTask`"""
-        super(LoadSharingFacilityTask, self).__init__(*args, **kwargs)
 
     @property
     def info(self):

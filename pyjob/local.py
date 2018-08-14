@@ -39,12 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 class LocalTask(Task):
-    """Locally executable :obj:`~pyjob.task.Task`
-
-    Examples
-    --------
-
-    """
+    """Locally executable :obj:`~pyjob.task.Task`"""
 
     def __init__(self, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.local.LocalTask`"""
