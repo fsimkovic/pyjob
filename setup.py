@@ -41,7 +41,7 @@ LICENSE = "MIT License"
 LONG_DESCRIPTION = readme()
 PACKAGE_DIR = "pyjob"
 PACKAGE_NAME = "pyjob"
-URL = "https://github.com/fsimkovic/pyjob"
+URL = "https://pyjob.rtfd.io"
 VERSION = version()
 
 PACKAGES = [
@@ -50,8 +50,10 @@ PACKAGES = [
 
 CLASSIFIERS = [
     "Development Status :: 4 - Beta",
-    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research"
     "Programming Language :: Python",
     "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3.5",
