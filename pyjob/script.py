@@ -35,7 +35,17 @@ else:
 
 
 class ScriptCollector(object):
-    """A :obj:`~pyjob.script.ScriptCollector` to store executable :obj:`~pyjob.script.Script` instances"""
+    """A :obj:`~pyjob.script.ScriptCollector` to store executable :obj:`~pyjob.script.Script` instances
+    
+    Examples
+    --------
+
+    >>> from pyjob.script import ScriptCollector, Script
+    >>> collector = ScriptCollector(None)
+    >>> for _ in range(5):
+    ...     collector.add(Script())
+    
+    """
 
     def __init__(self, scripts):
         """Instantiate a new :obj:`~pyjob.script.ScriptCollector`"""
@@ -130,7 +140,19 @@ class ScriptCollector(object):
 
 
 class Script(list):
-    """Simple extension to :obj:`list` to hold the contents for an executable script"""
+    """Simple extension to :obj:`list` to hold the contents for an executable script
+    
+    Examples
+    --------
+    
+    >>> from pyjob import Script
+    >>> script = Script(directory='.', prefix='example', stem='', suffix='.sh')
+    >>> script.append('sleep 5')
+    >>> print(script)
+    #!/bin/bash
+    sleep 5
+    
+    """
 
     def __init__(self, shebang=SCRIPT_HEADER, directory='.', prefix='tmp', stem='pyjob', suffix=SCRIPT_EXT):
         """Instantiate a new :obj:`~pyjob.script.Script`
@@ -193,6 +215,15 @@ class Script(list):
     @staticmethod
     def read(path):
         """Read a script file to construct a :obj:`~pyjob.script.Script`
+
+        Examples
+        --------
+
+        >>> from pyjob import read_script
+        >>> script = read_script('./example.sh')
+        >>> print(script)
+        #!/bin/bash
+        sleep 5
 
         Parameters
         ----------
