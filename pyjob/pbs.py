@@ -24,7 +24,6 @@ __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
 import logging
-import os
 import re
 import time
 import uuid
@@ -48,7 +47,7 @@ class PortableBatchSystemTask(ClusterTask):
         line_split1 = re.compile(":\\s+")
         line_split2 = re.compile("\\s+=\\s+")
         stdout = cexec(['qstat', '-f', str(self.pid)], permit_nonzero=True)
-        all_lines = stdout.split(os.linesep)
+        all_lines = stdout.splitlines()
         data = {}
         key, job_id = line_split1.split(all_lines[0], 1)
         data[key] = job_id
@@ -111,7 +110,7 @@ class PortableBatchSystemTask(ClusterTask):
             logf = runscript.path.replace('.script', '.log')
             jobsf = runscript.path.replace('.script', '.jobs')
             with open(jobsf, 'w') as f_out:
-                f_out.write(os.linesep.join(self.script))
+                f_out.write('\n'.join(self.script))
             cmd = '-t {}-{}%{}'.format(1, len(self.script), self.max_array_size)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))

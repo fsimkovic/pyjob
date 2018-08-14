@@ -24,7 +24,6 @@ __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
 import logging
-import os
 import time
 import uuid
 
@@ -112,7 +111,7 @@ class LoadSharingFacilityTask(ClusterTask):
             logf = runscript.path.replace('.script', '.log')
             jobsf = runscript.path.replace('.script', '.jobs')
             with open(jobsf, 'w') as f_out:
-                f_out.write(os.linesep.join(self.script))
+                f_out.write('\n'.join(self.script))
             cmd = 'J {}[{}-{}%{}]'.format(self.name, 1, len(self.script), self.max_array_size)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))

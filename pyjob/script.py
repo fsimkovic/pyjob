@@ -183,7 +183,7 @@ class Script(list):
             preamble = [self.shebang]
         else:
             preamble = []
-        return os.linesep.join(preamble + self)
+        return '\n'.join(preamble + self)
 
     @property
     def content(self):
@@ -239,8 +239,8 @@ class Script(list):
         directory, fname = os.path.split(path)
         fname, ext = os.path.splitext(fname)
         script = Script(directory=directory, prefix='', stem=fname, suffix=ext)
-        with open(path, 'r') as f_in:
-            lines = [line.rstrip() for line in f_in.readlines()]
+        with open(path, 'r') as f:
+            lines = f.read().splitlines()
         if len(lines) > 0 and lines[0][:2] == '#!':
             script.shebang = lines.pop(0)
         else:
