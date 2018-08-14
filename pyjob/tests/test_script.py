@@ -5,7 +5,7 @@ import pytest
 import tempfile
 
 from pyjob.exception import PyJobError
-from pyjob.script import Script, ScriptCollector, is_valid_script_path
+from pyjob.script import SCRIPT_HEADER, SCRIPT_EXE, Script, ScriptCollector, is_valid_script_path
 
 
 class TestScriptCollector(object):
@@ -123,30 +123,30 @@ class TestScriptRead(object):
 
     def test_read_4(self):
         fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
-        fh.write('#!/bin/bash')
+        fh.write(SCRIPT_HEADER)
         fh.close()
         script = Script.read(fh.name)
-        assert script.shebang == '#!/bin/bash'
+        assert script.shebang == SCRIPT_HEADER
         assert script.content == []
         pytest.helpers.unlink([fh.name])
 
     def test_read_5(self):
         fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
-        fh.write('\n#!/bin/bash')
+        fh.write('\n' + SCRIPT_HEADER)
         fh.close()
         script = Script.read(fh.name)
         assert script.shebang is None
-        assert script.content == ['', '#!/bin/bash']
+        assert script.content == ['', SCRIPT_HEADER]
         pytest.helpers.unlink([fh.name])
 
     def test_read_6(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', dir='.', delete=True, prefix='pyjob', suffix='.sh')
+        fh = tempfile.NamedTemporaryFile(mode='w', dir='.', delete=True, prefix='pyjob', suffix=SCRIPT_EXE)
         script = Script.read(fh.name)
         fh.close()
         assert script.directory == os.getcwd()
         assert script.prefix == ''
         assert script.stem[:5] == 'pyjob'
-        assert script.suffix == '.sh'
+        assert script.suffix == SCRIPT_EXE
 
 
 class TestIsValidScriptPath(object):
@@ -155,6 +155,7 @@ class TestIsValidScriptPath(object):
         fh.close()
         assert not is_valid_script_path(fh.name)
 
+    @pytest.marks.skipif(sys.platform.startswith('win'), msg='Behaviour unavailable in Windows')
     def test_is_valid_script_path_2(self):
         fh = tempfile.NamedTemporaryFile(delete=True)
         assert not is_valid_script_path(fh.name)

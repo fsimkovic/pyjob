@@ -2,10 +2,12 @@ __author__ = 'Felix Simkovic'
 
 import os
 import pytest
+import sys
 
 from pyjob.sge import SunGridEngineTask
 
 
+@pytest.marks.skipif(sys.platform.startswith('win'), msg='Unavailable on Windows')
 class TestCreateRunscript(object):
     def test_1(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
