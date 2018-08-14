@@ -66,10 +66,10 @@ class LocalTask(Task):
     @property
     def info(self):
         """:obj:`~pyjob.local.LocalTask` information"""
-        if any(proc.is_alive() for proc in self.processes):
-            return {'job_number': self.pid, 'status': 'Running'}
-        else:
-            return {}
+        for proc in self.processes:
+            if proc.is_alive():
+                return {'job_number': self.pid, 'status': 'Running'}
+        return {}
 
     def close(self):
         """Close this :obj:`~pyjob.local.LocalTask` after completion"""

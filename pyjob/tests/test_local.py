@@ -2,6 +2,7 @@ __author__ = 'Felix Simkovic'
 
 import os
 import pytest
+import sys
 import time
 
 from pyjob.exception import PyJobError
