@@ -179,11 +179,10 @@ class Script(list):
 
     def __str__(self):
         """Content of :obj:`~pyjob.script.Script`"""
-        if self.shebang:
-            preamble = [self.shebang]
-        else:
-            preamble = []
-        return '\n'.join(preamble + self)
+        content = self[:]
+        if len(self.shebang) > 0:
+            content.insert(0, self.shebang)
+        return '\n'.join(content)
 
     @property
     def content(self):
@@ -244,7 +243,7 @@ class Script(list):
         if len(lines) > 0 and lines[0][:2] == '#!':
             script.shebang = lines.pop(0)
         else:
-            script.shebang = None
+            script.shebang = ''
         script.extend(lines)
         return script
 

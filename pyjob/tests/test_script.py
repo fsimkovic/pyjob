@@ -109,7 +109,7 @@ class TestScriptRead(object):
         fh.write('print("PyJob is cool!")\n')
         fh.close()
         script = Script.read(fh.name)
-        assert script.shebang is None
+        assert script.shebang == ''
         assert script.content == ['print("PyJob is cool!")']
         pytest.helpers.unlink([fh.name])
 
@@ -117,7 +117,7 @@ class TestScriptRead(object):
         fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
         fh.close()
         script = Script.read(fh.name)
-        assert script.shebang is None
+        assert script.shebang == ''
         assert script.content == []
         pytest.helpers.unlink([fh.name])
 
@@ -135,7 +135,7 @@ class TestScriptRead(object):
         fh.write('\n' + SCRIPT_HEADER)
         fh.close()
         script = Script.read(fh.name)
-        assert script.shebang is None
+        assert script.shebang == ''
         assert script.content == ['', SCRIPT_HEADER]
         pytest.helpers.unlink([fh.name])
 
