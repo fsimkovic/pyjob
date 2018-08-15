@@ -139,6 +139,7 @@ class TestScriptRead(object):
         assert script.content == ['', SCRIPT_HEADER]
         pytest.helpers.unlink([fh.name])
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_read_6(self):
         fh = tempfile.NamedTemporaryFile(mode='w', dir='.', delete=True, prefix='pyjob', suffix=SCRIPT_EXT)
         script = Script.read(fh.name)
