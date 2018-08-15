@@ -9,8 +9,8 @@ from pyjob.exception import PyJobError
 from pyjob.local import CPU_COUNT, LocalTask
 
 
-@pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
 class TestLocalTaskTermination(object):
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_1(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
         [s.write() for s in scripts]
@@ -22,6 +22,7 @@ class TestLocalTaskTermination(object):
         assert all(os.path.isfile(f) for f in logs)
         pytest.helpers.unlink(paths + logs)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_2(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
         [s.write() for s in scripts]
@@ -33,6 +34,7 @@ class TestLocalTaskTermination(object):
         assert all(os.path.isfile(f) for f in logs)
         pytest.helpers.unlink(paths + logs)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_3(self):
         scripts = [pytest.helpers.get_py_script(i, 1000000) for i in range(10)]
         [s.write() for s in scripts]
@@ -45,6 +47,7 @@ class TestLocalTaskTermination(object):
         assert all(os.path.isfile(f) for f in logs)
         pytest.helpers.unlink(paths + logs)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_4(self):
         scripts = [pytest.helpers.get_py_script(i, 1000000) for i in range(5)]
         [s.write() for s in scripts]
@@ -58,18 +61,19 @@ class TestLocalTaskTermination(object):
         innerf()
         pytest.helpers.unlink(paths + logs)
 
-    # ---- code works but cannot catch correctly raised exception ---- #
-    #  def test_terminate_5(self):
-    #      scripts = [pytest.helpers.get_py_script(i, 1000000) for i in range(10)]
-    #      [s.write() for s in scripts]
-    #      paths = [s.path for s in scripts]
-    #      logs = [s.path.replace('.py', '.log') for s in scripts]
-    #      with LocalTask(paths, processes=min(CPU_COUNT, 2)) as task:
-    #          with pytest.raises(PyJobError):
-    #              task.run()
-    #              pytest.helpers.unlink(paths[4:])
-    #      pytest.helpers.unlink(paths[:4] + logs)
+    @pytest.mark.skip(reason='Unstable test')
+    def test_terminate_5(self):
+        scripts = [pytest.helpers.get_py_script(i, 1000000) for i in range(10)]
+        [s.write() for s in scripts]
+        paths = [s.path for s in scripts]
+        logs = [s.path.replace('.py', '.log') for s in scripts]
+        with LocalTask(paths, processes=min(CPU_COUNT, 2)) as task:
+            with pytest.raises(PyJobError):
+                task.run()
+                pytest.helpers.unlink(paths[4:])
+        pytest.helpers.unlink(paths[:4] + logs)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_6(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(100)]
         [s.write() for s in scripts]
@@ -84,6 +88,7 @@ class TestLocalTaskTermination(object):
         assert not all(os.path.isfile(log) for log in logs)
         pytest.helpers.unlink(paths + logs)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_7(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(10000)]
         [s.write() for s in scripts]
@@ -99,8 +104,8 @@ class TestLocalTaskTermination(object):
         pytest.helpers.unlink(paths + logs)
 
 
-@pytest.mark.skipif(sys.platform.startswith('win'), reason='Deadlock on Windows')
 class TestLocalPerformance(object):
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_performance_1(self):
         scripts = [pytest.helpers.get_py_script(i, 1000) for i in range(4)]
         [s.write() for s in scripts]
@@ -112,6 +117,7 @@ class TestLocalPerformance(object):
             assert os.path.isfile(log)
         pytest.helpers.unlink(paths + logs)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_performance_2(self):
         scripts = [pytest.helpers.get_py_script(i, 1000) for i in range(16)]
         [s.write() for s in scripts]
@@ -122,6 +128,7 @@ class TestLocalPerformance(object):
         assert all(os.path.isfile(f) for f in logs)
         pytest.helpers.unlink(paths + logs)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_performance_3(self):
         scripts = [pytest.helpers.get_py_script(i, 1000) for i in range(32)]
         [s.write() for s in scripts]
@@ -132,6 +139,7 @@ class TestLocalPerformance(object):
         assert all(os.path.isfile(f) for f in logs)
         pytest.helpers.unlink(paths + logs)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_performance_4(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(64)]
         [s.write() for s in scripts]
