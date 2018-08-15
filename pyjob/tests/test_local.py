@@ -10,7 +10,6 @@ from pyjob.local import CPU_COUNT, LocalTask
 
 
 class TestLocalTaskTermination(object):
-    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_1(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
         [s.write() for s in scripts]
