@@ -130,6 +130,7 @@ class TestScriptRead(object):
         assert script.content == []
         pytest.helpers.unlink([fh.name])
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_read_5(self):
         fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
         fh.write('\n' + SCRIPT_HEADER)
@@ -139,8 +140,17 @@ class TestScriptRead(object):
         assert script.content == ['', SCRIPT_HEADER]
         pytest.helpers.unlink([fh.name])
 
-    @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_read_6(self):
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        fh.write('\n' + '')
+        fh.close()
+        script = Script.read(fh.name)
+        assert script.shebang == ''
+        assert script.content == ['']
+        pytest.helpers.unlink([fh.name])
+
+    @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
+    def test_read_7(self):
         fh = tempfile.NamedTemporaryFile(mode='w', dir='.', delete=True, prefix='pyjob', suffix=SCRIPT_EXT)
         script = Script.read(fh.name)
         fh.close()
