@@ -66,8 +66,8 @@ class LocalTask(Task):
     @property
     def info(self):
         """:obj:`~pyjob.local.LocalTask` information"""
-        for proc in self.processes:
-            if proc.is_alive():
+        for log in self.log:
+            if not os.path.isfile(log):
                 return {'job_number': self.pid, 'status': 'Running'}
         return {}
 
@@ -85,7 +85,6 @@ class LocalTask(Task):
             return
         if not self.kill_switch.is_set():
             self.kill_switch.set()
-        self.kill_switch.set()
         for proc in self.processes:
             proc.terminate()
         logger.debug("Terminated task: %d", self.pid)

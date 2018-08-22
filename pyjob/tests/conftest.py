@@ -29,9 +29,9 @@ def fibonacci(n):
 @pytest.helpers.register
 def get_py_script(i, target):
     script = Script(shebang='#!/usr/bin/env python', prefix='pyjob', stem='test{}'.format(i), suffix='.py')
-    script.content.extend(inspect.getsource(fibonacci).splitlines())
-    script.content.pop(0)  # Decorator
-    script.content.append("n = {}; print('%dth fib is: %d' % (n, {}(n)))".format(target, 'fibonacci'))
+    script.extend(inspect.getsource(fibonacci).splitlines())
+    script.pop(0)  # Decorator
+    script.append("n = {}; print('%dth fib is: %d' % (n, {}(n)))".format(target, 'fibonacci'))
     return script
 
 

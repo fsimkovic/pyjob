@@ -5,7 +5,7 @@ import pytest
 import sys
 import time
 
-from pyjob.exception import PyJobError
+from pyjob.exception import PyJobError, PyJobTaskLockedError
 from pyjob.local import CPU_COUNT, LocalTask
 
 
@@ -82,6 +82,30 @@ class TestLocalTaskTermination(object):
         assert all(os.path.isfile(path) for path in task.script)
         assert any(os.path.isfile(log) for log in task.log)
         assert not all(os.path.isfile(log) for log in task.log)
+        pytest.helpers.unlink(task.script + task.log)
+
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
+    def test_terminate_8(self):
+        scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
+        task = LocalTask(scripts, processes=CPU_COUNT)
+        task.run()
+        task.wait()
+        for f in task.log:
+            assert os.path.isfile(f)
+        with pytest.raises(PyJobTaskLockedError):
+            task.run()
+        pytest.helpers.unlink(task.script + task.log)
+
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
+    def test_terminate_9(self):
+        scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
+        task = LocalTask(scripts, processes=CPU_COUNT)
+        task.run()
+        with pytest.raises(PyJobTaskLockedError):
+            task.run()
+        task.wait()
+        for f in task.log:
+            assert os.path.isfile(f)
         pytest.helpers.unlink(task.script + task.log)
 
 
