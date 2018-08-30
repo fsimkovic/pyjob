@@ -9,8 +9,8 @@ from pyjob.exception import PyJobError, PyJobTaskLockedError
 from pyjob.local import CPU_COUNT, LocalTask
 
 
-@pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
 class TestLocalTaskTermination(object):
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_1(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
         task = LocalTask(scripts, processes=CPU_COUNT)
@@ -29,6 +29,7 @@ class TestLocalTaskTermination(object):
             assert os.path.isfile(f)
         pytest.helpers.unlink(task.script + task.log)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_3(self):
         scripts = [pytest.helpers.get_py_script(i, 1000000) for i in range(4)]
         task = LocalTask(scripts, processes=min(CPU_COUNT, 2))
@@ -38,6 +39,7 @@ class TestLocalTaskTermination(object):
         assert all(os.path.isfile(f) for f in task.log)
         pytest.helpers.unlink(task.script + task.log)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_4(self):
         scripts = [pytest.helpers.get_py_script(i, 1000000) for i in range(5)]
         files = []
@@ -70,6 +72,7 @@ class TestLocalTaskTermination(object):
         assert not all(os.path.isfile(log) for log in task.log)
         pytest.helpers.unlink(task.script + task.log)
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
     def test_terminate_7(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(10000)]
         with LocalTask(scripts, processes=min(CPU_COUNT, 2)) as task:
@@ -104,7 +107,6 @@ class TestLocalTaskTermination(object):
         pytest.helpers.unlink(task.script + task.log)
 
 
-@pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
 class TestLocalPerformance(object):
     def test_performance_1(self):
         scripts = [pytest.helpers.get_py_script(i, 1000) for i in range(4)]
