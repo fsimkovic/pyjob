@@ -23,15 +23,34 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
+import enum
 import os
 import sys
 
 from pyjob.exception import PyJobError
 
-if sys.platform.startswith('win'):
-    EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', '', '.bat')
-else:
-    EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('', '#!/bin/bash', '.sh')
+
+@enum.unique
+class ScriptProperty(enum.Enum):
+    """Enumeration for :obj:`~pyjob.script.Script`-specific properties"""
+    # Tried to extend Enum but operation not allowed in Python3.7
+    # https://docs.python.org/3/library/enum.html#restricted-subclassing-of-enumerations
+    if sys.platform.startswith('win'):
+        PERL = ('', '.pl')
+        PYTHON = ('', '.py')
+        SHELL = ('', '.bat')
+    else:
+        PERL = ('#!/usr/bin/env perl', '.pl')
+        PYTHON = ('#!/usr/bin/env python', '.py')
+        SHELL = ('#!/bin/bash', '.sh')
+
+    def __init__(self, shebang, suffix):
+        self.shebang = shebang
+        self.suffix = suffix
+
+
+EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', ScriptProperty.SHELL.shebang,
+                                      ScriptProperty.SHELL.suffix)
 
 
 class ScriptCollector(object):
@@ -154,7 +173,12 @@ class Script(list):
 
     """
 
-    def __init__(self, shebang=SCRIPT_HEADER, directory='.', prefix='tmp', stem='pyjob', suffix=SCRIPT_EXT):
+    def __init__(self,
+                 shebang=ScriptProperty.SHELL.shebang,
+                 directory='.',
+                 prefix='tmp',
+                 stem='pyjob',
+                 suffix=ScriptProperty.SHELL.suffix):
         """Instantiate a new :obj:`~pyjob.script.Script`
 
         Parameters
@@ -182,12 +206,19 @@ class Script(list):
         content = self[:]
         if len(self.shebang) > 0:
             content.insert(0, self.shebang)
-        return '\n'.join(content)
+        return '\n'.join(map(str, content))
 
     @property
     def content(self):
         """Getter method for :attr:`~pyjob.script.Script` content"""
         return self
+
+    @content.setter
+    def content(self, content):
+        """Setter method for :attr:`~pyjob.script.Script` content"""
+        while len(self) > 0:
+            self.pop()
+        self.extend(content)
 
     @property
     def directory(self):
@@ -202,7 +233,18 @@ class Script(list):
     @property
     def path(self):
         """Path to the :obj:`~pyjob.script.Script`"""
-        return os.path.join(self.directory, self.prefix + self.stem + self.suffix)
+        return os.path.join(self.directory,
+                            self.prefix + self.stem + self.suffix)
+
+    @property
+    def shebang(self):
+        """:obj:`~pyjob.script.Script` shebang"""
+        return self._shebang
+
+    @shebang.setter
+    def shebang(self, value):
+        """:obj:`~pyjob.script.Script` shebang"""
+        self._shebang = value
 
     @property
     def suffix(self):

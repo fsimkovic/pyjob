@@ -5,7 +5,10 @@ import pytest
 import tempfile
 
 from pyjob.exception import PyJobError
-from pyjob.script import SCRIPT_HEADER, SCRIPT_EXT, Script, ScriptCollector, is_valid_script_path
+from pyjob.script import Script
+from pyjob.script import ScriptCollector
+from pyjob.script import ScriptProperty
+from pyjob.script import is_valid_script_path
 
 
 class TestScriptCollector(object):
@@ -113,6 +116,20 @@ class TestScriptCollector(object):
         with pytest.raises(ValueError):
             Script(suffix=',x')
 
+    def test_20(self):
+        script = Script()
+        script.append('test line')
+        script.content = ['what the hell']
+        assert script == ['what the hell']
+
+    def test_21(self):
+        script = Script()
+        script.append('test line')
+        content = ['what the hell']
+        script.content = content
+        assert script == ['what the hell']
+        assert script is not content
+
 
 class TestScriptRead(object):
     def test_read_1(self):
@@ -134,7 +151,8 @@ class TestScriptRead(object):
         pytest.helpers.unlink([fh.name])
 
     def test_read_3(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=SCRIPT_EXT)
+        fh = tempfile.NamedTemporaryFile(
+            mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
         fh.close()
         script = Script.read(fh.name)
         assert script.shebang == ''
@@ -142,26 +160,29 @@ class TestScriptRead(object):
         pytest.helpers.unlink([fh.name])
 
     def test_read_4(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=SCRIPT_EXT)
-        fh.write(SCRIPT_HEADER)
+        fh = tempfile.NamedTemporaryFile(
+            mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
+        fh.write(ScriptProperty.SHELL.shebang)
         fh.close()
         script = Script.read(fh.name)
-        assert script.shebang == SCRIPT_HEADER
+        assert script.shebang == ScriptProperty.SHELL.shebang
         assert script.content == []
         pytest.helpers.unlink([fh.name])
 
     @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_read_5(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=SCRIPT_EXT)
-        fh.write('\n' + SCRIPT_HEADER)
+        fh = tempfile.NamedTemporaryFile(
+            mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
+        fh.write('\n' + ScriptProperty.SHELL.shebang)
         fh.close()
         script = Script.read(fh.name)
         assert script.shebang == ''
-        assert script.content == ['', SCRIPT_HEADER]
+        assert script.content == ['', ScriptProperty.SHELL.shebang]
         pytest.helpers.unlink([fh.name])
 
     def test_read_6(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=SCRIPT_EXT)
+        fh = tempfile.NamedTemporaryFile(
+            mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
         fh.write('\n' + '')
         fh.close()
         script = Script.read(fh.name)
@@ -171,13 +192,18 @@ class TestScriptRead(object):
 
     @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_read_7(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', dir='.', delete=True, prefix='pyjob', suffix=SCRIPT_EXT)
+        fh = tempfile.NamedTemporaryFile(
+            mode='w',
+            dir='.',
+            delete=True,
+            prefix='pyjob',
+            suffix=ScriptProperty.SHELL.suffix)
         script = Script.read(fh.name)
         fh.close()
         assert script.directory == os.getcwd()
         assert script.prefix == ''
         assert script.stem[:5] == 'pyjob'
-        assert script.suffix == SCRIPT_EXT
+        assert script.suffix == ScriptProperty.SHELL.suffix
 
 
 class TestIsValidScriptPath(object):
@@ -197,3 +223,27 @@ class TestIsValidScriptPath(object):
         os.chmod(fh.name, 0o777)
         assert is_valid_script_path(fh.name)
         fh.close()
+
+
+class TestScriptProperty(object):
+    def test_1(self):
+        if pytest.on_windows:
+            assert ScriptProperty.PERL.shebang == ''
+        else:
+            assert ScriptProperty.PERL.shebang == '#!/usr/bin/env perl'
+        assert ScriptProperty.PERL.suffix == '.pl'
+
+    def test_2(self):
+        if pytest.on_windows:
+            assert ScriptProperty.PYTHON.shebang == ''
+        else:
+            assert ScriptProperty.PYTHON.shebang == '#!/usr/bin/env python'
+        assert ScriptProperty.PYTHON.suffix == '.py'
+
+    def test_3(self):
+        if pytest.on_windows:
+            assert ScriptProperty.SHELL.shebang == ''
+            assert ScriptProperty.SHELL.suffix == '.bat'
+        else:
+            assert ScriptProperty.SHELL.shebang == '#!/bin/bash'
+            assert ScriptProperty.SHELL.suffix == '.sh'
