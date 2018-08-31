@@ -204,6 +204,18 @@ class Script(list):
         """Path to the :obj:`~pyjob.script.Script`"""
         return os.path.join(self.directory, self.prefix + self.stem + self.suffix)
 
+    @property
+    def suffix(self):
+        """:obj:`~pyjob.script.Script` file suffix"""
+        return self._suffix
+
+    @suffix.setter
+    def suffix(self, value):
+        """:obj:`~pyjob.script.Script` file suffix"""
+        if value is None or len(value) < 1 or '.' not in value:
+            raise ValueError('Script suffix required!')
+        self._suffix = value
+
     def write(self):
         """Write the :obj:`~pyjob.script.Script` to :attr:`~pyjob.script.Script.path`"""
         fname = self.path

@@ -48,28 +48,32 @@ class TestScriptCollector(object):
             ScriptCollector([1])
 
     def test_8(self):
-        with pytest.raises(IOError):
+        with pytest.raises(ValueError):
             ScriptCollector(['test'])
 
     def test_9(self):
+        with pytest.raises(IOError):
+            ScriptCollector(['test.sh'])
+
+    def test_10(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptCollector(scripts[:1])
         sc.add(scripts[1:])
         assert sc.scripts == scripts
 
-    def test_10(self):
+    def test_11(self):
         sc = ScriptCollector([])
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc.add(scripts)
         assert sc.scripts == scripts
 
-    def test_11(self):
+    def test_12(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptCollector(scripts)
         sc.add([])
         assert sc.scripts == scripts
 
-    def test_12(self):
+    def test_13(self):
         scripts1 = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptCollector(scripts1)
         assert sc.scripts == scripts1
@@ -77,14 +81,14 @@ class TestScriptCollector(object):
         sc.scripts = scripts2
         assert sc.scripts == scripts2
 
-    def test_13(self):
+    def test_14(self):
         scripts1 = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptCollector(scripts1)
         assert sc.scripts == scripts1
         sc.scripts = []
         assert sc.scripts == []
 
-    def test_14(self):
+    def test_15(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         sc = ScriptCollector(scripts)
         assert sc.scripts == scripts
@@ -93,10 +97,26 @@ class TestScriptCollector(object):
         assert all(os.path.isfile(p) for p in paths)
         pytest.helpers.unlink(paths)
 
+    def test_16(self):
+        with pytest.raises(ValueError):
+            Script(suffix=None)
+
+    def test_17(self):
+        with pytest.raises(ValueError):
+            Script(suffix='')
+
+    def test_18(self):
+        with pytest.raises(ValueError):
+            Script(suffix='x')
+
+    def test_19(self):
+        with pytest.raises(ValueError):
+            Script(suffix=',x')
+
 
 class TestScriptRead(object):
     def test_read_1(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.py')
         fh.write('#!/usr/bin/env python\nprint("PyJob is cool!")\n')
         fh.close()
         script = Script.read(fh.name)
@@ -105,7 +125,7 @@ class TestScriptRead(object):
         pytest.helpers.unlink([fh.name])
 
     def test_read_2(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.py')
         fh.write('print("PyJob is cool!")\n')
         fh.close()
         script = Script.read(fh.name)
@@ -114,7 +134,7 @@ class TestScriptRead(object):
         pytest.helpers.unlink([fh.name])
 
     def test_read_3(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=SCRIPT_EXT)
         fh.close()
         script = Script.read(fh.name)
         assert script.shebang == ''
@@ -122,7 +142,7 @@ class TestScriptRead(object):
         pytest.helpers.unlink([fh.name])
 
     def test_read_4(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=SCRIPT_EXT)
         fh.write(SCRIPT_HEADER)
         fh.close()
         script = Script.read(fh.name)
@@ -132,7 +152,7 @@ class TestScriptRead(object):
 
     @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_read_5(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=SCRIPT_EXT)
         fh.write('\n' + SCRIPT_HEADER)
         fh.close()
         script = Script.read(fh.name)
@@ -141,7 +161,7 @@ class TestScriptRead(object):
         pytest.helpers.unlink([fh.name])
 
     def test_read_6(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=SCRIPT_EXT)
         fh.write('\n' + '')
         fh.close()
         script = Script.read(fh.name)
