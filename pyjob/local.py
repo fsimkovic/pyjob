@@ -85,6 +85,10 @@ class LocalTask(Task):
             return
         if not self.kill_switch.is_set():
             self.kill_switch.set()
+        # This is a requirement to avoid access to memory-inaccessible processes
+        # The queue gets flushed by triggering the kill_switch
+        for proc in self.processes:
+            proc.join()
         for proc in self.processes:
             proc.terminate()
         logger.debug("Terminated task: %d", self.pid)
@@ -115,7 +119,12 @@ class LocalTask(Task):
 class LocalProcess(multiprocessing.Process):
     """Extension to :obj:`multiprocessing.Process` for :obj:`~pyjob.local.LocalTask`"""
 
-    def __init__(self, queue, kill_switch, directory=None, permit_nonzero=False, chdir=False):
+    def __init__(self,
+                 queue,
+                 kill_switch,
+                 directory=None,
+                 permit_nonzero=False,
+                 chdir=False):
         """Instantiate a :obj:`~pyjob.local.LocalProcess`
 
         Parameters
@@ -152,4 +161,8 @@ class LocalProcess(multiprocessing.Process):
                 directory = self.directory
             log = os.path.splitext(job)[0] + '.log'
             with open(log, 'w') as f:
-                cexec([job], cwd=directory, stdout=f, permit_nonzero=self.permit_nonzero)
+                cexec(
+                    [job],
+                    cwd=directory,
+                    stdout=f,
+                    permit_nonzero=self.permit_nonzero)
