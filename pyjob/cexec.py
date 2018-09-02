@@ -91,9 +91,7 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
         _insert_or_ignore(kwargs, 'bufsize', 0)
         _insert_or_ignore(kwargs, 'shell', 'False')
     if 'directory' in kwargs:
-        warnings.warn(
-            'directory keywoard has been deprecated, use cwd instead',
-            DeprecationWarning)
+        warnings.warn('directory keywoard has been deprecated, use cwd instead', DeprecationWarning)
         kwargs['cwd'] = kwargs['directory']
         kwargs.pop('directory')
     _insert_or_ignore(kwargs, 'cwd', os.getcwd())
@@ -106,8 +104,7 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
 
     executable = which(cmd[0])
     if executable is None:
-        raise PyJobExecutableNotFoundError(
-            'Cannot find executable: %s' % cmd[0])
+        raise PyJobExecutableNotFoundError('Cannot find executable: %s' % cmd[0])
     cmd[0] = executable
 
     try:
@@ -124,8 +121,7 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
         if p.returncode == 0:
             return stdout
         elif permit_nonzero:
-            logger.debug("Ignoring non-zero returncode %d for '%s'",
-                         p.returncode, " ".join(cmd))
+            logger.debug("Ignoring non-zero returncode %d for '%s'", p.returncode, " ".join(cmd))
             return stdout
         else:
             msg = "Execution of '{}' exited with non-zero return code ({})"

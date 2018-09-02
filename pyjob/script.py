@@ -50,8 +50,7 @@ class ScriptProperty(enum.Enum):
         self.suffix = suffix
 
 
-EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', ScriptProperty.SHELL.shebang,
-                                      ScriptProperty.SHELL.suffix)
+EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', ScriptProperty.SHELL.shebang, ScriptProperty.SHELL.suffix)
 
 
 class ScriptCollector(object):
@@ -234,8 +233,7 @@ class Script(list):
     @property
     def path(self):
         """Path to the :obj:`~pyjob.script.Script`"""
-        return os.path.join(self.directory,
-                            self.prefix + self.stem + self.suffix)
+        return os.path.join(self.directory, self.prefix + self.stem + self.suffix)
 
     @property
     def shebang(self):

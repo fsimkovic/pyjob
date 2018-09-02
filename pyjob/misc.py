@@ -154,8 +154,7 @@ def deprecate(version, msg=None):
 
     def deprecate_decorator(callable_):
         def warn(*args, **kwargs):
-            message = "%s has been deprecated and will be removed in version %s!" % (
-                callable_.__name__, version)
+            message = "%s has been deprecated and will be removed in version %s!" % (callable_.__name__, version)
             if msg:
                 message += " - %s" % msg
             warnings.warn(message, DeprecationWarning)
@@ -197,12 +196,7 @@ def make_script(cmd, **kwargs):
 @deprecate(0.3, msg='use pyjob.script.Script')
 def make_python_script(cmd, directory=None, prefix="tmp", stem=None):
     return make_script(
-        cmd,
-        directory=directory,
-        shebang="#!/usr/bin/env python",
-        prefix=prefix,
-        stem=stem,
-        suffix=".py")
+        cmd, directory=directory, shebang="#!/usr/bin/env python", prefix=prefix, stem=stem, suffix=".py")
 
 
 @deprecate(0.3)
@@ -245,8 +239,7 @@ def tmp_file(delete=False, directory=None, prefix="tmp", stem=None, suffix=""):
     if directory is None:
         directory = tempfile.gettempdir()
     if stem is None:
-        tmpf = tempfile.NamedTemporaryFile(
-            delete=delete, dir=directory, prefix=prefix, suffix=suffix)
+        tmpf = tempfile.NamedTemporaryFile(delete=delete, dir=directory, prefix=prefix, suffix=suffix)
         tmpf.close()
         return tmpf.name
     else:
