@@ -66,9 +66,8 @@ class LocalTask(Task):
     @property
     def info(self):
         """:obj:`~pyjob.local.LocalTask` information"""
-        for log in self.log:
-            if not os.path.isfile(log):
-                return {'job_number': self.pid, 'status': 'Running'}
+        if any(proc.is_alive() for proc in self.processes):
+            return {'job_number': self.pid, 'status': 'Running'}
         return {}
 
     def close(self):
