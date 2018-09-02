@@ -42,6 +42,24 @@ def _insert_or_ignore(d, k, v):
         d[k] = v
 
 
+def is_exe(fpath):
+    return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+
+# https://stackoverflow.com/a/377028/3046533
+def which(executable):
+    fpath, fname = os.path.split(executable)
+    if fpath:
+        if is_exe(executable):
+            return executable
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, executable)
+            if is_exe(exe_file):
+                return exe_file
+    return None
+
+
 def cexec(cmd, permit_nonzero=False, **kwargs):
     """Function to execute a command
 
@@ -73,7 +91,9 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
         _insert_or_ignore(kwargs, 'bufsize', 0)
         _insert_or_ignore(kwargs, 'shell', 'False')
     if 'directory' in kwargs:
-        warnings.warn('directory keywoard has been deprecated, use cwd instead', DeprecationWarning)
+        warnings.warn(
+            'directory keywoard has been deprecated, use cwd instead',
+            DeprecationWarning)
         kwargs['cwd'] = kwargs['directory']
         kwargs.pop('directory')
     _insert_or_ignore(kwargs, 'cwd', os.getcwd())
@@ -84,8 +104,11 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
     if stdinstr and isinstance(stdinstr, str):
         kwargs['stdin'] = subprocess.PIPE
 
-    if not os.path.isfile(cmd[0]):
-        raise PyJobExecutableNotFoundError('Cannot find executable: %s' % cmd[0])
+    executable = which(cmd[0])
+    if executable is None:
+        raise PyJobExecutableNotFoundError(
+            'Cannot find executable: %s' % cmd[0])
+    cmd[0] = executable
 
     try:
         p = subprocess.Popen(cmd, **kwargs)
@@ -101,7 +124,8 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
         if p.returncode == 0:
             return stdout
         elif permit_nonzero:
-            logger.debug("Ignoring non-zero returncode %d for '%s'", p.returncode, " ".join(cmd))
+            logger.debug("Ignoring non-zero returncode %d for '%s'",
+                         p.returncode, " ".join(cmd))
             return stdout
         else:
             msg = "Execution of '{}' exited with non-zero return code ({})"

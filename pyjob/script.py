@@ -27,6 +27,7 @@ import enum
 import os
 import sys
 
+from pyjob.cexec import is_exe
 from pyjob.exception import PyJobError
 
 
@@ -315,4 +316,4 @@ def is_valid_script_path(fname):
     bool
 
     """
-    return os.path.isfile(fname) and os.access(fname, os.X_OK)
+    return is_exe(fname)
