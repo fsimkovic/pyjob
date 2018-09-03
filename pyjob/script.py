@@ -37,10 +37,12 @@ class ScriptProperty(enum.Enum):
     # Tried to extend Enum but operation not allowed in Python3.7
     # https://docs.python.org/3/library/enum.html#restricted-subclassing-of-enumerations
     if sys.platform.startswith('win'):
+        EXE_EXT = ('', '.exe')
         PERL = ('', '.pl')
         PYTHON = ('', '.py')
         SHELL = ('', '.bat')
     else:
+        EXE_EXT = ('', '')
         PERL = ('#!/usr/bin/env perl', '.pl')
         PYTHON = ('#!/usr/bin/env python', '.py')
         SHELL = ('#!/bin/bash', '.sh')
@@ -50,7 +52,7 @@ class ScriptProperty(enum.Enum):
         self.suffix = suffix
 
 
-EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', ScriptProperty.SHELL.shebang, ScriptProperty.SHELL.suffix)
+EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = (ScriptProperty.EXE_EXT.suffix, ScriptProperty.SHELL.shebang, ScriptProperty.SHELL.suffix)
 
 
 class ScriptCollector(object):
