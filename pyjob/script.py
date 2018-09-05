@@ -29,7 +29,7 @@ import sys
 
 from pyjob.cexec import is_exe
 from pyjob.exception import PyJobError
-
+from pyjob.pool import Pool
 
 @enum.unique
 class ScriptProperty(enum.Enum):
@@ -319,6 +319,47 @@ class Script(list):
             script.shebang = ''
         script.extend(lines)
         return script
+
+class LocalScriptCreator(object):
+    """A :obj:`~pyjob.script.ScriptCollector` to store executable :obj:`~pyjob.script.Script` instances 
+    created in parallel using an input `func` to create the scripts.
+
+    Examples
+    --------
+
+    >>> from pyjob.script import LocalScriptCreator, Script
+    >>> script_creator = LocalScriptCreator(func, iterable, processes)
+    >>> collector = script_creator.collector()
+
+    """
+
+    def __init__(self,
+                 func=None,
+                 iterable=None,
+                 processes=1):
+        """Instantiate a new :obj:`~pyjob.script.LocalScriptCreator`
+
+        Parameters
+        ----------
+        func : func
+            function to create :obj:`~pyjob.script.Script` with custom command
+        iterable : iterable
+            iterable argument to input into func
+        processes : int
+            Number of processes to generate scripts with
+        """
+        self.func = func
+        self.iterable = iterable
+        self.processes = processes
+
+    def __call__(self, i):
+        return self.func(i)
+
+    def collector(self):
+        script_collector = ScriptCollector(None)
+        with Pool(processes=self.processes) as pool:
+            script_collector.add(pool.map(self, self.iterable))
+        return script_collector
 
 
 def is_valid_script_path(fname):
