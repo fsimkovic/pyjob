@@ -49,8 +49,12 @@ class ScriptProperty(enum.Enum):
         self.shebang = shebang
         self.suffix = suffix
 
+if sys.platform.startswith('win'):
+    EXE_EXT = '.exe'
+else:
+    EXE_EXT = ''
 
-EXE_EXT, SCRIPT_HEADER, SCRIPT_EXT = ('.exe', ScriptProperty.SHELL.shebang, ScriptProperty.SHELL.suffix)
+SCRIPT_HEADER, SCRIPT_EXT = (ScriptProperty.SHELL.shebang, ScriptProperty.SHELL.suffix)
 
 
 class ScriptCollector(object):

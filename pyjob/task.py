@@ -199,7 +199,7 @@ class Task(ABC):
         do_check_success = callable_checker(success_f)
         if do_check_success:
             msg = 'Checking for %s %d success with function %s'
-            logger.debug(msg, self.__class__.__name__, self.pid, check_success.__name__)
+            logger.debug(msg, self.__class__.__name__, self.pid, success_f.__name__)
         do_monitor = callable_checker(monitor_f)
         while not self.completed:
             if do_check_success:
