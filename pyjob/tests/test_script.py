@@ -8,6 +8,7 @@ from pyjob.exception import PyJobError
 from pyjob.script import Script
 from pyjob.script import ScriptCollector
 from pyjob.script import ScriptProperty
+from pyjob.script import LocalScriptCreator
 from pyjob.script import is_valid_script_path
 
 
@@ -247,3 +248,18 @@ class TestScriptProperty(object):
         else:
             assert ScriptProperty.SHELL.shebang == '#!/bin/bash'
             assert ScriptProperty.SHELL.suffix == '.sh'
+
+class TestLocalScriptCreator(object):
+    def example_function(self, i):
+        cmd = ['echo {}'.format(option)]
+        script = Script(directory=os.getcwd())
+        for c in cmd:
+             script.append(' '.join(map(str, c)))
+        return script
+
+    def test_1(self):
+        nproc = 2
+        options = [1, 2, 3, 4, 5]
+        script_creator = LocalScriptCreator(func=self.example_function, iterable=options, processes=nproc)
+        collector = script.creator.collector()
+        assert collector.scripts == [['e c h o   1'], ['e c h o   2'], ['e c h o   3'], ['e c h o   4'], ['e c h o   5']] 
