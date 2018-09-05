@@ -122,7 +122,7 @@ class Task(ABC):
     @property
     def log(self):
         """The log file path"""
-        return [script.rsplit('.', 1)[0] + '.log' for script in self.script]
+        return [script.log for script in self.script_collector]
 
     @property
     def script(self):

@@ -49,6 +49,7 @@ class ScriptProperty(enum.Enum):
         self.shebang = shebang
         self.suffix = suffix
 
+
 if sys.platform.startswith('win'):
     EXE_EXT = '.exe'
 else:
@@ -205,6 +206,16 @@ class Script(list):
         self.suffix = suffix
         self.shebang = shebang
 
+    def __add__(self, other):
+        """Combine two :obj:`~pyjob.script.Script` instances"""
+        if self.shebang != other.shebang:
+            raise TypeError('Invalid shebang combination')
+        if self.suffix != other.suffix:
+            raise TypeError('Invalid suffix combination')
+        script = Script(stem=self.stem + '-' + other.stem, shebang=self.shebang, suffix=self.suffix)
+        script.content = [line for script in [self, other] for line in script]
+        return script
+
     def __str__(self):
         """Content of :obj:`~pyjob.script.Script`"""
         content = self[:]
@@ -233,6 +244,11 @@ class Script(list):
     def directory(self, directory):
         """Setter method for :attr:`~pyjob.script.Script.directory`"""
         self._directory = os.path.abspath(directory)
+
+    @property
+    def log(self):
+        """Path to the log of the the :obj:`~pyjob.script.Script`"""
+        return self.path.rsplit('.', 1)[0] + '.log'
 
     @property
     def path(self):
