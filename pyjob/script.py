@@ -31,6 +31,7 @@ from pyjob.cexec import is_exe
 from pyjob.exception import PyJobError
 from pyjob.pool import Pool
 
+
 @enum.unique
 class ScriptProperty(enum.Enum):
     """Enumeration for :obj:`~pyjob.script.Script`-specific properties"""
@@ -320,9 +321,10 @@ class Script(list):
         script.extend(lines)
         return script
 
+
 class LocalScriptCreator(object):
-    """A :obj:`~pyjob.script.ScriptCollector` to store executable :obj:`~pyjob.script.Script` instances 
-    created in parallel using an input `func` to create the scripts.
+    """A :obj:`~pyjob.script.ScriptCollector` to store executable :obj:`~pyjob.script.Script`
+    instances created in parallel using an input `func` to create the scripts.
 
     Examples
     --------

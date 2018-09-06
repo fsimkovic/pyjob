@@ -249,17 +249,25 @@ class TestScriptProperty(object):
             assert ScriptProperty.SHELL.shebang == '#!/bin/bash'
             assert ScriptProperty.SHELL.suffix == '.sh'
 
+
 class TestLocalScriptCreator(object):
-    def example_function(self, i):
+    def __call__(self, option):
+        return self.example_function(option)
+
+    def example_function(self, option):
         cmd = ['echo {}'.format(option)]
         script = Script(directory=os.getcwd())
         for c in cmd:
-             script.append(' '.join(map(str, c)))
+            script.append(' '.join(map(str, c)))
         return script
 
     def test_1(self):
         nproc = 2
         options = [1, 2, 3, 4, 5]
-        script_creator = LocalScriptCreator(func=self.example_function, iterable=options, processes=nproc)
-        collector = script.creator.collector()
-        assert collector.scripts == [['e c h o   1'], ['e c h o   2'], ['e c h o   3'], ['e c h o   4'], ['e c h o   5']] 
+        script_creator = LocalScriptCreator(func=self, iterable=options, processes=nproc)
+        collector = script_creator.collector()
+        assert collector.scripts == [['e c h o   1'],
+                                     ['e c h o   2'],
+                                     ['e c h o   3'],
+                                     ['e c h o   4'],
+                                     ['e c h o   5']]
