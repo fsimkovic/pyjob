@@ -258,7 +258,7 @@ class TestLocalScriptCreator(object):
         cmd = ['echo {}'.format(option)]
         script = Script(directory=os.getcwd())
         for c in cmd:
-            script.append(' '.join(map(str, c)))
+            script.append(c)
         return script
 
     def test_1(self):
@@ -266,8 +266,8 @@ class TestLocalScriptCreator(object):
         options = [1, 2, 3, 4, 5]
         script_creator = LocalScriptCreator(func=self, iterable=options, processes=nproc)
         collector = script_creator.collector()
-        assert collector.scripts == [['e c h o   1'],
-                                     ['e c h o   2'],
-                                     ['e c h o   3'],
-                                     ['e c h o   4'],
-                                     ['e c h o   5']]
+        assert collector.scripts == [['echo 1'],
+                                     ['echo 2'],
+                                     ['echo 3'],
+                                     ['echo 4'],
+                                     ['echo 5']]
