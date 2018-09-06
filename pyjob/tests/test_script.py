@@ -254,7 +254,8 @@ class TestLocalScriptCreator(object):
     def __call__(self, option):
         return self.example_function(option)
 
-    def example_function(self, option):
+    @staticmethod
+    def example_function(option):
         cmd = ['echo {}'.format(option)]
         script = Script(directory=os.getcwd())
         for c in cmd:
