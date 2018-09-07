@@ -23,7 +23,7 @@
 *Fixed*
 
 - [`#19 <https://github.com/fsimkovic/pyjob/issues/19>`_] - :meth:`pyjob.local.LocalTask.wait` did not function behave correctly when STDOUT was piped to separate log
-- [`#18 <https://github.com/fsimkovic/pyjob/issues/18`_] - Better handling of incomplete executable paths
+- [`#18 <https://github.com/fsimkovic/pyjob/issues/18>`_] - Better handling of incomplete executable paths
 - [`#6 <https://github.com/fsimkovic/pyjob/issues/6>`_] - Bug fix in :func:`pyjob.cexec.cexec` to enable decoding of other :obj:`bytes` encodings than ASCII, which may be returned by :meth:`subprocess.Popen.communicate`
 - Bug fix in :obj:`~pyjob.local.LocalTask` to prevent deadlock when processes did not terminate properly
 - Bug fix in :meth:`pyjob.task.Task.wait` that attempted to call a :obj:`bool` in rare occasions
