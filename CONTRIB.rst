@@ -1,0 +1,4 @@
+- `Adam Simpkin <https://github.com/hlasimpk>`_
+- `Jens Thomas <https://github.com/linucks>`_
+- `Ronan Keegan <https://github.com/rmk65>`_
+- `Felix Simkovic <https://github.com/fsimkovic>`_
