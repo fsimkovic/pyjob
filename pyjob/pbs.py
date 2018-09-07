@@ -120,7 +120,7 @@ class PortableBatchSystemTask(ClusterTask):
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -e {}'.format(logf))
             runscript.append('script=$(awk "NR=={}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
-            runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
+            runscript.append('log=$(echo $script | sed "s/\.${script##*.}/\.log/")')
             runscript.append("$script > $log 2>&1")
         else:
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(self.log[0]))

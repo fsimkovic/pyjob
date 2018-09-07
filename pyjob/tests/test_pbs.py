@@ -33,7 +33,7 @@ class TestCreateRunscript(object):
         assert runscript.content == [
             '#PBS -V', '#PBS -N pyjob', '#PBS -w ' + os.getcwd(), '#PBS -n 1', '#PBS -t 1-3%3',
             '#PBS -o {}'.format(logf), '#PBS -e {}'.format(logf), 'script=$(awk "NR==$PBS_ARRAYID" {})'.format(jobsf),
-            "log=$(echo $script | sed 's/\.sh/\.log/')", '$script > $log 2>&1'
+            "log=$(echo $script | sed \"s/\.${script##*.}/\.log/\")", '$script > $log 2>&1'
         ]
         with open(jobsf, 'r') as f_in:
             jobs = [l.strip() for l in f_in]
@@ -52,7 +52,7 @@ class TestCreateRunscript(object):
         assert runscript.content == [
             '#PBS -V', '#PBS -N pyjob', '#PBS -w ' + os.getcwd(), '#PBS -n 1', '#PBS -t 1-3%1',
             '#PBS -o {}'.format(logf), '#PBS -e {}'.format(logf), 'script=$(awk "NR==$PBS_ARRAYID" {})'.format(jobsf),
-            "log=$(echo $script | sed 's/\.sh/\.log/')", '$script > $log 2>&1'
+            "log=$(echo $script | sed \"s/\.${script##*.}/\.log/\")", '$script > $log 2>&1'
         ]
         with open(jobsf, 'r') as f_in:
             jobs = [l.strip() for l in f_in]

@@ -86,7 +86,6 @@ class LoadSharingFacilityTask(ClusterTask):
     def _create_runscript(self):
         """Utility method to create runscript"""
         runscript = Script(directory=self.directory, prefix='lsf_', suffix='.script', stem=str(uuid.uuid1().int))
-        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -J {}'.format(self.name))
         if self.dependency:
             cmd = '-w {}'.format(' && '.join(['deps(%s)' % str(d) for d in self.dependency]))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
@@ -116,13 +115,14 @@ class LoadSharingFacilityTask(ClusterTask):
             jobsf = runscript.path.replace('.script', '.jobs')
             with open(jobsf, 'w') as f_out:
                 f_out.write('\n'.join(self.script))
-            cmd = 'J {}[{}-{}%{}]'.format(self.name, 1, len(self.script), self.max_array_size)
+            cmd = '-J {}[{}-{}]%{}'.format(self.name, 1, len(self.script), self.max_array_size)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
-            runscript.append('script=$(awk "NR=={}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
-            runscript.append("log=$(echo $script | sed 's/\.sh/\.log/')")
+            runscript.append('script=$(awk "NR==$(({} + 1))" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
+            runscript.append('log=$(echo $script | sed "s/\.${script##*.}/\.log/")')
             runscript.append("$script > $log 2>&1")
         else:
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -J {}'.format(self.name))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(self.log[0]))
             runscript.append(self.script[0])
         return runscript

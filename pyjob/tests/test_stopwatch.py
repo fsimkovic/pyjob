@@ -176,5 +176,4 @@ class TestStopWatch(object):
             sw.start()
             time.sleep(1)
         assert round(sw.time) == 4.0
-        assert [round(interval.time)
-                for interval in sw.intervals] == [3.0, 1.0]
+        assert [round(interval.time) for interval in sw.intervals] == [3.0, 1.0]

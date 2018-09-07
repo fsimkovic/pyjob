@@ -152,8 +152,7 @@ class TestScriptRead(object):
         pytest.helpers.unlink([fh.name])
 
     def test_read_3(self):
-        fh = tempfile.NamedTemporaryFile(
-            mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
         fh.close()
         script = Script.read(fh.name)
         assert script.shebang == ''
@@ -161,8 +160,7 @@ class TestScriptRead(object):
         pytest.helpers.unlink([fh.name])
 
     def test_read_4(self):
-        fh = tempfile.NamedTemporaryFile(
-            mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
         fh.write(ScriptProperty.SHELL.shebang)
         fh.close()
         script = Script.read(fh.name)
@@ -172,8 +170,7 @@ class TestScriptRead(object):
 
     @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_read_5(self):
-        fh = tempfile.NamedTemporaryFile(
-            mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
         fh.write('\n' + ScriptProperty.SHELL.shebang)
         fh.close()
         script = Script.read(fh.name)
@@ -182,8 +179,7 @@ class TestScriptRead(object):
         pytest.helpers.unlink([fh.name])
 
     def test_read_6(self):
-        fh = tempfile.NamedTemporaryFile(
-            mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
+        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
         fh.write('\n' + '')
         fh.close()
         script = Script.read(fh.name)
@@ -194,11 +190,7 @@ class TestScriptRead(object):
     @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_read_7(self):
         fh = tempfile.NamedTemporaryFile(
-            mode='w',
-            dir='.',
-            delete=True,
-            prefix='pyjob',
-            suffix=ScriptProperty.SHELL.suffix)
+            mode='w', dir='.', delete=True, prefix='pyjob', suffix=ScriptProperty.SHELL.suffix)
         script = Script.read(fh.name)
         fh.close()
         assert script.directory == os.getcwd()
@@ -266,8 +258,5 @@ class TestLocalScriptCreator(object):
     def test_1(self):
         nproc = 2
         options = [1, 2, 3, 4, 5]
-        script_creator = LocalScriptCreator(
-            func=self, iterable=options, processes=nproc)
-        assert script_creator.collector.scripts == [['echo 1'], ['echo 2'],
-                                                    ['echo 3'], ['echo 4'],
-                                                    ['echo 5']]
+        script_creator = LocalScriptCreator(func=self, iterable=options, processes=nproc)
+        assert script_creator.collector.scripts == [['echo 1'], ['echo 2'], ['echo 3'], ['echo 4'], ['echo 5']]

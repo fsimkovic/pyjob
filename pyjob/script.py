@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 __author__ = 'Felix Simkovic'
+__contributors__ = ['Adam Simpkin']
 __version__ = '1.0'
 
 import enum
@@ -56,8 +57,7 @@ if sys.platform.startswith('win'):
 else:
     EXE_EXT = ''
 
-SCRIPT_HEADER, SCRIPT_EXT = (ScriptProperty.SHELL.shebang,
-                             ScriptProperty.SHELL.suffix)
+SCRIPT_HEADER, SCRIPT_EXT = (ScriptProperty.SHELL.shebang, ScriptProperty.SHELL.suffix)
 
 
 class ScriptCollector(object):
@@ -214,10 +214,7 @@ class Script(list):
             raise TypeError('Invalid shebang combination')
         if self.suffix != other.suffix:
             raise TypeError('Invalid suffix combination')
-        script = Script(
-            stem=self.stem + '-' + other.stem,
-            shebang=self.shebang,
-            suffix=self.suffix)
+        script = Script(stem=self.stem + '-' + other.stem, shebang=self.shebang, suffix=self.suffix)
         script.content = [line for script in [self, other] for line in script]
         return script
 
@@ -258,8 +255,7 @@ class Script(list):
     @property
     def path(self):
         """Path to the :obj:`~pyjob.script.Script`"""
-        return os.path.join(self.directory,
-                            self.prefix + self.stem + self.suffix)
+        return os.path.join(self.directory, self.prefix + self.stem + self.suffix)
 
     @property
     def shebang(self):

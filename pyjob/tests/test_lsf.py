@@ -16,7 +16,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"',
+            '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB -J pyjob',
             '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -31,9 +31,9 @@ class TestCreateRunscript(object):
         jobsf = runscript.path.replace('.script', '.jobs')
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB J pyjob[1-3%3]',
-            '#BSUB -o {}'.format(logf), 'script=$(awk "NR==$LSB_JOBINDEX" {})'.format(jobsf),
-            "log=$(echo $script | sed 's/\.sh/\.log/')", '$script > $log 2>&1'
+            '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB -J pyjob[1-3]%3',
+            '#BSUB -o {}'.format(logf), 'script=$(awk "NR==$(($LSB_JOBINDEX + 1))" {})'.format(jobsf),
+            'log=$(echo $script | sed "s/\.${script##*.}/\.log/")', '$script > $log 2>&1'
         ]
         with open(jobsf, 'r') as f_in:
             jobs = [l.strip() for l in f_in]
@@ -50,9 +50,9 @@ class TestCreateRunscript(object):
         jobsf = runscript.path.replace('.script', '.jobs')
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB J pyjob[1-3%1]',
-            '#BSUB -o {}'.format(logf), 'script=$(awk "NR==$LSB_JOBINDEX" {})'.format(jobsf),
-            "log=$(echo $script | sed 's/\.sh/\.log/')", '$script > $log 2>&1'
+            '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB -J pyjob[1-3]%1',
+            '#BSUB -o {}'.format(logf), 'script=$(awk "NR==$(($LSB_JOBINDEX + 1))" {})'.format(jobsf),
+            'log=$(echo $script | sed "s/\.${script##*.}/\.log/")', '$script > $log 2>&1'
         ]
         with open(jobsf, 'r') as f_in:
             jobs = [l.strip() for l in f_in]
@@ -67,7 +67,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J foobar', '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"',
+            '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB -J foobar',
             '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -80,7 +80,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=5]"',
+            '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=5]"', '#BSUB -J pyjob',
             '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -93,7 +93,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -cwd ' + os.getcwd(), '#BSUB -q barfoo', '#BSUB -R "span[ptile=1]"',
+            '#BSUB -cwd ' + os.getcwd(), '#BSUB -q barfoo', '#BSUB -R "span[ptile=1]"', '#BSUB -J pyjob',
             '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -107,7 +107,7 @@ class TestCreateRunscript(object):
         wd = os.path.abspath(os.path.join(os.getcwd(), '..'))
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -cwd ' + wd, '#BSUB -R "span[ptile=1]"',
+            '#BSUB -cwd ' + wd, '#BSUB -R "span[ptile=1]"', '#BSUB -J pyjob',
             '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -120,8 +120,8 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -w deps(1) && deps(3) && deps(2)', '#BSUB -cwd ' + os.getcwd(),
-            '#BSUB -R "span[ptile=1]"', '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
+            '#BSUB -w deps(1) && deps(3) && deps(2)', '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"',
+            '#BSUB -J pyjob', '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
 
@@ -133,7 +133,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -cwd ' + os.getcwd(), '#BSUB -W 120', '#BSUB -R "span[ptile=1]"',
+            '#BSUB -cwd ' + os.getcwd(), '#BSUB -W 120', '#BSUB -R "span[ptile=1]"', '#BSUB -J pyjob',
             '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -146,7 +146,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -cwd ' + os.getcwd(), '#BSUB -L /bin/csh', '#BSUB -R "span[ptile=1]"',
+            '#BSUB -cwd ' + os.getcwd(), '#BSUB -L /bin/csh', '#BSUB -R "span[ptile=1]"', '#BSUB -J pyjob',
             '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -159,7 +159,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -cwd ' + os.getcwd(), '#BSUB -sp -1', '#BSUB -R "span[ptile=1]"',
+            '#BSUB -cwd ' + os.getcwd(), '#BSUB -sp -1', '#BSUB -R "span[ptile=1]"', '#BSUB -J pyjob',
             '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
@@ -172,7 +172,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#BSUB -J pyjob', '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB -M 100 -r',
+            '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB -M 100 -r', '#BSUB -J pyjob',
             '#BSUB -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
