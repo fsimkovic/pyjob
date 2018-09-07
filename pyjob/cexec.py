@@ -43,11 +43,39 @@ def _insert_or_ignore(d, k, v):
 
 
 def is_exe(fpath):
+    """Status to indicate if a file is an executable
+
+    Parameters
+    ----------
+    fpath : str
+       The path to the file to be tested
+
+    Returns
+    -------
+    bool
+
+    """
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 
-# https://stackoverflow.com/a/377028/3046533
 def which(executable):
+    """Python-based mirror of UNIX ``which`` command
+
+    Parameters
+    ----------
+    executable : str
+       The path or name for an executable
+
+    Returns
+    -------
+    str
+       The absolute path to the executable, or ``None`` if not found
+
+    Credits
+    -------
+    https://stackoverflow.com/a/377028/3046533
+
+    """
     fpath, fname = os.path.split(executable)
     if fpath:
         if is_exe(executable):
