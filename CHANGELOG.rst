@@ -1,7 +1,8 @@
-**[develop]**
+**[unreleased]**
 
 *Added*
 
+- [`#22 <https://github.com/fsimkovic/pyjob/issues/22>`_] - :obj:`~pyjob.script.LocalScriptCreator` added to simplify multi-core :obj:`~pyjob.script.Script` generation
 - :obj:`~pyjob.task.Task` backend for script collection modified to store everything in :obj:`~pyjob.script.Script` instances collected in a :obj:`~pyjob.script.ScriptCollector` instance
 - :obj:`~pyjob.script.ScriptCollector` added to support easier collection of multiple :obj:`~pyjob.script.Script` instances
 - [`#14 <https://github.com/fsimkovic/pyjob/issues/14>`_] - :obj:`~pyjob.slurm.SlurmTask` support added
@@ -21,9 +22,11 @@
 
 *Fixed*
 
+- [`#19 <https://github.com/fsimkovic/pyjob/issues/19>`_] - :meth:`pyjob.local.LocalTask.wait` did not function behave correctly when STDOUT was piped to separate log
+- [`#18 <https://github.com/fsimkovic/pyjob/issues/18`_] - Better handling of incomplete executable paths
 - [`#6 <https://github.com/fsimkovic/pyjob/issues/6>`_] - Bug fix in :func:`pyjob.cexec.cexec` to enable decoding of other :obj:`bytes` encodings than ASCII, which may be returned by :meth:`subprocess.Popen.communicate`
 - Bug fix in :obj:`~pyjob.local.LocalTask` to prevent deadlock when processes did not terminate properly
-- Bug fix in :meth:`~pyjob.task.Task.wait` that attempted to call a :obj:`bool` in rare occasions
+- Bug fix in :meth:`pyjob.task.Task.wait` that attempted to call a :obj:`bool` in rare occasions
 
 *Removed*
 
