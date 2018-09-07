@@ -40,7 +40,7 @@ If we are provided with a script written to disk, i.e. reverse the previous few 
    #!/bin/bash
    sleep 5
 
-To create multiple scripts in parallel we can use :meth:`LocalScriptCreator <pyjob.script.LocalScriptCreator>`. Given a function to generate :obj:`~pyjob.script.Script` (detailed above), an iterable containing the options for each script, and the number of processors to use. :meth:`collector <pyjob.script.LocalScriptCreator.collector>` will return a :obj:`~pyjob.script.ScriptCollector` that can then be input directly into :meth:`TaskFactory <pyjob.factory.TaskFactory>` for execution (detailed below).
+To create multiple scripts in parallel we can use the :obj:`LocalScriptCreator <pyjob.script.LocalScriptCreator>`, given a function to generate a single :obj:`~pyjob.script.Script`, an iterable containing the options for each script, and the number of processors to use. You can access the :attr:`collector <pyjob.script.LocalScriptCreator.collector>`, which will return the :obj:`~pyjob.script.ScriptCollector` that can then be input directly into :obj:`TaskFactory <pyjob.factory.TaskFactory>` for execution (detailed below).
 
 
 .. code-block:: python

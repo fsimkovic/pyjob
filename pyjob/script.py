@@ -56,7 +56,8 @@ if sys.platform.startswith('win'):
 else:
     EXE_EXT = ''
 
-SCRIPT_HEADER, SCRIPT_EXT = (ScriptProperty.SHELL.shebang, ScriptProperty.SHELL.suffix)
+SCRIPT_HEADER, SCRIPT_EXT = (ScriptProperty.SHELL.shebang,
+                             ScriptProperty.SHELL.suffix)
 
 
 class ScriptCollector(object):
@@ -213,7 +214,10 @@ class Script(list):
             raise TypeError('Invalid shebang combination')
         if self.suffix != other.suffix:
             raise TypeError('Invalid suffix combination')
-        script = Script(stem=self.stem + '-' + other.stem, shebang=self.shebang, suffix=self.suffix)
+        script = Script(
+            stem=self.stem + '-' + other.stem,
+            shebang=self.shebang,
+            suffix=self.suffix)
         script.content = [line for script in [self, other] for line in script]
         return script
 
@@ -254,7 +258,8 @@ class Script(list):
     @property
     def path(self):
         """Path to the :obj:`~pyjob.script.Script`"""
-        return os.path.join(self.directory, self.prefix + self.stem + self.suffix)
+        return os.path.join(self.directory,
+                            self.prefix + self.stem + self.suffix)
 
     @property
     def shebang(self):
@@ -324,21 +329,18 @@ class Script(list):
 
 class LocalScriptCreator(object):
     """A :obj:`~pyjob.script.ScriptCollector` to store executable :obj:`~pyjob.script.Script`
-    instances created in parallel using an input `func` to create the scripts.
+    instances created in parallel using an input ``func`` to create the scripts.
 
     Examples
     --------
 
     >>> from pyjob.script import LocalScriptCreator, Script
     >>> script_creator = LocalScriptCreator(func, iterable, processes)
-    >>> collector = script_creator.collector()
+    >>> collector = script_creator.collector
 
     """
 
-    def __init__(self,
-                 func=None,
-                 iterable=None,
-                 processes=1):
+    def __init__(self, func=None, iterable=None, processes=1):
         """Instantiate a new :obj:`~pyjob.script.LocalScriptCreator`
 
         Parameters
@@ -349,6 +351,7 @@ class LocalScriptCreator(object):
             iterable argument to input into func
         processes : int
             Number of processes to generate scripts with
+
         """
         self.func = func
         self.iterable = iterable
@@ -357,6 +360,7 @@ class LocalScriptCreator(object):
     def __call__(self, i):
         return self.func(i)
 
+    @property
     def collector(self):
         script_collector = ScriptCollector(None)
         with Pool(processes=self.processes) as pool:
