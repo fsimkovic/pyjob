@@ -266,10 +266,8 @@ class TestLocalScriptCreator(object):
     def test_1(self):
         nproc = 2
         options = [1, 2, 3, 4, 5]
-        script_creator = LocalScriptCreator(func=self, iterable=options, processes=nproc)
-        collector = script_creator.collector()
-        assert collector.scripts == [['echo 1'],
-                                     ['echo 2'],
-                                     ['echo 3'],
-                                     ['echo 4'],
-                                     ['echo 5']]
+        script_creator = LocalScriptCreator(
+            func=self, iterable=options, processes=nproc)
+        assert script_creator.collector.scripts == [['echo 1'], ['echo 2'],
+                                                    ['echo 3'], ['echo 4'],
+                                                    ['echo 5']]
