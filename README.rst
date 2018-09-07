@@ -39,7 +39,7 @@ Installation
    
    $ git clone https://github.com/fsimkovic/pyjob.git
    $ cd pyjob
-   $ python setup install
+   $ python setup.py install
 
 .. CHECKPOINT FOR READTHEDOCS 
 For further details about PyJob, we'd suggest you head over to the `official documentation <http://pyjob.readthedocs.io/en/latest/>`_.
