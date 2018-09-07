@@ -262,6 +262,7 @@ class TestLocalScriptCreator(object):
             script.append(c)
         return script
 
+    @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_1(self):
         nproc = 2
         options = [1, 2, 3, 4, 5]
