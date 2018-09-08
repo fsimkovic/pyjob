@@ -93,22 +93,22 @@ class Task(ABC):
     # ------------------ Abstract methods and properties ------------------
 
     @abc.abstractproperty
-    def info(self):  # pragma: no cover
+    def info(self):    # pragma: no cover
         """Abstract property to provide info about the :obj:`~pyjob.task.Task`"""
         pass
 
     @abc.abstractmethod
-    def close(self):  # pragma: no cover
+    def close(self):    # pragma: no cover
         """Abstract method to end :obj:`~pyjob.task.Task`"""
         pass
 
     @abc.abstractmethod
-    def kill(self):  # pragma: no cover
+    def kill(self):    # pragma: no cover
         """Abstract method to forcefully terminate :obj:`~pyjob.task.Task`"""
         pass
 
     @abc.abstractmethod
-    def _run(self):  # pragma: no cover
+    def _run(self):    # pragma: no cover
         """Abstract property to start execution of the :obj:`~pyjob.task.Task`"""
         pass
 
@@ -231,3 +231,36 @@ class ClusterTask(Task):
     def _create_runscript(self):
         """Utility method to create a :obj:`~pyjob.task.ClusterTask` runscript"""
         pass
+
+    def get_array_bash_extension(self, jobsf, offset):
+        """Get the array job bash extension for the ``runscript``
+
+        Parameters
+        ----------
+        jobsf : str
+           The file containing all scripts on a per-line basis
+        offset : int
+           The offset to be applied to the ``JOB_ARRAY_INDEX``
+
+        Returns
+        -------
+        list
+           A list of lines to be written to the ``runscript``
+
+        Raises
+        ------
+        :exc:`ValueError`
+           Invalid offset
+        :exc:`ValueError`
+           Valid job file required
+
+        """
+        if jobsf is None or not os.path.isfile(jobsf):
+            raise ValueError('Valid job file required')
+        if offset < 0:
+            raise ValueError('Invalid offset')
+        if offset > 0:
+            script_def = 'script=$(awk "NR==$(({} + {}))" {})'.format(self.__class__.JOB_ARRAY_INDEX, offset, jobsf)
+        else:
+            script_def = 'script=$(awk "NR=={}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf)
+        return [script_def, 'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")', '$script > $log 2>&1']

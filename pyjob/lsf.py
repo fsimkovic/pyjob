@@ -118,9 +118,7 @@ class LoadSharingFacilityTask(ClusterTask):
             cmd = '-J {}[{}-{}]%{}'.format(self.name, 1, len(self.script), self.max_array_size)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
-            runscript.append('script=$(awk "NR==$(({} + 1))" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
-            runscript.append('log=$(echo $script | sed "s/\.${script##*.}/\.log/")')
-            runscript.append("$script > $log 2>&1")
+            runscript.extend(self.get_array_bash_extension(jobsf, 1))
         else:
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -J {}'.format(self.name))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(self.log[0]))
