@@ -87,6 +87,10 @@ class ScriptCollector(object):
         """Length function"""
         return len(self._container)
 
+    def __repr__(self):
+        """Representation function"""
+        return '{}(nscripts={})'.format(self.__class__.__name__, len(self))
+
     @property
     def scripts(self):
         """The script file paths"""
