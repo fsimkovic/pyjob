@@ -23,6 +23,14 @@ class MockTask(Task):
         pass
 
 
+class MockClusterTask(ClusterTask, MockTask):
+    JOB_ARRAY_INDEX = '$TEST'
+    SCRIPT_DIRECTIVE = '#TEST'
+
+    def _create_runscript(self):
+        pass
+
+
 class TestTask(object):
     def test_1(self):
         task = MockTask(None)
@@ -140,3 +148,47 @@ class TestTask(object):
         with pytest.raises(PyJobError):
             task.add_script(pytest.helpers.get_py_script(1, 1))
         assert len(task.script_collector) == 1
+
+
+@pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
+class TestClusterTask(object):
+    def test_get_array_bash_extension_1(self):
+        task = MockClusterTask(None)
+        fname = 'test.jobs'
+        with open(fname, 'w') as f:
+            pass
+        assert task.get_array_bash_extension(fname, 0) == [
+            'script=$(awk "NR==$TEST" test.jobs)', 'log=$(echo $script | sed "s/\.${script##*.}/\.log/")',
+            '$script > $log 2>&1'
+        ]
+        pytest.helpers.unlink([fname])
+
+    def test_get_array_bash_extension_2(self):
+        task = MockClusterTask(None)
+        fname = 'test.jobs'
+        with open(fname, 'w') as f:
+            pass
+        assert task.get_array_bash_extension(fname, 1) == [
+            'script=$(awk "NR==$(($TEST + 1))" test.jobs)', 'log=$(echo $script | sed "s/\.${script##*.}/\.log/")',
+            '$script > $log 2>&1'
+        ]
+        pytest.helpers.unlink([fname])
+
+    def test_get_array_bash_extension_3(self):
+        task = MockClusterTask(None)
+        with pytest.raises(ValueError):
+            task.get_array_bash_extension(None, 1)
+
+    def test_get_array_bash_extension_4(self):
+        task = MockClusterTask(None)
+        with pytest.raises(ValueError):
+            task.get_array_bash_extension('/some/file', 0)
+
+    def test_get_array_bash_extension_5(self):
+        task = MockClusterTask(None)
+        fname = 'test.jobs'
+        with open(fname, 'w') as f:
+            pass
+        with pytest.raises(ValueError):
+            task.get_array_bash_extension(fname, -1)
+        pytest.helpers.unlink([fname])

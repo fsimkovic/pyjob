@@ -122,9 +122,7 @@ class SunGridEngineTask(ClusterTask):
             cmd = '-t {}-{} -tc {}'.format(1, len(self.script), self.max_array_size)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
-            runscript.append('script=$(awk "NR=={}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf))
-            runscript.append('log=$(echo $script | sed "s/\.${script##*.}/\.log/")')
-            runscript.append("$script > $log 2>&1")
+            runscript.extend(self.get_array_bash_extension(jobsf, 0))
         else:
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(self.log[0]))
             runscript.append(self.script[0])
