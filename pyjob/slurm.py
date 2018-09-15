@@ -44,6 +44,8 @@ class SlurmTask(ClusterTask):
     @property
     def info(self):
         """:obj:`~pyjob.slurm.SlurmTask` information"""
+        if self.pid is None:
+            return {}
         try:
             cexec(['squeue', '-j', str(self.pid)])
         except (PyJobExecutableNotFoundError, Exception):
@@ -57,6 +59,8 @@ class SlurmTask(ClusterTask):
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.slurm.SlurmTask`"""
+        if self.pid is None:
+            return
         cexec(['scancel', str(self.pid)])
         logger.debug("Terminated task: %d", self.pid)
 

@@ -44,6 +44,8 @@ class LoadSharingFacilityTask(ClusterTask):
     @property
     def info(self):
         """:obj:`~pyjob.lsf.LoadSharingFacilityTask` information"""
+        if self.pid is None:
+            return {}
         try:
             stdout = cexec(['bjobs', '-l', str(self.pid)], permit_nonzero=True)
         except PyJobExecutableNotFoundError:
@@ -66,6 +68,8 @@ class LoadSharingFacilityTask(ClusterTask):
            Cannot delete :obj:`~pyjob.lsf.LoadSharingFacilityTask`
 
         """
+        if self.pid is None:
+            return
         stdout = cexec(['bkill', str(self.pid)], permit_nonzero=True)
         if "is in progress" in stdout:
             stdout = cexec(['bkill', '-b', str(self.pid)], permit_nonzero=True)

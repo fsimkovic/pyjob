@@ -132,8 +132,9 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
 
     executable = which(cmd[0])
     if executable is None:
-        raise PyJobExecutableNotFoundError('Cannot find executable: %s' % cmd[0])
-    cmd[0] = executable
+        warnings.warn('executable not in PATH. provide absolute path to executable in future', DeprecationWarning)
+    #      raise PyJobExecutableNotFoundError('Cannot find executable: %s' % cmd[0])
+    #  cmd[0] = executable
 
     try:
         p = subprocess.Popen(cmd, **kwargs)
