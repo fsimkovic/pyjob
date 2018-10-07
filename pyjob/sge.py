@@ -46,6 +46,8 @@ class SunGridEngineTask(ClusterTask):
     @property
     def info(self):
         """:obj:`~pyjob.sge.SunGridEngineTask` information"""
+        if self.pid is None:
+            return {}
         try:
             stdout = cexec(["qstat", "-j", str(self.pid)], permit_nonzero=True)
         except PyJobExecutableNotFoundError:
@@ -69,6 +71,8 @@ class SunGridEngineTask(ClusterTask):
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.sge.SunGridEngineTask`"""
+        if self.pid is None:
+            return
         cexec(['qdel', str(self.pid)])
         logger.debug("Terminated task: %d", self.pid)
 

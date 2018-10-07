@@ -48,6 +48,8 @@ class PortableBatchSystemTask(ClusterTask):
     @property
     def info(self):
         """:obj:`~pyjob.pbs.PortableBatchSystemTask` information"""
+        if self.pid is None:
+            return {}
         try:
             stdout = cexec(['qstat', '-f', str(self.pid)], permit_nonzero=True)
         except PyJobExecutableNotFoundError:
@@ -72,6 +74,8 @@ class PortableBatchSystemTask(ClusterTask):
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.pbs.PortableBatchSystemTask`"""
+        if self.pid is None:
+            return
         cexec(['qdel', str(self.pid)])
         logger.debug("Terminated task: %d", self.pid)
 
