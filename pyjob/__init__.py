@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 __author__ = 'Felix Simkovic'
+__contributors__ = ['Adam Simpkin']
 
 from pyjob.cexec import cexec
 from pyjob.factory import TaskFactory
