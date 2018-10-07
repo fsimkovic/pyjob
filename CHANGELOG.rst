@@ -1,4 +1,8 @@
-**[Unreleased]**
+**[0.2.1]**
+
+*Changed*
+
+- Backend to generate array scripts generalised
 
 **[0.2]**
 

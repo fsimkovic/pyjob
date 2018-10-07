@@ -25,7 +25,7 @@ __author__ = 'Felix Simkovic'
 
 # Maintain sematantic versioning. Further information can
 # be found here [http://semver.org/]
-__version_info__ = (0, 2, 0)
+__version_info__ = (0, 2, 1)
 
 # ======================================================
 # Do __NOT__ change anything below here
