@@ -187,7 +187,7 @@ def make_script(cmd, **kwargs):
             or isinstance(cmd, tuple) and isinstance(cmd[0], list):
         for c in cmd:
             script.append(' '.join(map(str, c)))
-    elif isinstance(cmd, list) or isinstance(cmd, tuple):
+    elif isinstance(cmd, (list, tuple)):
         script.append(' '.join(map(str, cmd)))
     script.write()
     return script.path

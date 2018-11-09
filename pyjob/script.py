@@ -155,7 +155,7 @@ class ScriptCollector(object):
         elif isinstance(script, str):
             script = Script.read(script)
             self._container.append(script)
-        elif isinstance(script, list) or isinstance(script, tuple):
+        elif isinstance(script, (list, tuple)):
             for s in script:
                 if isinstance(s, Script):
                     self._container.append(s)
