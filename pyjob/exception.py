@@ -24,6 +24,10 @@ __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
 
+class PyJobConfigLockedException(Exception):
+    pass
+
+
 class PyJobError(Exception):
     pass
 

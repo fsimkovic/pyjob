@@ -165,6 +165,27 @@ def deprecate(version, msg=None):
     return deprecate_decorator
 
 
+def typecast(value):
+    """Recursively typecast an input
+
+    Parameters
+    ----------
+    value : int, float, str, tuple, list
+
+    """
+    if isinstance(value, (list, tuple)):
+        for i in range(len(value)):
+            value[i] = typecast(v)
+    elif value == 'None':
+        return None
+    else:
+        for c in [int, float, str]:
+            try:
+                return c(value)
+            except ValueError:
+                pass
+
+
 @deprecate(0.3, msg='use pyjob.stopwatch.StopWatch')
 def is_script(f):
     from pyjob.script import is_valid_script_path
