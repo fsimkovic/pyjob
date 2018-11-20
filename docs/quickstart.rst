@@ -146,3 +146,16 @@ This little nugget is simply an extension to :obj:`multiprocessing.Pool` to simp
    >>> from pyjob import Pool
    >>> with Pool(processes=4) as pool:
    ...     pool.map(sleep, [10] * 8)
+
+Default configuration
+~~~~~~~~~~~~~~~~~~~~~
+
+If you use PyJob frequently, you may find the manual definition of the same parameters for the system irritating. You are able to pre-define default configurations for your system by creating a YAML configuration file. To simplifyy the procedure of default-option setting, use:
+
+.. code-block:: bash
+
+   $ pyjob conf platform:local processes:4
+
+This would set the default platform to ``local`` and the number of processors to use to 4. You therefore do not need to define those in your constructors, unless you want to override them for a particular task.
+
+If you decide that you would like to change a parameter, call the same command with a different parameter. Alternatively, to delete an option, simply set set the value, for example ``local`` or ``4`` in the example above, to ``None``.
