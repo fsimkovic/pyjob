@@ -150,7 +150,7 @@ This little nugget is simply an extension to :obj:`multiprocessing.Pool` to simp
 Default configuration
 ~~~~~~~~~~~~~~~~~~~~~
 
-If you use PyJob frequently, you may find the manual definition of the same parameters for the system irritating. You are able to pre-define default configurations for your system by creating a YAML configuration file. To simplifyy the procedure of default-option setting, use:
+If you use PyJob frequently, you may find the manual definition of the same parameters for the system irritating. You are able to pre-define default configurations for your system by creating a YAML configuration file. To simplify the procedure of default-option setting, use:
 
 .. code-block:: bash
 
