@@ -29,6 +29,7 @@ import os
 import time
 import warnings
 
+from pyjob import config
 from pyjob.exception import PyJobError, PyJobTaskLockedError
 from pyjob.script import ScriptCollector, is_valid_script_path
 
@@ -55,8 +56,8 @@ class Task(ABC):
         else:
             self.script_collector = ScriptCollector(script)
         # These arguments are universal to all Task entities
-        self.directory = os.path.abspath(kwargs.get('directory', '.'))
-        self.nprocesses = kwargs.get('processes', 1)
+        self.directory = os.path.abspath(kwargs.get('directory') or config.get('directory') or '.')
+        self.nprocesses = kwargs.get('processes') or config.get('processes') or 1
 
     def __del__(self):
         """Exit function at instance deletion"""
@@ -219,12 +220,12 @@ class ClusterTask(Task):
         """Instantiate a new :obj:`~pyjob.task.ClusterTask`"""
         super(ClusterTask, self).__init__(*args, **kwargs)
         self.dependency = kwargs.get('dependency', [])
-        self.max_array_size = kwargs.get('max_array_size', len(self.script))
+        self.max_array_size = kwargs.get('max_array_size') or config.get('max_array_size') or len(self.script)
         self.priority = kwargs.get('priority', None)
-        self.queue = kwargs.get('queue', None)
-        self.runtime = kwargs.get('runtime', None)
-        self.shell = kwargs.get('shell', None)
-        self.name = kwargs.get('name', 'pyjob')
+        self.queue = kwargs.get('queue') or config.get('queue')
+        self.runtime = kwargs.get('runtime') or config.get('runtime')
+        self.shell = kwargs.get('shell') or config.get('shell')
+        self.name = kwargs.get('name') or config.get('name') or 'pyjob'
         self.extra = kwargs.get('extra', [])
 
     @abc.abstractmethod
