@@ -1,8 +1,14 @@
+__author__ = 'Felix Simkovic'
+
 import os
 import pytest
+import sys
 
 from pyjob.config import PyJobConfig
 from pyjob.exception import PyJobConfigLockedException
+
+if sys.version_info.major < 3:
+    FileNotFoundError = IOError
 
 
 class TestPyJobConfig(object):

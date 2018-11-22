@@ -34,7 +34,7 @@ from pyjob.misc import typecast
 
 
 class Subcommand(enum.Enum):
-    CONF = enum.auto() 
+    CONF = enum.auto()
     EXEC = enum.auto()
     NONE = enum.auto()
 
@@ -42,10 +42,17 @@ class Subcommand(enum.Enum):
 def add_exec_subparser(sp):
     p = sp.add_parser('exec', help='Execute scripts')
     p.add_argument('-d', '--directory', default='.', help='the run directory')
-    p.add_argument('-p', '--platform', choices=TASK_PLATFORMS.keys(), default=config.get('platform', 'local'), help='the execution platform')
-    p.add_argument('-t', '--threads', type=int, dest='processes', default=config.get('processes', 1), help='number of threads')
+    p.add_argument(
+        '-p', '--platform', choices=TASK_PLATFORMS.keys(), 
+        default=config.get('platform', 'local'), help='the execution platform'
+    )
+    p.add_argument(
+        '-t', '--threads', type=int, dest='processes', default=config.get('processes', 1), help='number of threads'
+    )
     p.add_argument('--chdir', action='store_true', default=False, help='execute jobs in script directory')
-    p.add_argument('--permit-nonzero', action='store_true', default=False, help='permit non-zero return codes from executables')
+    p.add_argument(
+        '--permit-nonzero', action='store_true', default=False, help='permit non-zero return codes from executables'
+    )
     p.add_argument('--verbose', action='count')
     p.add_argument('--version', action='version', version='pyjob ' + __version__)
     p.add_argument('executables', nargs='+', help='one or more executable scripts')
