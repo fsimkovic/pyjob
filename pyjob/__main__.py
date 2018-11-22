@@ -43,7 +43,7 @@ def add_exec_subparser(sp):
     p = sp.add_parser('exec', help='Execute scripts')
     p.add_argument('-d', '--directory', default='.', help='the run directory')
     p.add_argument(
-        '-p', '--platform', choices=TASK_PLATFORMS.keys(), 
+        '-p', '--platform', choices=TASK_PLATFORMS.keys(),
         default=config.get('platform', 'local'), help='the execution platform'
     )
     p.add_argument(
