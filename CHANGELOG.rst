@@ -1,4 +1,4 @@
-**[unreleased]**
+**[0.3.1]**
 
 - Allow :obj:`~multiprocessing.Pool` processes to be set by default configuration file
 
