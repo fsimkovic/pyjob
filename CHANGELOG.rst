@@ -1,3 +1,11 @@
+**[unreleased]**
+
+- Allow :obj:`~multiprocessing.Pool` processes to be set by default configuration file
+
+**[0.3.0]**
+
+- [`#15 <https://github.com/fsimkovic/pyjob/issues/15>`_] - configuration file added to control user-specific default settings
+
 **[0.2.1]**
 
 *Changed*
