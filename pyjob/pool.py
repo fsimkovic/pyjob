@@ -27,6 +27,8 @@ __version__ = '1.0'
 import multiprocessing.pool
 import sys
 
+from pyjob import config
+
 
 class Pool(multiprocessing.pool.Pool):
     """:obj:`~multiprocessing.pool.Pool` of processes to allow concurrent method calls
@@ -39,6 +41,10 @@ class Pool(multiprocessing.pool.Pool):
     ...     pool.map(<func>, <iterable>)
 
     """
+    def __init__(self, *args, **kwargs):
+        processes = kwargs.pop('processes') or config.get('processes') or None
+        super(Pool, self).__init__(processes=processes, *args, **kwargs)
+
     if sys.version_info.major < 3:
 
         def __enter__(self):
