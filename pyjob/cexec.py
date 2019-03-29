@@ -29,17 +29,11 @@ import os
 import signal
 import subprocess
 import sys
-import warnings
 
 from pyjob.exception import PyJobExecutableNotFoundError, PyJobExecutionError
 from pyjob.misc import decode
 
 logger = logging.getLogger(__name__)
-
-
-def _insert_or_ignore(d, k, v):
-    if k not in d:
-        d[k] = v
 
 
 def is_exe(fpath):
@@ -85,7 +79,6 @@ def which(executable):
             exe_file = os.path.join(path, executable)
             if is_exe(exe_file):
                 return exe_file
-    return None
 
 
 def cexec(cmd, permit_nonzero=False, **kwargs):
@@ -113,28 +106,24 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
        Execution exited with non-zero return code
 
     """
-    logger.debug("Executing '%s'", " ".join(cmd))
+    executable = which(cmd[0])
+    if executable is None:
+        raise PyJobExecutableNotFoundError('Cannot find executable: %s' % cmd[0])
+    cmd[0] = executable
+
+    logger.debug('Executing "%s"', ' '.join(cmd))
 
     if os.name == 'nt':
-        _insert_or_ignore(kwargs, 'bufsize', 0)
-        _insert_or_ignore(kwargs, 'shell', 'False')
-    if 'directory' in kwargs:
-        warnings.warn('directory keywoard has been deprecated, use cwd instead', DeprecationWarning)
-        kwargs['cwd'] = kwargs['directory']
-        kwargs.pop('directory')
-    _insert_or_ignore(kwargs, 'cwd', os.getcwd())
-    _insert_or_ignore(kwargs, 'stdout', subprocess.PIPE)
-    _insert_or_ignore(kwargs, 'stderr', subprocess.STDOUT)
+        kwargs.setdefault('bufsize', 0)
+        kwargs.setdefault('shell', 'False')
+
+    kwargs.setdefault('cwd', os.getcwd())
+    kwargs.setdefault('stdout', subprocess.PIPE)
+    kwargs.setdefault('stderr', subprocess.STDOUT)
 
     stdinstr = kwargs.get('stdin', None)
     if stdinstr and isinstance(stdinstr, str):
         kwargs['stdin'] = subprocess.PIPE
-
-    executable = which(cmd[0])
-    if executable is None:
-        warnings.warn('executable not in PATH. provide absolute path to executable in future', DeprecationWarning)
-    #      raise PyJobExecutableNotFoundError('Cannot find executable: %s' % cmd[0])
-    #  cmd[0] = executable
 
     try:
         p = subprocess.Popen(cmd, **kwargs)
