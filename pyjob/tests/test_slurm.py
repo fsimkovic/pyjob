@@ -34,7 +34,7 @@ class TestCreateRunscript(object):
             '#SBATCH --export=ALL', '#SBATCH --job-name=pyjob', '#SBATCH -n 1', '#SBATCH --workdir=' + os.getcwd(),
             '#SBATCH --array=1-3%3', '#SBATCH -o {}'.format(logf),
             'script=$(awk "NR==$SLURM_ARRAY_TASK_ID" {})'.format(jobsf),
-            'log=$(echo $script | sed "s/\.${script##*.}/\.log/")', '$script > $log 2>&1'
+            'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")', '$script > $log 2>&1'
         ]
         with open(jobsf, 'r') as f_in:
             jobs = [l.strip() for l in f_in]
@@ -54,7 +54,7 @@ class TestCreateRunscript(object):
             '#SBATCH --export=ALL', '#SBATCH --job-name=pyjob', '#SBATCH -n 1', '#SBATCH --workdir=' + os.getcwd(),
             '#SBATCH --array=1-3%1', '#SBATCH -o {}'.format(logf),
             'script=$(awk "NR==$SLURM_ARRAY_TASK_ID" {})'.format(jobsf),
-            'log=$(echo $script | sed "s/\.${script##*.}/\.log/")', '$script > $log 2>&1'
+            'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")', '$script > $log 2>&1'
         ]
         with open(jobsf, 'r') as f_in:
             jobs = [l.strip() for l in f_in]
