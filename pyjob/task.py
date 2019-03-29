@@ -168,16 +168,16 @@ class Task(ABC):
         logger.debug('Started execution of %s [%d]', self.__class__.__name__, self.pid)
         self.lock()
 
-    def wait(self, interval=30, monitor_f=None, success_f=None, check_success=None, monitor=None):
+    def wait(self, interval=30, monitor_f=None, success_f=None):
         """Method to wait for the completion of the current :obj:`~pyjob.task.Task`
 
         Parameters
         ----------
         interval : int, optional
            The interval to wait between checking (in seconds)
-        monitor_f : func, optional
+        monitor_f : callable, optional
            A :obj:`callable` that is regularly invoked
-        success_f : func, optional
+        success_f : callable, optional
            A :obj:`callable` to check for early termination of :obj:`~pyjob.task.Task`
 
         Note
@@ -186,30 +186,26 @@ class Task(ABC):
         a :obj:`bool`.
 
         """
+        def is_successful_run(log):
+            return os.path.isfile(log) and success_f(log)
+
+        def is_callable_fn(fn):
+            return bool(fn and callable(fn))
+
+        check_success = is_callable_fn(success_f)
+        callback = monitor_f if is_callable_fn(monitor_f) else lambda: None
+
         if check_success:
-            warnings.warn('This keyword argument has been deprecated, use success_f instead', DeprecationWarning)
-            success_f = check_success
-
-        if monitor:
-            warnings.warn('This keyword argument has been deprecated, use monitor_f instead', DeprecationWarning)
-            monitor_f = monitor
-
-        def callable_checker(f):
-            return bool(f and callable(f))
-
-        do_check_success = callable_checker(success_f)
-        if do_check_success:
             msg = 'Checking for %s %d success with function %s'
             logger.debug(msg, self.__class__.__name__, self.pid, success_f.__name__)
-        do_monitor = callable_checker(monitor_f)
+
         while not self.completed:
-            if do_check_success:
+            if check_success:
                 for log in self.log:
-                    if os.path.isfile(log) and success_f(log):
+                    if is_successful_run(log):
                         logger.debug("%s %d succeeded, run log: %s", self.__class__.__name__, self.pid, log)
                         self.kill()
-            if do_monitor:
-                monitor_f()
+            callback()
             time.sleep(interval)
 
 
