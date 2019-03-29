@@ -150,21 +150,16 @@ class ScriptCollector(object):
            Unrecognised executable input
 
         """
-        if isinstance(script, Script):
+        if script is None:
+            return
+        elif isinstance(script, Script):
             self._container.append(script)
         elif isinstance(script, str):
             script = Script.read(script)
             self._container.append(script)
         elif isinstance(script, (list, tuple)):
             for s in script:
-                if isinstance(s, Script):
-                    self._container.append(s)
-                elif isinstance(s, str):
-                    self._container.append(Script.read(s))
-                else:
-                    raise PyJobError('Unrecognised executable input')
-        elif script is None:
-            pass
+                self._save_script(s)
         else:
             raise PyJobError('Unrecognised executable input')
 
