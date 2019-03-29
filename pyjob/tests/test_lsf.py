@@ -33,7 +33,7 @@ class TestCreateRunscript(object):
         assert runscript.content == [
             '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB -J pyjob[1-3]%3',
             '#BSUB -o {}'.format(logf), 'script=$(awk "NR==$(($LSB_JOBINDEX + 1))" {})'.format(jobsf),
-            'log=$(echo $script | sed "s/\.${script##*.}/\.log/")', '$script > $log 2>&1'
+            'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")', '$script > $log 2>&1'
         ]
         with open(jobsf, 'r') as f_in:
             jobs = [l.strip() for l in f_in]
@@ -52,7 +52,7 @@ class TestCreateRunscript(object):
         assert runscript.content == [
             '#BSUB -cwd ' + os.getcwd(), '#BSUB -R "span[ptile=1]"', '#BSUB -J pyjob[1-3]%1',
             '#BSUB -o {}'.format(logf), 'script=$(awk "NR==$(($LSB_JOBINDEX + 1))" {})'.format(jobsf),
-            'log=$(echo $script | sed "s/\.${script##*.}/\.log/")', '$script > $log 2>&1'
+            'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")', '$script > $log 2>&1'
         ]
         with open(jobsf, 'r') as f_in:
             jobs = [l.strip() for l in f_in]

@@ -33,7 +33,7 @@ class TestCreateRunscript(object):
         assert runscript.content == [
             '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(), '#$ -t 1-3 -tc 3',
             '#$ -o {}'.format(logf), 'script=$(awk "NR==$SGE_TASK_ID" {})'.format(jobsf),
-            "log=$(echo $script | sed \"s/\.${script##*.}/\.log/\")", '$script > $log 2>&1'
+            'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")', '$script > $log 2>&1'
         ]
         with open(jobsf, 'r') as f_in:
             jobs = [l.strip() for l in f_in]
@@ -52,7 +52,7 @@ class TestCreateRunscript(object):
         assert runscript.content == [
             '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(), '#$ -t 1-3 -tc 1',
             '#$ -o {}'.format(logf), 'script=$(awk "NR==$SGE_TASK_ID" {})'.format(jobsf),
-            "log=$(echo $script | sed \"s/\.${script##*.}/\.log/\")", '$script > $log 2>&1'
+            'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")', '$script > $log 2>&1'
         ]
         with open(jobsf, 'r') as f_in:
             jobs = [l.strip() for l in f_in]
