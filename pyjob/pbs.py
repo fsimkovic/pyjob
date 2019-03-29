@@ -35,8 +35,8 @@ from pyjob.task import ClusterTask
 
 logger = logging.getLogger(__name__)
 
-RE_LINE_SPLIT_1 = re.compile(":\\s+")
-RE_LINE_SPLIT_2 = re.compile("\\s+=\\s+")
+RE_LINE_SPLIT_1 = re.compile(r":\\s+")
+RE_LINE_SPLIT_2 = re.compile(r"\\s+=\\s+")
 
 
 class PortableBatchSystemTask(ClusterTask):
