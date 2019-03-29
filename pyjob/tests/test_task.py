@@ -158,7 +158,7 @@ class TestClusterTask(object):
         with open(fname, 'w') as f:
             pass
         assert task.get_array_bash_extension(fname, 0) == [
-            'script=$(awk "NR==$TEST" test.jobs)', 'log=$(echo $script | sed "s/\.${script##*.}/\.log/")',
+            'script=$(awk "NR==$TEST" test.jobs)', 'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")',
             '$script > $log 2>&1'
         ]
         pytest.helpers.unlink([fname])
@@ -169,7 +169,7 @@ class TestClusterTask(object):
         with open(fname, 'w') as f:
             pass
         assert task.get_array_bash_extension(fname, 1) == [
-            'script=$(awk "NR==$(($TEST + 1))" test.jobs)', 'log=$(echo $script | sed "s/\.${script##*.}/\.log/")',
+            'script=$(awk "NR==$(($TEST + 1))" test.jobs)', 'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")',
             '$script > $log 2>&1'
         ]
         pytest.helpers.unlink([fname])
