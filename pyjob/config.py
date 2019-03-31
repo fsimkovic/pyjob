@@ -48,6 +48,7 @@ class ImmutableDictMixin(object):
     def unlock(self):
         self._locked = False
 
+    @staticmethod
     def assert_lock(outer):
         def inner(*args, **kwargs):
             # Inside class args[0] == self
@@ -72,19 +73,16 @@ class PyJobConfig(UserDict, ImmutableDictMixin):
     if not os.path.isfile(file):
         open(file, 'w').close()
 
-    # Mask to make it available in namespace prior to object instantiation
-    assert_lock = ImmutableDictMixin.assert_lock
-
-    @assert_lock
+    @ImmutableDictMixin.assert_lock
     def __setitem__(self, key, value):
         super(PyJobConfig, self).__setitem__(key, value)
 
-    @assert_lock
+    @ImmutableDictMixin.assert_lock
     def setdefault(self, key, value=None):
         super(PyJobConfig, self).setdefault(key, value=value)
         self.write()
 
-    @assert_lock
+    @ImmutableDictMixin.assert_lock
     def update(self, *args, **kwargs):
         super(PyJobConfig, self).update(*args, **kwargs)
 
