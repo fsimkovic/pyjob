@@ -1,3 +1,12 @@
+**[0.4]**
+
+- Renamed `PyJobConfigLockedException` to `DictLockedError`
+- Reliability improvement for :func:`~pyjob.misc.typecast`
+- Test added for :obj:`~pyjob.torque.TorqueTask`
+- Remove `Job` and `Queue` classes in line with prior deprecation warnings
+- Remove `pyjob.platform` package in line with prior deprecation warnings
+- Remove `is_script`, `make_script`, `make_python_script`, `tmp_dir` and `tmp_file` functions in line with prior deprecation warnings
+
 **[0.3.1]**
 
 - Allow :obj:`~multiprocessing.Pool` processes to be set by default configuration file
