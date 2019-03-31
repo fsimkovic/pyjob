@@ -5,7 +5,7 @@ import pytest
 import sys
 
 from pyjob.config import PyJobConfig
-from pyjob.exception import PyJobConfigLockedException
+from pyjob.exception import DictLockedError
 
 if sys.version_info.major < 3:
     FileNotFoundError = IOError
@@ -74,7 +74,7 @@ cutoff: 1.0
         config['platform'] = 'sge'
         assert config['platform'] == 'sge'
         config.lock()
-        with pytest.raises(PyJobConfigLockedException):
+        with pytest.raises(DictLockedError):
             config['platform'] = 'local'
         config.unlock()
         config['platform'] = 'local'

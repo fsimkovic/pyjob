@@ -28,7 +28,7 @@ import os
 import sys
 import yaml
 
-from pyjob.exception import PyJobConfigLockedException
+from pyjob.exception import DictLockedError
 
 if sys.version_info.major < 3:
     FileNotFoundError = IOError
@@ -52,7 +52,7 @@ class ImmutableDictMixin(object):
         def inner(*args, **kwargs):
             # Inside class args[0] == self
             if args[0]._locked:
-                raise PyJobConfigLockedException('Dictionary locked, cannot override value')
+                raise DictLockedError('Dictionary locked, cannot override value')
             return outer(*args, **kwargs)
         return inner
 
