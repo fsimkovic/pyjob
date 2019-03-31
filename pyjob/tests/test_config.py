@@ -26,6 +26,11 @@ class TestPyJobConfig(object):
         config['platform'] = 'sge'
         assert config == {'platform': 'sge', 'processes': 2}
 
+    def test_4(self):
+        parameters = {'platform': 'local', 'processes': 2}
+        config = PyJobConfig(**parameters)
+        assert config == parameters
+
 
 class TestPyJobConfigWrite(object):
     def test_1(self):
