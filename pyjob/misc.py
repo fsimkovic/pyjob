@@ -173,14 +173,18 @@ def typecast(value):
     value : int, float, str, tuple, list
 
     """
-    if isinstance(value, (list, tuple)):
-        for i in range(len(value)):
-            value[i] = typecast(v)
+    if isinstance(value, (dict, list)):
+        iterator = range(len(value)) if isinstance(value, list) else value
+        for i in iterator:
+            value[i] = typecast(value[i])
     elif value == 'None':
         return None
+    elif value in ('False', 'True'):
+        return True if value == 'True' else False
     else:
         for type_fn in (int, float, str):
             try:
                 return type_fn(value)
             except ValueError:
                 pass
+    return value
