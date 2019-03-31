@@ -32,19 +32,22 @@ from pyjob.exception import PyJobConfigLockedException
 
 if sys.version_info.major < 3:
     FileNotFoundError = IOError
+    from UserDict import UserDict
+else:
+    from collections import UserDict
 
 logger = logging.getLogger(__name__)
 
 
-class ConfigMixin(object):
-    """Mixin for adding attributes to the config"""
+class PyJobConfig(UserDict):
+
     _locked = False
     _directory = os.path.expanduser('~/.pyjob')
     if not os.path.isdir(_directory):
         try:
             os.makedirs(_directory)
-        except OSError as exc:
-            if exc.errno == errno.EEXIST and os.path.isdir(_directory):
+        except OSError as e:
+            if e.errno == errno.EEXIST and os.path.isdir(_directory):
                 pass
             else:
                 raise RuntimeError('Cannot create configuration directory')
@@ -52,56 +55,29 @@ class ConfigMixin(object):
     if not os.path.isfile(file):
         open(file, 'w').close()
 
-
-class PyJobConfig(dict, ConfigMixin):
-    """Configuration container for PyJob"""
-
-    def __init__(self, **kwargs):
-        """Instantiate a new PyJob configuration class"""
-        self.update(kwargs)
-
     def __setitem__(self, key, value):
-        """Set a value for a given key"""
         if self._locked:
             raise PyJobConfigLockedException('Dictionary locked, cannot override value')
         super(PyJobConfig, self).__setitem__(key, value)
 
     def setdefault(self, key, value=None):
-        """Set the default value of a key in the configuration and save the config"""
         if self._locked:
             raise PyJobConfigLockedException('Dictionary locked, cannot override value')
-        if value is None:
-            logger.debug('Removing default value for %s', str(key))
-            self.pop(key)
-        else:
-            logger.debug('Setting default value for %s with %s', str(key), str(value))
-            self[key] = value
+        super(PyJobConfig, self).setdefault(key, value=value)
         self.write()
 
     def lock(self):
-        """Make the configuration immutable"""
         self._locked = True
 
     def unlock(self):
-        """Make the configuration mutable"""
         self._locked = False
 
     def update(self, *args, **kwargs):
-        """Update the configuration"""
         if self._locked:
             raise PyJobConfigLockedException('Dictionary locked, cannot override value')
-
-        if args:
-            if len(args) > 1:
-                raise ValueError('Update expected at most 1 arguments')
-            other = dict(args[0])
-            for key in other:
-                self[key] = other[key]
-        for key in kwargs:
-            self[key] = kwargs[key]
+        super(PyJobConfig, self).update(*args, **kwargs)
 
     def write(self):
-        """Write the current configuration to a YAML file"""
         data = yaml.dump(dict(self), default_flow_style=False)
         with open(self.file, 'w') as f:
             f.write(data)
