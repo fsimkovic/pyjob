@@ -39,9 +39,26 @@ else:
 logger = logging.getLogger(__name__)
 
 
-class PyJobConfig(UserDict):
-
+class ImmutableDictMixin(object):
     _locked = False
+
+    def lock(self):
+        self._locked = True
+
+    def unlock(self):
+        self._locked = False
+
+    def assert_lock(outer):
+        def inner(*args, **kwargs):
+            # Inside class args[0] == self
+            if args[0]._locked:
+                raise PyJobConfigLockedException('Dictionary locked, cannot override value')
+            return outer(*args, **kwargs)
+        return inner
+
+
+class PyJobConfig(UserDict, ImmutableDictMixin):
+
     _directory = os.path.expanduser('~/.pyjob')
     if not os.path.isdir(_directory):
         try:
@@ -55,26 +72,20 @@ class PyJobConfig(UserDict):
     if not os.path.isfile(file):
         open(file, 'w').close()
 
+    # Mask to make it available in namespace prior to object instantiation
+    assert_lock = ImmutableDictMixin.assert_lock
+
+    @assert_lock
     def __setitem__(self, key, value):
-        if self._locked:
-            raise PyJobConfigLockedException('Dictionary locked, cannot override value')
         super(PyJobConfig, self).__setitem__(key, value)
 
+    @assert_lock
     def setdefault(self, key, value=None):
-        if self._locked:
-            raise PyJobConfigLockedException('Dictionary locked, cannot override value')
         super(PyJobConfig, self).setdefault(key, value=value)
         self.write()
 
-    def lock(self):
-        self._locked = True
-
-    def unlock(self):
-        self._locked = False
-
+    @assert_lock
     def update(self, *args, **kwargs):
-        if self._locked:
-            raise PyJobConfigLockedException('Dictionary locked, cannot override value')
         super(PyJobConfig, self).update(*args, **kwargs)
 
     def write(self):
