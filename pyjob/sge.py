@@ -110,7 +110,7 @@ class SunGridEngineTask(ClusterTask):
             cmd = '-S {}'.format(self.shell)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.nprocesses:
-            cmd = '-pe mpi {}'.format(self.nprocesses)
+            cmd = '-pe {} {}'.format(self.environment, self.nprocesses)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.directory:
             cmd = '-wd {}'.format(self.directory)

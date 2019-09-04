@@ -89,6 +89,9 @@ class SlurmTask(ClusterTask):
         if self.directory:
             cmd = '--workdir={}'.format(self.directory)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+        if self.runtime:
+            cmd = '-t {}'.format(self.runtime)
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.extra:
             cmd = ' '.join(map(str, self.extra))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
