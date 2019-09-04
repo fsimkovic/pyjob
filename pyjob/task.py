@@ -220,7 +220,7 @@ class ClusterTask(Task):
         self.priority = kwargs.get('priority', None)
         self.queue = kwargs.get('queue') or config.get('queue')
         self.environment = kwargs.get('environment') or config.get('environment') or 'mpi'
-        self.runtime = kwargs.get('runtime') or config.get('runtime') or '24:00:00'
+        self.runtime = kwargs.get('runtime') or config.get('runtime') or 1440
         self.shell = kwargs.get('shell') or config.get('shell')
         self.name = kwargs.get('name') or config.get('name') or 'pyjob'
         self.extra = kwargs.get('extra', [])

@@ -104,7 +104,9 @@ class SunGridEngineTask(ClusterTask):
             cmd = '-q {}'.format(self.queue)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.runtime:
-            cmd = '-l h_rt={}'.format(self.runtime)
+            h, m = divmod(self.runtime, 60)
+            m, s = divmod(m, 60)
+            cmd = '-l h_rt={}:{}:{}'.format(h, m, s)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.shell:
             cmd = '-S {}'.format(self.shell)
