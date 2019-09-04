@@ -103,9 +103,7 @@ class LoadSharingFacilityTask(ClusterTask):
             cmd = '-q {}'.format(self.queue)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.runtime:
-            h, m = divmod(self.runtime, 60)
-            m, s = divmod(m, 60)
-            cmd = '-W {0:02d}:{1:02d}:{2:02d}'.format(h, m, s)
+            cmd = '-W {}'.format(self.runtime)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.shell:
             cmd = '-L {}'.format(self.shell)
