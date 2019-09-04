@@ -92,7 +92,7 @@ class SlurmTask(ClusterTask):
         if self.runtime:
             h, m = divmod(self.runtime, 60)
             m, s = divmod(m, 60)
-            cmd = '-t {}:{}:{}'.format(h, m, s)
+            cmd = '-t {0:02d}:{1:02d}:{2:02d}'.format(h, m, s)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.extra:
             cmd = ' '.join(map(str, self.extra))
