@@ -130,6 +130,27 @@ class Task(ABC):
         """The script file path"""
         return [script.path for script in self.script_collector]
 
+    @staticmethod
+    def get_time(minutes):
+        """Return runtime string with format hh:mm:ss to be used in :obj:`~pyjob.task.Task`
+
+        Parameters
+        ----------
+        minutes : int
+           Integer with the number of minutes to allocate to runtime
+
+        Raises
+        ------
+        :exc:`~pyjob.exception.PyJobError`
+           Argument is not a positive integer
+        """
+        if isinstance(minutes, int) and minutes > 0:
+            h, m = divmod(minutes, 60)
+            m, s = divmod(m, 60)
+            return '{0:02d}:{1:02d}:{2:02d}'.format(h, m, s)
+        else:
+            raise PyJobError('Task runtime has to be a positive integer!')
+
     def add_script(self, script):
         """Add further scripts to this :obj:`~pyjob.task.Task`
 
