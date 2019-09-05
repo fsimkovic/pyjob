@@ -166,7 +166,6 @@ class TestTask(object):
         assert task.log == []
 
 
-
 @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
 class TestClusterTask(object):
     def test_get_array_bash_extension_1(self):
