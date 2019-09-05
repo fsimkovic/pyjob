@@ -146,8 +146,7 @@ class Task(ABC):
         """
         if isinstance(minutes, int) and minutes > 0:
             h, m = divmod(minutes, 60)
-            m, s = divmod(m, 60)
-            return '{0:02d}:{1:02d}:{2:02d}'.format(h, m, s)
+            return '{0:02d}:{1:02d}:00'.format(h, m)
         else:
             raise PyJobError('Task runtime has to be a positive integer!')
 
