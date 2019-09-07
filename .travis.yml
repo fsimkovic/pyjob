@@ -11,7 +11,8 @@ python:
 
 matrix:
   include:
-    - os: osx
+    - name: "Python 3"
+      os: osx
       language: generic
       before_install:
         brew update;
