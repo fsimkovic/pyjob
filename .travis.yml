@@ -1,50 +1,27 @@
 language: python
 
-dist: xenial
+os:
+  - linux
+  - osx
 
-matrix:
-  include:
-    - python: 2.7
-    - python: 3.5
-    - python: 3.6
-    - os: osx
-      language: generic
-      only: master 
+python:
+  - "2.7"
+  - "3.5"
+  - "3.6"
+  - "2.7"
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew update;
-      brew install wget;
-      MINICONDA_LCN_2="https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh";
-      MINICONDA_LCN_3="https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh";
-    else
-      sudo apt-get update;
-      MINICONDA_LCN_2="https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh";
-      MINICONDA_LCN_3="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh";
-    fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
 
 install:
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget $MINICONDA_LCN_2 -O miniconda.sh;
-    else
-      wget $MINICONDA_LCN_3 -O miniconda.sh;
-    fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes true 
-  - conda update --all
-  - conda config --set show_channel_urls yes
-  - conda config --prepend channels conda-forge
-  - conda info -a
-
-  # Take these dependencies since their installation order can cause problems at times :/
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-  - source activate test-environment
-  - pip install codecov coverage
+  - virtualenv /tmp/test-env
+  - /tmp/test-env/bin/python -VV
+  - /tmp/test-env/bin/pip install codecov coverage
+  - /tmp/test-env/bin/python setup.py install
 
 script:
-  - python setup.py test
+  - /tmp/test-env/bin/python setup.py test
 
 after_success:
   - codecov 
+
