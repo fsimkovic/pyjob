@@ -3,12 +3,13 @@ language: python
 os:
   - linux
   - osx
+  - windows
 
 python:
   - "2.7"
   - "3.5"
   - "3.6"
-  - "2.7"
+  - "3.7"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
