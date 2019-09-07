@@ -12,18 +12,12 @@ python:
 matrix:
   include:
     - os: osx
-      osx_image: xcode11
-      language: shell
-
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew update;
-      brew unlink pyenv;
-      brew install pyenv;
-      pyenv install $TRAVIS_PYTHON_VERSION;
-      pyenv global $TRAVIS_PYTHON_VERSION;
-      pip install --upgrade pip;
-    fi
+      language: generic
+      before_install:
+        brew update;
+        brew install python3;
+        pip3 install --upgrade pip;
+        pip3 install virtualenv;
 
 install:
   - virtualenv /tmp/test-env
