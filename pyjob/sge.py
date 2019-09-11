@@ -80,7 +80,7 @@ class SunGridEngineTask(ClusterTask):
         """Method to initialise :obj:`~pyjob.sge.SunGridEngineTask` execution"""
         runscript = self._create_runscript()
         runscript.write()
-        stdout = cexec(['qsub', runscript.path], directory=self.directory)
+        stdout = cexec(['qsub', runscript.path], cwd=self.directory)
         if len(self.script) > 1:
             self.pid = int(stdout.split()[2].split(".")[0])
         else:

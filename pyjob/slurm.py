@@ -68,7 +68,7 @@ class SlurmTask(ClusterTask):
         """Method to initialise :obj:`~pyjob.slurm.SlurmTask` execution"""
         runscript = self._create_runscript()
         runscript.write()
-        stdout = cexec(['sbatch', runscript.path], directory=self.directory)
+        stdout = cexec(['sbatch', runscript.path], cwd=self.directory)
         self.pid = int(stdout.strip().split()[-1])
         logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
 
