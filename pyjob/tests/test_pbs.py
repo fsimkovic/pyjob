@@ -120,7 +120,7 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#PBS -V', '#PBS -N pyjob', '#PBS -w ' + os.getcwd(), '#PBS -l walltime=2:0:0', '#PBS -n 1',
+            '#PBS -V', '#PBS -N pyjob', '#PBS -w ' + os.getcwd(), '#PBS -l walltime=02:00:00', '#PBS -n 1',
             '#PBS -o ' + paths[0].replace('.py', '.log'), '#PBS -e ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)

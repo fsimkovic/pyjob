@@ -83,7 +83,7 @@ class PortableBatchSystemTask(ClusterTask):
         """Method to initialise :obj:`~pyjob.pbs.PortableBatchSystemTask` execution"""
         runscript = self._create_runscript()
         runscript.write()
-        self.pid = cexec(['qsub', runscript.path], directory=self.directory)
+        self.pid = cexec(['qsub', runscript.path], cwd=self.directory)
         logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
 
     def _create_runscript(self):
@@ -101,9 +101,7 @@ class PortableBatchSystemTask(ClusterTask):
             cmd = '-q {}'.format(self.queue)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.runtime:
-            h, m = divmod(self.runtime, 60)
-            m, s = divmod(m, 60)
-            cmd = '-l walltime={}:{}:{}'.format(h, m, s)
+            cmd = '-l walltime={}'.format(self.get_time(self.runtime))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.shell:
             cmd = '-S {}'.format(self.shell)

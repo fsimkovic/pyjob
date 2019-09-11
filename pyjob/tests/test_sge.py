@@ -133,8 +133,8 @@ class TestCreateRunscript(object):
         runscript = task._create_runscript()
         assert runscript.shebang == '#!/bin/bash'
         assert runscript.content == [
-            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -l h_rt=120', '#$ -pe mpi 1', '#$ -wd ' + os.getcwd(),
-            '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
+            '#$ -V', '#$ -w e', '#$ -j yes', '#$ -N pyjob', '#$ -l h_rt=02:00:00', '#$ -pe mpi 1',
+            '#$ -wd ' + os.getcwd(), '#$ -o ' + paths[0].replace('.py', '.log'), paths[0]
         ]
         pytest.helpers.unlink(paths)
 

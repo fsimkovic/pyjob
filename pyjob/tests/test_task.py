@@ -149,6 +149,22 @@ class TestTask(object):
             task.add_script(pytest.helpers.get_py_script(1, 1))
         assert len(task.script_collector) == 1
 
+    def test_15(self):
+        task = MockTask(None)
+        assert task.get_time(1440) == "24:00:00"
+        assert task.get_time(1470) == "24:30:00"
+        assert task.get_time(120) == "02:00:00"
+        assert task.get_time(150) == "02:30:00"
+        with pytest.raises(PyJobError):
+            task.get_time(0)
+        assert task.pid is None
+        assert not task.completed
+        assert task.nprocesses == 1
+        assert task.script == []
+        assert not task.locked
+        assert task.info == {}
+        assert task.log == []
+
 
 @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
 class TestClusterTask(object):

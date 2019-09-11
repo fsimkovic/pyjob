@@ -83,7 +83,7 @@ class LoadSharingFacilityTask(ClusterTask):
         """Method to initialise :obj:`~pyjob.lsf.LoadSharingFacilityTask` execution"""
         runscript = self._create_runscript()
         runscript.write()
-        stdout = cexec(['bsub'], stdin=str(runscript), directory=self.directory)
+        stdout = cexec(['bsub'], stdin=str(runscript), cwd=self.directory)
         self.pid = int(stdout.split()[1][1:-1])
         logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
 

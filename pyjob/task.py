@@ -130,6 +130,26 @@ class Task(ABC):
         """The script file path"""
         return [script.path for script in self.script_collector]
 
+    @staticmethod
+    def get_time(minutes):
+        """Return runtime string with format hh:mm:ss to be used in :obj:`~pyjob.task.Task`
+
+        Parameters
+        ----------
+        minutes : int
+           Integer with the number of minutes to allocate to runtime
+
+        Raises
+        ------
+        :exc:`~pyjob.exception.PyJobError`
+           Argument is not a positive integer
+        """
+        if isinstance(minutes, int) and minutes > 0:
+            h, m = divmod(minutes, 60)
+            return '{0:02d}:{1:02d}:00'.format(h, m)
+        else:
+            raise PyJobError('Task runtime has to be a positive integer!')
+
     def add_script(self, script):
         """Add further scripts to this :obj:`~pyjob.task.Task`
 
@@ -219,6 +239,7 @@ class ClusterTask(Task):
         self.max_array_size = kwargs.get('max_array_size') or config.get('max_array_size') or len(self.script)
         self.priority = kwargs.get('priority', None)
         self.queue = kwargs.get('queue') or config.get('queue')
+        self.environment = kwargs.get('environment') or config.get('environment') or 'mpi'
         self.runtime = kwargs.get('runtime') or config.get('runtime')
         self.shell = kwargs.get('shell') or config.get('shell')
         self.name = kwargs.get('name') or config.get('name') or 'pyjob'
