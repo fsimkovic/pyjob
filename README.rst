@@ -42,4 +42,6 @@ Installation
    $ python setup.py install
 
 .. CHECKPOINT FOR READTHEDOCS 
+
 For further details about PyJob, we'd suggest you head over to the `official documentation <http://pyjob.readthedocs.io/en/latest/>`_.
+

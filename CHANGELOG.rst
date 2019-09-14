@@ -1,3 +1,7 @@
+**[0.4.1]**
+
+- Bug fixes & maintenance
+
 **[0.4]**
 
 - Renamed `PyJobConfigLockedException` to `DictLockedError`

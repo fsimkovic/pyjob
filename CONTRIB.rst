@@ -2,3 +2,4 @@
 - `Jens Thomas <https://github.com/linucks>`_
 - `Ronan Keegan <https://github.com/rmk65>`_
 - `Felix Simkovic <https://github.com/fsimkovic>`_
+- `Filomeno Sanchez <https://github.com/FilomenoSanchez>`_

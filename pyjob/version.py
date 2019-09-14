@@ -20,13 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """Module to contain PyJob version"""
-
 __author__ = 'Felix Simkovic'
-
-# Maintain sematantic versioning. Further information can
-# be found here [http://semver.org/]
-__version_info__ = (0, 4, 0)
-
-# ======================================================
-# Do __NOT__ change anything below here
+__version_info__ = (0, 4, 1)
 __version__ = '.'.join(str(v) for v in __version_info__)
