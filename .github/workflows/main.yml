@@ -20,8 +20,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install virtualenv
         virtualenv test-environment
-        source activate test-environment
+        source test-environment/bin/activate
     - name: Run tests
       run: python setup.py test
-    - name: Upload coverage
-      run: codecov
