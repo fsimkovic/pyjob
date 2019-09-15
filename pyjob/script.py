@@ -36,6 +36,7 @@ from pyjob.pool import Pool
 @enum.unique
 class ScriptProperty(enum.Enum):
     """Enumeration for :obj:`~pyjob.script.Script`-specific properties"""
+
     # Tried to extend Enum but operation not allowed in Python3.7
     # https://docs.python.org/3/library/enum.html#restricted-subclassing-of-enumerations
     if sys.platform.startswith('win'):
@@ -179,12 +180,14 @@ class Script(list):
 
     """
 
-    def __init__(self,
-                 shebang=ScriptProperty.SHELL.shebang,
-                 directory='.',
-                 prefix='tmp',
-                 stem='pyjob',
-                 suffix=ScriptProperty.SHELL.suffix):
+    def __init__(
+        self,
+        shebang=ScriptProperty.SHELL.shebang,
+        directory='.',
+        prefix='tmp',
+        stem='pyjob',
+        suffix=ScriptProperty.SHELL.suffix,
+    ):
         """Instantiate a new :obj:`~pyjob.script.Script`
 
         Parameters

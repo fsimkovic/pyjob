@@ -103,7 +103,8 @@ class LocalTask(Task):
                 self.kill_switch,
                 directory=self.directory,
                 chdir=self.chdir,
-                permit_nonzero=self.permit_nonzero)
+                permit_nonzero=self.permit_nonzero,
+            )
             proc.start()
             self.processes.append(proc)
         for script in self.script:

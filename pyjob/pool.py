@@ -41,6 +41,7 @@ class Pool(multiprocessing.pool.Pool):
     ...     pool.map(<func>, <iterable>)
 
     """
+
     def __init__(self, *args, **kwargs):
         processes = kwargs.pop('processes') or config.get('processes') or None
         super(Pool, self).__init__(processes=processes, *args, **kwargs)

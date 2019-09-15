@@ -190,7 +190,8 @@ class TestScriptRead(object):
     @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
     def test_read_7(self):
         fh = tempfile.NamedTemporaryFile(
-            mode='w', dir='.', delete=True, prefix='pyjob', suffix=ScriptProperty.SHELL.suffix)
+            mode='w', dir='.', delete=True, prefix='pyjob', suffix=ScriptProperty.SHELL.suffix
+        )
         script = Script.read(fh.name)
         fh.close()
         assert script.directory == os.getcwd()

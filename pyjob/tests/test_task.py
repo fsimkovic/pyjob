@@ -171,22 +171,22 @@ class TestClusterTask(object):
     def test_get_array_bash_extension_1(self):
         task = MockClusterTask(None)
         fname = 'test.jobs'
-        with open(fname, 'w') as f:
-            pass
+        open(fname, 'w')
         assert task.get_array_bash_extension(fname, 0) == [
-            'script=$(awk "NR==$TEST" test.jobs)', 'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")',
-            '$script > $log 2>&1'
+            'script=$(awk "NR==$TEST" test.jobs)',
+            'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")',
+            '$script > $log 2>&1',
         ]
         pytest.helpers.unlink([fname])
 
     def test_get_array_bash_extension_2(self):
         task = MockClusterTask(None)
         fname = 'test.jobs'
-        with open(fname, 'w') as f:
-            pass
+        open(fname, 'w')
         assert task.get_array_bash_extension(fname, 1) == [
-            'script=$(awk "NR==$(($TEST + 1))" test.jobs)', 'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")',
-            '$script > $log 2>&1'
+            'script=$(awk "NR==$(($TEST + 1))" test.jobs)',
+            'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")',
+            '$script > $log 2>&1',
         ]
         pytest.helpers.unlink([fname])
 
@@ -203,8 +203,7 @@ class TestClusterTask(object):
     def test_get_array_bash_extension_5(self):
         task = MockClusterTask(None)
         fname = 'test.jobs'
-        with open(fname, 'w') as f:
-            pass
+        open(fname, 'w')
         with pytest.raises(ValueError):
             task.get_array_bash_extension(fname, -1)
         pytest.helpers.unlink([fname])

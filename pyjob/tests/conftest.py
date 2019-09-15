@@ -9,6 +9,7 @@ import sys
 
 # reset the configuration file to avoid potential collusion
 import pyjob
+
 pyjob.config = {}
 
 from pyjob.script import Script
@@ -32,10 +33,16 @@ def fibonacci(n):
 
 @pytest.helpers.register
 def get_py_script(i, target):
-    script = Script(shebang='#!/usr/bin/env python', prefix='pyjob', stem='test{}'.format(i), suffix='.py')
+    script = Script(shebang='#!{}'.format(sys.executable), prefix='pyjob', stem='test{}'.format(i), suffix='.py')
     script.extend(inspect.getsource(fibonacci).splitlines())
-    script.pop(0)  # Decorator
-    script.append("n = {}; print('%dth fib is: %d' % (n, {}(n)))".format(target, 'fibonacci'))
+    script.pop(0)  # remove decorator
+    script.extend(
+        [
+            "if __name__ == '__main__':",
+            '\ttarget = {}'.format(target),
+            "\tprint('{}th fib is: {}'.format(target, fibonacci(target)))",
+        ]
+    )
     return script
 
 
