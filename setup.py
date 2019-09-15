@@ -62,16 +62,14 @@ CLASSIFIERS = [
 ]
 
 ENTRY_POINTS = {'console_scripts': ['pyjob = pyjob.__main__:main']}
-SETUP_REQUIRES = ['pytest-runner ==5.1', 'configparser>=3.5;python_version<"3"']
+SETUP_REQUIRES = ['pytest-runner']
 TESTS_REQUIRE = [
-    'codecov ==2.0.15',
-    'coverage ==4.5.4',
-    'importlib-metadata ==0.20;python_version<"3"',
-    'pluggy ==0.12;python_version<"3"',
-    'pytest ==4.6.5',
-    'pytest-cov ==2.7.1',
-    'pytest-pep8 ==1.0.6',
-    'pytest-helpers-namespace ==2019.1.8',
+    'codecov',
+    'coverage',
+    'pytest',
+    'pytest-cov',
+    'pytest-pep8',
+    'pytest-helpers-namespace',
 ]
 
 setup(

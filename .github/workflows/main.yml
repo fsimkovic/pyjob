@@ -34,7 +34,7 @@ jobs:
       run: |
         pip install --user --upgrade pip
         pip install --user -r requirements.txt
-        pip install --user pytest pytest-cov
+        pip install --user codecov coverage pytest pytest-cov pytest-pep8 pytest-helpers-namespace
     - name: Generate coverage report
       run: |
         pytest --cov=./ --cov-report=xml
