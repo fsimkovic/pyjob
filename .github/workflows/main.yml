@@ -18,7 +18,7 @@ jobs:
         version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install --upgrade pip
+        pip install --user --upgrade pip
     - name: Run tests
       run: python setup.py test
   
@@ -32,9 +32,9 @@ jobs:
         version: 3.6
     - name: Install dependencies
       run: |
-        pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov
+        pip install --user --upgrade pip
+        pip install --user -r requirements.txt
+        pip install --user pytest pytest-cov
     - name: Generate coverage report
       run: |
         pytest --cov=./ --cov-report=xml
