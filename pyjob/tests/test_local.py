@@ -61,7 +61,7 @@ class TestLocalTaskTermination(object):
         pytest.helpers.unlink(task.script[:4] + task.log)
 
     def test_terminate_6(self):
-        scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(100)]
+        scripts = [pytest.helpers.get_py_script(i, 50000) for i in range(100)]
         with LocalTask(scripts, processes=CPU_COUNT) as task:
             task.run()
             time.sleep(1)
