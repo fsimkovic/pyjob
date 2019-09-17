@@ -55,6 +55,7 @@ class ImmutableDictMixin(object):
             if args[0]._locked:
                 raise DictLockedError('Dictionary locked, cannot override value')
             return outer(*args, **kwargs)
+
         return inner
 
 

@@ -16,27 +16,28 @@ class TestLocalTaskTermination(object):
         task = LocalTask(scripts, processes=CPU_COUNT)
         task.run()
         task.wait()
-        for f in task.log:
-            assert os.path.isfile(f)
+        all_found = all(os.path.isfile(f) for f in task.log)
         pytest.helpers.unlink(task.script + task.log)
+        assert all_found
 
     def test_terminate_2(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
         task = LocalTask(scripts, processes=CPU_COUNT)
         task.run()
         task.close()
-        for f in task.log:
-            assert os.path.isfile(f)
+        all_found = all(os.path.isfile(f) for f in task.log)
         pytest.helpers.unlink(task.script + task.log)
+        assert all_found
 
     def test_terminate_3(self):
         scripts = [pytest.helpers.get_py_script(i, 1000000) for i in range(4)]
         task = LocalTask(scripts, processes=min(CPU_COUNT, 2))
         task.run()
-        assert not all(os.path.isfile(f) for f in task.log)
+        not_all_found = not all(os.path.isfile(f) for f in task.log)
         task.close()
-        assert all(os.path.isfile(f) for f in task.log)
+        all_found = all(os.path.isfile(f) for f in task.log)
         pytest.helpers.unlink(task.script + task.log)
+        assert not_all_found and all_found
 
     def test_terminate_4(self):
         scripts = [pytest.helpers.get_py_script(i, 1000000) for i in range(5)]
@@ -60,15 +61,17 @@ class TestLocalTaskTermination(object):
         pytest.helpers.unlink(task.script[:4] + task.log)
 
     def test_terminate_6(self):
-        scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(100)]
+        scripts = [pytest.helpers.get_py_script(i, 50000) for i in range(100)]
         with LocalTask(scripts, processes=CPU_COUNT) as task:
             task.run()
             time.sleep(1)
             task.kill()
-        assert all(os.path.isfile(path) for path in task.script)
-        assert any(os.path.isfile(log) for log in task.log)
-        assert not all(os.path.isfile(log) for log in task.log)
+        all_scripts_found = all(os.path.isfile(path) for path in task.script)
+        some_logs_found = any(os.path.isfile(log) for log in task.log) and not all(
+            os.path.isfile(log) for log in task.log
+        )
         pytest.helpers.unlink(task.script + task.log)
+        assert all_scripts_found and some_logs_found
 
     def test_terminate_7(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(10000)]
@@ -76,21 +79,23 @@ class TestLocalTaskTermination(object):
             task.run()
             time.sleep(5)
             task.kill()
-        assert all(os.path.isfile(path) for path in task.script)
-        assert any(os.path.isfile(log) for log in task.log)
-        assert not all(os.path.isfile(log) for log in task.log)
+        all_scripts_found = all(os.path.isfile(path) for path in task.script)
+        some_logs_found = any(os.path.isfile(log) for log in task.log) and not all(
+            os.path.isfile(log) for log in task.log
+        )
         pytest.helpers.unlink(task.script + task.log)
+        assert all_scripts_found and some_logs_found
 
     def test_terminate_8(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
         task = LocalTask(scripts, processes=CPU_COUNT)
         task.run()
         task.wait()
-        for f in task.log:
-            assert os.path.isfile(f)
+        all_found = all(os.path.isfile(f) for f in task.log)
         with pytest.raises(PyJobTaskLockedError):
             task.run()
         pytest.helpers.unlink(task.script + task.log)
+        assert all_found
 
     def test_terminate_9(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
@@ -99,9 +104,9 @@ class TestLocalTaskTermination(object):
         with pytest.raises(PyJobTaskLockedError):
             task.run()
         task.wait()
-        for f in task.log:
-            assert os.path.isfile(f)
+        all_found = all(os.path.isfile(f) for f in task.log)
         pytest.helpers.unlink(task.script + task.log)
+        assert all_found
 
 
 @pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
@@ -110,26 +115,30 @@ class TestLocalPerformance(object):
         scripts = [pytest.helpers.get_py_script(i, 1000) for i in range(4)]
         with LocalTask(scripts, processes=CPU_COUNT) as task:
             task.run()
-        assert all(os.path.isfile(f) for f in task.log)
+        all_found = all(os.path.isfile(f) for f in task.log)
         pytest.helpers.unlink(task.script + task.log)
+        assert all_found
 
     def test_performance_2(self):
         scripts = [pytest.helpers.get_py_script(i, 1000) for i in range(16)]
         with LocalTask(scripts, processes=CPU_COUNT) as task:
             task.run()
-        assert all(os.path.isfile(f) for f in task.log)
+        all_found = all(os.path.isfile(f) for f in task.log)
         pytest.helpers.unlink(task.script + task.log)
+        assert all_found
 
     def test_performance_3(self):
         scripts = [pytest.helpers.get_py_script(i, 1000) for i in range(32)]
         with LocalTask(scripts, processes=CPU_COUNT) as task:
             task.run()
-        assert all(os.path.isfile(f) for f in task.log)
+        all_found = all(os.path.isfile(f) for f in task.log)
         pytest.helpers.unlink(task.script + task.log)
+        assert all_found
 
     def test_performance_4(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(64)]
         with LocalTask(scripts, processes=CPU_COUNT) as task:
             task.run()
-        assert all(os.path.isfile(f) for f in task.log)
+        all_found = all(os.path.isfile(f) for f in task.log)
         pytest.helpers.unlink(task.script + task.log)
+        assert all_found

@@ -33,7 +33,7 @@ from pyjob import config
 from pyjob.exception import PyJobError, PyJobTaskLockedError
 from pyjob.script import ScriptCollector, is_valid_script_path
 
-ABC = abc.ABCMeta('ABC', (object, ), {})
+ABC = abc.ABCMeta('ABC', (object,), {})
 logger = logging.getLogger(__name__)
 
 
@@ -94,22 +94,22 @@ class Task(ABC):
     # ------------------ Abstract methods and properties ------------------
 
     @abc.abstractproperty
-    def info(self):    # pragma: no cover
+    def info(self):  # pragma: no cover
         """Abstract property to provide info about the :obj:`~pyjob.task.Task`"""
         pass
 
     @abc.abstractmethod
-    def close(self):    # pragma: no cover
+    def close(self):  # pragma: no cover
         """Abstract method to end :obj:`~pyjob.task.Task`"""
         pass
 
     @abc.abstractmethod
-    def kill(self):    # pragma: no cover
+    def kill(self):  # pragma: no cover
         """Abstract method to forcefully terminate :obj:`~pyjob.task.Task`"""
         pass
 
     @abc.abstractmethod
-    def _run(self):    # pragma: no cover
+    def _run(self):  # pragma: no cover
         """Abstract property to start execution of the :obj:`~pyjob.task.Task`"""
         pass
 
@@ -206,6 +206,7 @@ class Task(ABC):
         a :obj:`bool`.
 
         """
+
         def is_successful_run(log):
             return os.path.isfile(log) and success_f(log)
 
