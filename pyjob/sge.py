@@ -26,6 +26,7 @@ __version__ = '1.0'
 import logging
 import re
 import uuid
+import warnings
 
 from pyjob.cexec import cexec
 from pyjob.exception import PyJobExecutableNotFoundError
@@ -64,6 +65,22 @@ class SunGridEngineTask(ClusterTask):
                 if len(kv) == 2:
                     data[kv[0]] = kv[1]
         return data
+
+    @property
+    def available_environments(self):
+        """:obj:`~pyjob.sge.SunGridEngineTask` available set of environments information"""
+        try:
+            stdout = cexec(["qconf", "-spl"], permit_nonzero=True)
+        except PyJobExecutableNotFoundError:
+            return []
+        environments = []
+        for line in stdout.splitlines():
+            line = line.split()
+            if len(line) > 1:
+                return environments
+            else:
+                environments.append(line[0].encode('utf-8'))
+        return environments
 
     def close(self):
         """Close this :obj:`~pyjob.sge.SunGridEngineTask` after completion"""
@@ -110,8 +127,12 @@ class SunGridEngineTask(ClusterTask):
             cmd = '-S {}'.format(self.shell)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.nprocesses:
-            cmd = '-pe {} {}'.format(self.environment, self.nprocesses)
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+            if self.environment in self.available_environments:
+                cmd = '-pe {} {}'.format(self.environment, self.nprocesses)
+                runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
+            else:
+                warnings.warn("Environment {} is not available, -pe card cannot be set.".format(self.environment))
+                warnings.warn("List of available environments: [ {} ]".format(", ".join(self.available_environments)))
         if self.directory:
             cmd = '-wd {}'.format(self.directory)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
