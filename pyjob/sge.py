@@ -130,8 +130,8 @@ class SunGridEngineTask(ClusterTask):
                 cmd = '-pe {} {}'.format(self.environment, self.nprocesses)
                 runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             else:
-                logging.warning("Environment {} is not available, -pe card cannot be set.".format(self.environment))
-                logging.warning("List of available environments: [ {} ]".format(", ".join(self.available_environments)))
+                logger.warning("Environment {} is not available, -pe card cannot be set.".format(self.environment))
+                logger.warning("List of available environments: [ {} ]".format(", ".join(self.available_environments)))
         if self.directory:
             cmd = '-wd {}'.format(self.directory)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
