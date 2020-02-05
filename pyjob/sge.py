@@ -26,7 +26,6 @@ __version__ = '1.0'
 import logging
 import re
 import uuid
-import warnings
 
 from pyjob.cexec import cexec
 from pyjob.exception import PyJobExecutableNotFoundError
@@ -131,8 +130,8 @@ class SunGridEngineTask(ClusterTask):
                 cmd = '-pe {} {}'.format(self.environment, self.nprocesses)
                 runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
             else:
-                warnings.warn("Environment {} is not available, -pe card cannot be set.".format(self.environment))
-                warnings.warn("List of available environments: [ {} ]".format(", ".join(self.available_environments)))
+                logging.warning("Environment {} is not available, -pe card cannot be set.".format(self.environment))
+                logging.warning("List of available environments: [ {} ]".format(", ".join(self.available_environments)))
         if self.directory:
             cmd = '-wd {}'.format(self.directory)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
