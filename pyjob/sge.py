@@ -97,10 +97,13 @@ class SunGridEngineTask(ClusterTask):
         runscript = self._create_runscript()
         runscript.write()
         stdout = cexec(['qsub', runscript.path], cwd=self.directory)
-        if len(self.script) > 1:
-            self.pid = int(stdout.split()[2].split(".")[0])
-        else:
-            self.pid = int(stdout.split()[2])
+        for line in stdout.split('\n'):
+            line = line.strip()
+            if 'Your job' in line and 'has been submitted' in line:
+                if len(self.script) > 1:
+                    self.pid = int(line.split()[2].split(".")[0])
+                else:
+                    self.pid = int(line.split()[2])
         logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
 
     def _create_runscript(self):
