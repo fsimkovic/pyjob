@@ -34,7 +34,7 @@ from pyjob.task import ClusterTask
 
 logger = logging.getLogger(__name__)
 
-RE_LINE_SPLIT = re.compile(r":\\s+")
+RE_LINE_SPLIT = re.compile(r":\s+")
 
 
 class SunGridEngineTask(ClusterTask):
