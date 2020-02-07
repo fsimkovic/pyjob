@@ -93,7 +93,8 @@ class Task(ABC):
 
     # ------------------ Abstract methods and properties ------------------
 
-    @abc.abstractproperty
+    @abc.abstractmethod
+    @property
     def info(self):  # pragma: no cover
         """Abstract property to provide info about the :obj:`~pyjob.task.Task`"""
         pass
