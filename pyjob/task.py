@@ -27,11 +27,10 @@ import abc
 import logging
 import os
 import time
-import warnings
 
 from pyjob import config
 from pyjob.exception import PyJobError, PyJobTaskLockedError
-from pyjob.script import ScriptCollector, is_valid_script_path
+from pyjob.script import ScriptCollector
 
 ABC = abc.ABCMeta('ABC', (object,), {})
 logger = logging.getLogger(__name__)
