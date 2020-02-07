@@ -56,6 +56,8 @@ class SlurmTask(ClusterTask):
     def close(self):
         """Close this :obj:`~pyjob.slurm.SlurmTask` after completion"""
         self.wait()
+        if self.cleanup_files and self.runscript is not None:
+            self.runscript.cleanup()
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.slurm.SlurmTask`"""
@@ -66,11 +68,11 @@ class SlurmTask(ClusterTask):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.slurm.SlurmTask` execution"""
-        runscript = self._create_runscript()
-        runscript.write()
-        stdout = cexec(['sbatch', runscript.path], cwd=self.directory)
+        self.runscript = self._create_runscript()
+        self.runscript.write()
+        stdout = cexec(['sbatch', self.runscript.path], cwd=self.directory)
         self.pid = int(stdout.strip().split()[-1])
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, self.runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""

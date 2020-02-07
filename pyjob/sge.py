@@ -84,6 +84,8 @@ class SunGridEngineTask(ClusterTask):
     def close(self):
         """Close this :obj:`~pyjob.sge.SunGridEngineTask` after completion"""
         self.wait()
+        if self.cleanup_files and self.runscript is not None:
+            self.runscript.cleanup()
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.sge.SunGridEngineTask`"""
@@ -94,9 +96,9 @@ class SunGridEngineTask(ClusterTask):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.sge.SunGridEngineTask` execution"""
-        runscript = self._create_runscript()
-        runscript.write()
-        stdout = cexec(['qsub', runscript.path], cwd=self.directory)
+        self.runscript = self._create_runscript()
+        self.runscript.write()
+        stdout = cexec(['qsub', self.runscript.path], cwd=self.directory)
         for line in stdout.split('\n'):
             line = line.strip()
             if 'Your job' in line and 'has been submitted' in line:
@@ -104,7 +106,7 @@ class SunGridEngineTask(ClusterTask):
                     self.pid = int(line.split()[2].split(".")[0])
                 else:
                     self.pid = int(line.split()[2])
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, self.runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""

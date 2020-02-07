@@ -71,6 +71,8 @@ class PortableBatchSystemTask(ClusterTask):
     def close(self):
         """Close this :obj:`~pyjob.pbs.PortableBatchSystemTask` after completion"""
         self.wait()
+        if self.cleanup_files and self.runscript is not None:
+            self.runscript.cleanup()
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.pbs.PortableBatchSystemTask`"""
@@ -81,10 +83,10 @@ class PortableBatchSystemTask(ClusterTask):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.pbs.PortableBatchSystemTask` execution"""
-        runscript = self._create_runscript()
-        runscript.write()
-        self.pid = cexec(['qsub', runscript.path], cwd=self.directory)
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
+        self.runscript = self._create_runscript()
+        self.runscript.write()
+        self.pid = cexec(['qsub', self.runscript.path], cwd=self.directory)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, self.runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""

@@ -92,8 +92,7 @@ class Task(ABC):
 
     # ------------------ Abstract methods and properties ------------------
 
-    @abc.abstractmethod
-    @property
+    @abc.abstractproperty
     def info(self):  # pragma: no cover
         """Abstract property to provide info about the :obj:`~pyjob.task.Task`"""
         pass
@@ -245,11 +244,22 @@ class ClusterTask(Task):
         self.shell = kwargs.get('shell') or config.get('shell')
         self.name = kwargs.get('name') or config.get('name') or 'pyjob'
         self.extra = kwargs.get('extra', [])
+        self.cleanup_files = kwargs.get('cleanup_files') or config.get('cleanup_files') or False
+        self._runscript = None
 
     @abc.abstractmethod
     def _create_runscript(self):
         """Utility method to create a :obj:`~pyjob.task.ClusterTask` runscript"""
         pass
+
+    @property
+    def runscript(self):
+        """Instance of :obj:`~pyjob.script.Script` of :obj:`~pyjob.task.ClusterTask`"""
+        return self._runscript
+
+    @runscript.setter
+    def runscript(self, value):
+        self._runscript = value
 
     def get_array_bash_extension(self, jobsf, offset):
         """Get the array job bash extension for the ``runscript``
