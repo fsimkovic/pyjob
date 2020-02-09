@@ -246,10 +246,16 @@ class ClusterTask(Task):
         self.extra = kwargs.get('extra', [])
         self.cleanup = kwargs.get('cleanup') or config.get('cleanup') or False
         self.runscript = None
+        self._check_requirements()
 
     @abc.abstractmethod
     def _create_runscript(self):
         """Utility method to create a :obj:`~pyjob.task.ClusterTask` runscript"""
+        pass
+
+    @abc.abstractmethod
+    def _check_requirements(self):
+        """Abstract method to check if the user input meets the requirements for the task execution"""
         pass
 
     def close(self):

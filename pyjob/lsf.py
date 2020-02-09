@@ -28,7 +28,7 @@ import time
 import uuid
 
 from pyjob.cexec import cexec
-from pyjob.exception import PyJobExecutableNotFoundError
+from pyjob.exception import PyJobExecutableNotFoundError, PyJobError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 
@@ -54,6 +54,14 @@ class LoadSharingFacilityTask(ClusterTask):
             return {}
         else:
             return {'job_number': self.pid, 'status': 'Running'}
+
+    def _check_requirements(self):
+        """Check if the requirements for task execution are met"""
+
+        try:
+            cexec(['bjobs'])
+        except PyJobExecutableNotFoundError:
+            raise PyJobError('Cannot find LSF. Please ensure this is the correct platform to run your task!')
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.lsf.LoadSharingFacilityTask`

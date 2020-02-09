@@ -24,11 +24,10 @@ __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
 import logging
-import re
 import uuid
 
 from pyjob.cexec import cexec
-from pyjob.exception import PyJobExecutableNotFoundError
+from pyjob.exception import PyJobExecutableNotFoundError, PyJobError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 
@@ -59,6 +58,14 @@ class SlurmTask(ClusterTask):
             return
         cexec(['scancel', str(self.pid)])
         logger.debug("Terminated task: %d", self.pid)
+
+    def _check_requirements(self):
+        """Check if the requirements for task execution are met"""
+
+        try:
+            cexec(['squeue'])
+        except PyJobExecutableNotFoundError:
+            raise PyJobError('Cannot find SLURM. Please ensure this is the correct platform to run your task!')
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.slurm.SlurmTask` execution"""
