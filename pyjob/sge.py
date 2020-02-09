@@ -35,6 +35,7 @@ from pyjob.task import ClusterTask
 logger = logging.getLogger(__name__)
 
 RE_LINE_SPLIT = re.compile(r":\s+")
+RE_PID_MATCH = re.compile(r"Your job .* has been submitted")
 
 
 class SunGridEngineTask(ClusterTask):
@@ -79,13 +80,7 @@ class SunGridEngineTask(ClusterTask):
                 return environments
             else:
                 environments.append(line[0].encode('utf-8'))
-        return environments
-
-    def close(self):
-        """Close this :obj:`~pyjob.sge.SunGridEngineTask` after completion"""
-        self.wait()
-        if self.cleanup_files and self.runscript is not None:
-            self.runscript.cleanup()
+        return set(environments)
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.sge.SunGridEngineTask`"""
@@ -101,7 +96,7 @@ class SunGridEngineTask(ClusterTask):
         stdout = cexec(['qsub', self.runscript.path], cwd=self.directory)
         for line in stdout.split('\n'):
             line = line.strip()
-            if 'Your job' in line and 'has been submitted' in line:
+            if re.match(RE_PID_MATCH, line):
                 if len(self.script) > 1:
                     self.pid = int(line.split()[2].split(".")[0])
                 else:

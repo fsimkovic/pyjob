@@ -244,22 +244,19 @@ class ClusterTask(Task):
         self.shell = kwargs.get('shell') or config.get('shell')
         self.name = kwargs.get('name') or config.get('name') or 'pyjob'
         self.extra = kwargs.get('extra', [])
-        self.cleanup_files = kwargs.get('cleanup_files') or config.get('cleanup_files') or False
-        self._runscript = None
+        self.cleanup = kwargs.get('cleanup') or config.get('cleanup') or False
+        self.runscript = None
 
     @abc.abstractmethod
     def _create_runscript(self):
         """Utility method to create a :obj:`~pyjob.task.ClusterTask` runscript"""
         pass
 
-    @property
-    def runscript(self):
-        """Instance of :obj:`~pyjob.script.Script` of :obj:`~pyjob.task.ClusterTask`"""
-        return self._runscript
-
-    @runscript.setter
-    def runscript(self, value):
-        self._runscript = value
+    def close(self):
+        """Close this :obj:`~pyjob.sge.ClusterTask` after completion"""
+        self.wait()
+        if self.cleanup and self.runscript is not None:
+            self.runscript.cleanup()
 
     def get_array_bash_extension(self, jobsf, offset):
         """Get the array job bash extension for the ``runscript``

@@ -68,12 +68,6 @@ class PortableBatchSystemTask(ClusterTask):
                     data[kv[0]] = kv[1]
         return data
 
-    def close(self):
-        """Close this :obj:`~pyjob.pbs.PortableBatchSystemTask` after completion"""
-        self.wait()
-        if self.cleanup_files and self.runscript is not None:
-            self.runscript.cleanup()
-
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.pbs.PortableBatchSystemTask`"""
         if self.pid is None:

@@ -53,12 +53,6 @@ class SlurmTask(ClusterTask):
         else:
             return {'job_number': self.pid, 'status': 'Running'}
 
-    def close(self):
-        """Close this :obj:`~pyjob.slurm.SlurmTask` after completion"""
-        self.wait()
-        if self.cleanup_files and self.runscript is not None:
-            self.runscript.cleanup()
-
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.slurm.SlurmTask`"""
         if self.pid is None:
