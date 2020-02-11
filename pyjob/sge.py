@@ -121,11 +121,11 @@ class SunGridEngineTask(ClusterTask):
 
         self._ensure_exec_available('qstat')
 
-        if self.environment not in self.get_sge_avail_configs(SGEConfigParameter.ENVIRONMENT):
+        if self.environment and self.environment not in self.get_sge_avail_configs(SGEConfigParameter.ENVIRONMENT):
             raise PyJobError('Requested environment {} cannot be found. List of available environments: {}'
                              ''.format(self.environment, self.get_sge_avail_configs(SGEConfigParameter.ENVIRONMENT)))
 
-        if self.queue not in self.get_sge_avail_configs(SGEConfigParameter.QUEUE):
+        if self.queue and self.queue not in self.get_sge_avail_configs(SGEConfigParameter.QUEUE):
             raise PyJobError('Requested queue {} cannot be found. List of available queues: {}'
                              ''.format(self.queue, SGEConfigParameter.QUEUE))
 
@@ -172,7 +172,7 @@ class SunGridEngineTask(ClusterTask):
         if self.shell:
             cmd = '-S {}'.format(self.shell)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-        if self.nprocesses:
+        if self.nprocesses and self.environment:
             cmd = '-pe {} {}'.format(self.environment, self.nprocesses)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.directory:
