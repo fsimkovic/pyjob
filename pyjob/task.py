@@ -28,8 +28,8 @@ import logging
 import os
 import time
 
-from pyjob import config
-from pyjob.exception import PyJobError, PyJobTaskLockedError
+from pyjob import config, cexec
+from pyjob.exception import PyJobError, PyJobTaskLockedError, PyJobExecutableNotFoundError
 from pyjob.script import ScriptCollector
 
 ABC = abc.ABCMeta('ABC', (object,), {})
@@ -253,7 +253,26 @@ class ClusterTask(Task):
         """Utility method to create a :obj:`~pyjob.task.ClusterTask` runscript"""
         pass
 
-    @abc.abstractmethod
+    @staticmethod
+    def _ensure_exec_available(exec):
+        """Ensure that the specified executable is available in the system
+
+        Parameters
+        ----------
+        exec : str
+           The executable to test
+
+        Raises
+        ------
+        :exc:`~pyjob.exception.PyJobError`
+           The executable cannot be found
+
+        """
+        try:
+            cexec([exec])
+        except PyJobExecutableNotFoundError:
+            raise PyJobError('Cannot find executable {}. Please ensure environment is set up correctly.'.format(exec))
+
     def _check_requirements(self):
         """Abstract method to check if the user input meets the requirements for the task execution"""
         pass

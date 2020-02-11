@@ -69,11 +69,7 @@ class PortableBatchSystemTask(ClusterTask):
 
     def _check_requirements(self):
         """Check if the requirements for task execution are met"""
-
-        try:
-            cexec(['qstat'])
-        except PyJobExecutableNotFoundError:
-            raise PyJobError('Cannot find PBS. Please ensure this is the correct platform to run your task!')
+        self._ensure_exec_available('qstat')
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.pbs.PortableBatchSystemTask`"""

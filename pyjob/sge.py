@@ -107,19 +107,13 @@ class SunGridEngineTask(ClusterTask):
     def _check_requirements(self):
         """Check if the requirements for task execution are met"""
 
-        # Check if SGE is available
-        try:
-            cexec(['qstat'])
-        except PyJobExecutableNotFoundError:
-            raise PyJobError('Cannot find SGE. Please ensure this is the correct platform to run your task!')
+        self._ensure_exec_available('qstat')
 
-        # Check if the requested environment exists
-        if self.environment not in self.sge_config('environment'):
+        if self.environment not in self.sge_avail_config('environment'):
             raise PyJobError('Requested environment {} cannot be found. List of available environments: {}'
                              ''.format(self.environment, self.sge_avail_config('environment')))
 
-        # Check if the requested queue exists
-        if self.queue not in self.sge_config('queue'):
+        if self.queue not in self.sge_avail_config('queue'):
             raise PyJobError('Requested queue {} cannot be found. List of available queues: {}'
                              ''.format(self.queue, self.sge_avail_config('queue')))
 

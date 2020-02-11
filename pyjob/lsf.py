@@ -57,11 +57,7 @@ class LoadSharingFacilityTask(ClusterTask):
 
     def _check_requirements(self):
         """Check if the requirements for task execution are met"""
-
-        try:
-            cexec(['bjobs'])
-        except PyJobExecutableNotFoundError:
-            raise PyJobError('Cannot find LSF. Please ensure this is the correct platform to run your task!')
+        self._ensure_exec_available('bjobs')
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.lsf.LoadSharingFacilityTask`
