@@ -26,6 +26,7 @@ __version__ = '1.0'
 import logging
 import re
 import uuid
+from enum import Enum
 
 from pyjob.cexec import cexec
 from pyjob.exception import PyJobExecutableNotFoundError, PyJobError
@@ -38,11 +39,17 @@ RE_LINE_SPLIT = re.compile(r":\s+")
 RE_PID_MATCH = re.compile(r"Your job .* has been submitted")
 
 
+class SGEConfigParameter(Enum):
+    ENVIRONMENT = 1
+    QUEUE = 2
+
+
 class SunGridEngineTask(ClusterTask):
     """SunGridEngine executable :obj:`~pyjob.task.Task`"""
 
     JOB_ARRAY_INDEX = '$SGE_TASK_ID'
     SCRIPT_DIRECTIVE = '#$'
+    _sge_avail_configs_by_env = {}
 
     @property
     def info(self):
@@ -66,13 +73,13 @@ class SunGridEngineTask(ClusterTask):
                     data[kv[0]] = kv[1]
         return data
 
-    @staticmethod
-    def sge_avail_config(param):
+    @classmethod
+    def get_sge_avail_configs(cls, param):
         """Get the set of available configurations for a given SGE parameter
 
         Parameters
         ----------
-        param : str
+        param : :obj:~SGEConfigParameter
             The parameter to be tested
 
         Returns
@@ -83,16 +90,19 @@ class SunGridEngineTask(ClusterTask):
         Raises
         ------
         :exc:`ValueError`
-           Invalid parameter. Supported parameters are 'environment' or 'queue'
+           Parameter is not found in :obj:~SGEConfigParameter
 
         """
 
-        if param == 'environment':
-            cmd = ["qconf", 'spl']
-        elif param == 'queue':
+        if param in cls._sge_avail_configs_by_env:
+            return cls._sge_avail_configs_by_env[param]
+
+        if SGEConfigParameter(param) == SGEConfigParameter.ENVIRONMENT:
+            cmd = ['qconf', 'spl']
+        elif SGEConfigParameter(param) == SGEConfigParameter.QUEUE:
             cmd = ["qconf", 'sql']
         else:
-            raise ValueError('Invalid parameter {}. Available parameters are "environment" or "queue".'.format(param))
+            raise ValueError('Requested SGE parameter is not supported!')
 
         stdout = cexec(cmd, permit_nonzero=True)
         config = []
@@ -102,20 +112,22 @@ class SunGridEngineTask(ClusterTask):
                 return config
             else:
                 config.append(line[0].encode('utf-8'))
-        return set(config)
+
+        cls._sge_avail_configs_by_env[param] = set(config)
+        return cls._sge_avail_configs_by_env[param]
 
     def _check_requirements(self):
         """Check if the requirements for task execution are met"""
 
         self._ensure_exec_available('qstat')
 
-        if self.environment not in self.sge_avail_config('environment'):
+        if self.environment not in self.get_sge_avail_configs(SGEConfigParameter.ENVIRONMENT):
             raise PyJobError('Requested environment {} cannot be found. List of available environments: {}'
-                             ''.format(self.environment, self.sge_avail_config('environment')))
+                             ''.format(self.environment, self.get_sge_avail_configs(SGEConfigParameter.ENVIRONMENT)))
 
-        if self.queue not in self.sge_avail_config('queue'):
+        if self.queue not in self.get_sge_avail_configs(SGEConfigParameter.QUEUE):
             raise PyJobError('Requested queue {} cannot be found. List of available queues: {}'
-                             ''.format(self.queue, self.sge_avail_config('queue')))
+                             ''.format(self.queue, SGEConfigParameter.QUEUE))
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.sge.SunGridEngineTask`"""
