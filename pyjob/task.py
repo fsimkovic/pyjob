@@ -254,12 +254,12 @@ class ClusterTask(Task):
         pass
 
     @staticmethod
-    def _ensure_exec_available(exec):
+    def _ensure_exec_available(exe):
         """Ensure that the specified executable is available in the system
 
         Parameters
         ----------
-        exec : str
+        exe : str
            The executable to test
 
         Raises
@@ -269,9 +269,9 @@ class ClusterTask(Task):
 
         """
         try:
-            cexec([exec])
+            cexec([exe])
         except PyJobExecutableNotFoundError:
-            raise PyJobError('Cannot find executable {}. Please ensure environment is set up correctly.'.format(exec))
+            raise PyJobError('Cannot find executable {}. Please ensure environment is set up correctly.'.format(exe))
 
     def _check_requirements(self):
         """Abstract method to check if the user input meets the requirements for the task execution"""
