@@ -98,9 +98,9 @@ class SunGridEngineTask(ClusterTask):
             return cls._sge_avail_configs_by_env[param]
 
         if SGEConfigParameter(param) == SGEConfigParameter.ENVIRONMENT:
-            cmd = ['qconf', 'spl']
+            cmd = ['qconf', '-spl']
         elif SGEConfigParameter(param) == SGEConfigParameter.QUEUE:
-            cmd = ["qconf", 'sql']
+            cmd = ["qconf", '-sql']
         else:
             raise ValueError('Requested SGE parameter is not supported!')
 
