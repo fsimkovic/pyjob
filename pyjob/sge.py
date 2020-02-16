@@ -36,7 +36,7 @@ from pyjob.task import ClusterTask
 logger = logging.getLogger(__name__)
 
 RE_LINE_SPLIT = re.compile(r":\s+")
-RE_PID_MATCH = re.compile(r"Your job .* has been submitted")
+RE_PID_MATCH = re.compile(r"Your job.*has been submitted")
 
 
 class SGEConfigParameter(Enum):
