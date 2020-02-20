@@ -23,13 +23,13 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
-import logging
+from enum import Enum
 import re
 import uuid
-from enum import Enum
+import logging
 
 from pyjob.cexec import cexec
-from pyjob.exception import PyJobExecutableNotFoundError, PyJobError
+from pyjob.exception import PyJobError, PyJobExecutableNotFoundError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 
@@ -109,7 +109,7 @@ class SunGridEngineTask(ClusterTask):
         for line in stdout.splitlines():
             line = line.split()
             if len(line) > 1:
-                return config
+                break
             else:
                 config.append(line[0].encode('utf-8'))
 

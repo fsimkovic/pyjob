@@ -28,8 +28,8 @@ import logging
 import os
 import time
 
-from pyjob import config, cexec
-from pyjob.exception import PyJobError, PyJobTaskLockedError, PyJobExecutableNotFoundError
+from pyjob import cexec, config
+from pyjob.exception import PyJobError, PyJobExecutableNotFoundError, PyJobTaskLockedError
 from pyjob.script import ScriptCollector
 
 ABC = abc.ABCMeta('ABC', (object,), {})

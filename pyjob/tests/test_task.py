@@ -30,6 +30,9 @@ class MockClusterTask(ClusterTask, MockTask):
     def _create_runscript(self):
         pass
 
+    def _check_requirements(self):
+        pass
+
 
 class TestTask(object):
     def test_1(self):
