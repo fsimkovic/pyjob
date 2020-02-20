@@ -36,7 +36,7 @@ from pyjob.task import ClusterTask
 logger = logging.getLogger(__name__)
 
 RE_LINE_SPLIT = re.compile(r":\s+")
-RE_PID_MATCH = re.compile(r"Your job .* has been submitted")
+RE_PID_MATCH = re.compile(r"Your job.*has been submitted")
 
 
 class SGEConfigParameter(Enum):
@@ -98,9 +98,9 @@ class SunGridEngineTask(ClusterTask):
             return cls._sge_avail_configs_by_env[param]
 
         if SGEConfigParameter(param) == SGEConfigParameter.ENVIRONMENT:
-            cmd = ['qconf', 'spl']
+            cmd = ['qconf', '-spl']
         elif SGEConfigParameter(param) == SGEConfigParameter.QUEUE:
-            cmd = ["qconf", 'sql']
+            cmd = ["qconf", '-sql']
         else:
             raise ValueError('Requested SGE parameter is not supported!')
 
