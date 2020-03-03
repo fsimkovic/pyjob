@@ -1,9 +1,9 @@
 __author__ = 'Felix Simkovic'
 
 import importlib
-import mock
 import os
 import pytest
+from unittest import mock
 
 from pyjob.exception import PyJobUnknownTaskPlatform
 from pyjob.factory import TaskFactory, TASK_PLATFORMS
