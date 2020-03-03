@@ -218,4 +218,4 @@ class TestClusterTask(object):
 
     def test_ensure_exec_available_2(self):
         task = MockClusterTask(None)
-        task._ensure_exec_available('echo')
+        task._ensure_exec_available('ls')
