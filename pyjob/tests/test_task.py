@@ -210,3 +210,12 @@ class TestClusterTask(object):
         with pytest.raises(ValueError):
             task.get_array_bash_extension(fname, -1)
         pytest.helpers.unlink([fname])
+
+    def test_ensure_exec_available_1(self):
+        task = MockClusterTask(None)
+        with pytest.raises(PyJobError):
+            task._ensure_exec_available('qstat')
+
+    def test_ensure_exec_available_2(self):
+        task = MockClusterTask(None)
+        task._ensure_exec_available('ls')

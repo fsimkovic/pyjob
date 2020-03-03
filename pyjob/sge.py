@@ -121,13 +121,15 @@ class SunGridEngineTask(ClusterTask):
 
         self._ensure_exec_available('qstat')
 
-        if self.environment and self.environment not in self.get_sge_avail_configs(SGEConfigParameter.ENVIRONMENT):
+        sge_config_by_env = self.get_sge_avail_configs(SGEConfigParameter.ENVIRONMENT)
+        if self.environment and self.environment not in sge_config_by_env:
             raise PyJobError('Requested environment {} cannot be found. List of available environments: {}'
-                             ''.format(self.environment, self.get_sge_avail_configs(SGEConfigParameter.ENVIRONMENT)))
+                             ''.format(self.environment, sge_config_by_env))
 
-        if self.queue and self.queue not in self.get_sge_avail_configs(SGEConfigParameter.QUEUE):
+        sge_config_by_queue = self.get_sge_avail_configs(SGEConfigParameter.QUEUE)
+        if self.queue and self.queue not in sge_config_by_queue:
             raise PyJobError('Requested queue {} cannot be found. List of available queues: {}'
-                             ''.format(self.queue, SGEConfigParameter.QUEUE))
+                             ''.format(self.environment, sge_config_by_queue))
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.sge.SunGridEngineTask`"""
