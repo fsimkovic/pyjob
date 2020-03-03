@@ -310,9 +310,9 @@ class TestCreateRunscript(object):
 
         with pytest.raises(PyJobError):
             task = MockSunGridEngineTask(paths, extra=['-l mem=100', '-r yes'], environment='dummy-environment',
-                                             queue='low.q')
+                                         queue='low.q')
         with pytest.raises(PyJobError):
             task = MockSunGridEngineTask(paths, extra=['-l mem=100', '-r yes'], environment='mpi',
-                                             queue='dummy-queue')
+                                         queue='dummy-queue')
 
         task = MockSunGridEngineTask(paths, extra=['-l mem=100', '-r yes'], environment='mpi', queue='medium.q')
