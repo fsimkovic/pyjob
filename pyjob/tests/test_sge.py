@@ -1,8 +1,9 @@
 __author__ = 'Felix Simkovic'
 
-import mock
 import os
 import pytest
+from unittest import mock
+
 from pyjob.exception import PyJobError
 from pyjob.sge import SunGridEngineTask, SGEConfigParameter
 
