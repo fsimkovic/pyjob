@@ -1,5 +1,6 @@
 __author__ = 'Felix Simkovic'
 
+import mock
 import os
 import pytest
 
@@ -7,8 +8,10 @@ from pyjob.slurm import SlurmTask
 
 
 @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
+@mock.patch('pyjob.slurm.SlurmTask._check_requirements')
 class TestCreateRunscript(object):
-    def test_1(self):
+    def test_1(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -25,7 +28,8 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_2(self):
+    def test_2(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(3)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -50,7 +54,8 @@ class TestCreateRunscript(object):
         ]
         assert jobs == paths
 
-    def test_3(self):
+    def test_3(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(3)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -75,7 +80,8 @@ class TestCreateRunscript(object):
         ]
         assert jobs == paths
 
-    def test_4(self):
+    def test_4(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -92,7 +98,8 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_5(self):
+    def test_5(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -109,7 +116,8 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_6(self):
+    def test_6(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -127,7 +135,8 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_7(self):
+    def test_7(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -145,7 +154,8 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_8(self):
+    def test_8(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -163,7 +173,8 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_9(self):
+    def test_9(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]

@@ -27,11 +27,10 @@ import abc
 import logging
 import os
 import time
-import warnings
 
-from pyjob import config
-from pyjob.exception import PyJobError, PyJobTaskLockedError
-from pyjob.script import ScriptCollector, is_valid_script_path
+from pyjob import cexec, config
+from pyjob.exception import PyJobError, PyJobExecutableNotFoundError, PyJobTaskLockedError
+from pyjob.script import ScriptCollector
 
 ABC = abc.ABCMeta('ABC', (object,), {})
 logger = logging.getLogger(__name__)
@@ -245,11 +244,44 @@ class ClusterTask(Task):
         self.shell = kwargs.get('shell') or config.get('shell')
         self.name = kwargs.get('name') or config.get('name') or 'pyjob'
         self.extra = kwargs.get('extra', [])
+        self.cleanup = kwargs.get('cleanup') or config.get('cleanup') or False
+        self.runscript = None
+        self._check_requirements()
 
     @abc.abstractmethod
     def _create_runscript(self):
         """Utility method to create a :obj:`~pyjob.task.ClusterTask` runscript"""
         pass
+
+    @staticmethod
+    def _ensure_exec_available(exe):
+        """Ensure that the specified executable is available in the system
+
+        Parameters
+        ----------
+        exe : str
+           The executable to test
+
+        Raises
+        ------
+        :exc:`~pyjob.exception.PyJobError`
+           The executable cannot be found
+
+        """
+        try:
+            cexec([exe])
+        except PyJobExecutableNotFoundError:
+            raise PyJobError('Cannot find executable {}. Please ensure environment is set up correctly.'.format(exe))
+
+    def _check_requirements(self):
+        """Abstract method to check if the user input meets the requirements for the task execution"""
+        pass
+
+    def close(self):
+        """Close this :obj:`~pyjob.sge.ClusterTask` after completion"""
+        self.wait()
+        if self.cleanup and self.runscript is not None:
+            self.runscript.cleanup()
 
     def get_array_bash_extension(self, jobsf, offset):
         """Get the array job bash extension for the ``runscript``

@@ -28,7 +28,7 @@ import time
 import uuid
 
 from pyjob.cexec import cexec
-from pyjob.exception import PyJobExecutableNotFoundError
+from pyjob.exception import PyJobExecutableNotFoundError, PyJobError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 
@@ -55,9 +55,9 @@ class LoadSharingFacilityTask(ClusterTask):
         else:
             return {'job_number': self.pid, 'status': 'Running'}
 
-    def close(self):
-        """Close this :obj:`~pyjob.lsf.LoadSharingFacilityTask` after completion"""
-        self.wait()
+    def _check_requirements(self):
+        """Check if the requirements for task execution are met"""
+        self._ensure_exec_available('bjobs')
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.lsf.LoadSharingFacilityTask`
@@ -81,11 +81,11 @@ class LoadSharingFacilityTask(ClusterTask):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.lsf.LoadSharingFacilityTask` execution"""
-        runscript = self._create_runscript()
-        runscript.write()
-        stdout = cexec(['bsub'], stdin=str(runscript), cwd=self.directory)
+        self.runscript = self._create_runscript()
+        self.runscript.write()
+        stdout = cexec(['bsub'], stdin=str(self.runscript), cwd=self.directory)
         self.pid = int(stdout.split()[1][1:-1])
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, self.runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""

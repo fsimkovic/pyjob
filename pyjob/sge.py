@@ -23,18 +23,25 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
-import logging
+from enum import Enum
 import re
 import uuid
+import logging
 
 from pyjob.cexec import cexec
-from pyjob.exception import PyJobExecutableNotFoundError
+from pyjob.exception import PyJobError, PyJobExecutableNotFoundError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 
 logger = logging.getLogger(__name__)
 
-RE_LINE_SPLIT = re.compile(r":\\s+")
+RE_LINE_SPLIT = re.compile(r":\s+")
+RE_PID_MATCH = re.compile(r"Your job.*has been submitted")
+
+
+class SGEConfigParameter(Enum):
+    ENVIRONMENT = 1
+    QUEUE = 2
 
 
 class SunGridEngineTask(ClusterTask):
@@ -42,6 +49,7 @@ class SunGridEngineTask(ClusterTask):
 
     JOB_ARRAY_INDEX = '$SGE_TASK_ID'
     SCRIPT_DIRECTIVE = '#$'
+    _sge_avail_configs_by_env = {}
 
     @property
     def info(self):
@@ -65,9 +73,63 @@ class SunGridEngineTask(ClusterTask):
                     data[kv[0]] = kv[1]
         return data
 
-    def close(self):
-        """Close this :obj:`~pyjob.sge.SunGridEngineTask` after completion"""
-        self.wait()
+    @classmethod
+    def get_sge_avail_configs(cls, param):
+        """Get the set of available configurations for a given SGE parameter
+
+        Parameters
+        ----------
+        param : :obj:~SGEConfigParameter
+            The parameter to be tested
+
+        Returns
+        -------
+        set
+            A set with the available configurations for the parameter of interest
+
+        Raises
+        ------
+        :exc:`ValueError`
+           Parameter is not found in :obj:~SGEConfigParameter
+
+        """
+
+        if param in cls._sge_avail_configs_by_env:
+            return cls._sge_avail_configs_by_env[param]
+
+        if SGEConfigParameter(param) == SGEConfigParameter.ENVIRONMENT:
+            cmd = ['qconf', '-spl']
+        elif SGEConfigParameter(param) == SGEConfigParameter.QUEUE:
+            cmd = ["qconf", '-sql']
+        else:
+            raise ValueError('Requested SGE parameter is not supported!')
+
+        stdout = cexec(cmd, permit_nonzero=True)
+        config = []
+        for line in stdout.splitlines():
+            line = line.split()
+            if len(line) > 1:
+                break
+            else:
+                config.append(line[0].encode('utf-8'))
+
+        cls._sge_avail_configs_by_env[param] = set(config)
+        return cls._sge_avail_configs_by_env[param]
+
+    def _check_requirements(self):
+        """Check if the requirements for task execution are met"""
+
+        self._ensure_exec_available('qstat')
+
+        sge_config_by_env = self.get_sge_avail_configs(SGEConfigParameter.ENVIRONMENT)
+        if self.environment and self.environment not in sge_config_by_env:
+            raise PyJobError('Requested environment {} cannot be found. List of available environments: {}'
+                             ''.format(self.environment, sge_config_by_env))
+
+        sge_config_by_queue = self.get_sge_avail_configs(SGEConfigParameter.QUEUE)
+        if self.queue and self.queue not in sge_config_by_queue:
+            raise PyJobError('Requested queue {} cannot be found. List of available queues: {}'
+                             ''.format(self.environment, sge_config_by_queue))
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.sge.SunGridEngineTask`"""
@@ -78,14 +140,17 @@ class SunGridEngineTask(ClusterTask):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.sge.SunGridEngineTask` execution"""
-        runscript = self._create_runscript()
-        runscript.write()
-        stdout = cexec(['qsub', runscript.path], cwd=self.directory)
-        if len(self.script) > 1:
-            self.pid = int(stdout.split()[2].split(".")[0])
-        else:
-            self.pid = int(stdout.split()[2])
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
+        self.runscript = self._create_runscript()
+        self.runscript.write()
+        stdout = cexec(['qsub', self.runscript.path], cwd=self.directory)
+        for line in stdout.split('\n'):
+            line = line.strip()
+            if re.match(RE_PID_MATCH, line):
+                if len(self.script) > 1:
+                    self.pid = int(line.split()[2].split(".")[0])
+                else:
+                    self.pid = int(line.split()[2])
+        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, self.runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""
@@ -109,7 +174,7 @@ class SunGridEngineTask(ClusterTask):
         if self.shell:
             cmd = '-S {}'.format(self.shell)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-        if self.nprocesses:
+        if self.nprocesses and self.environment:
             cmd = '-pe {} {}'.format(self.environment, self.nprocesses)
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.directory:

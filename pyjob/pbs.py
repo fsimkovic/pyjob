@@ -25,11 +25,10 @@ __version__ = '1.0'
 
 import logging
 import re
-import time
 import uuid
 
 from pyjob.cexec import cexec
-from pyjob.exception import PyJobExecutableNotFoundError
+from pyjob.exception import PyJobExecutableNotFoundError, PyJobError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 
@@ -68,9 +67,9 @@ class PortableBatchSystemTask(ClusterTask):
                     data[kv[0]] = kv[1]
         return data
 
-    def close(self):
-        """Close this :obj:`~pyjob.pbs.PortableBatchSystemTask` after completion"""
-        self.wait()
+    def _check_requirements(self):
+        """Check if the requirements for task execution are met"""
+        self._ensure_exec_available('qstat')
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.pbs.PortableBatchSystemTask`"""
@@ -81,10 +80,10 @@ class PortableBatchSystemTask(ClusterTask):
 
     def _run(self):
         """Method to initialise :obj:`~pyjob.pbs.PortableBatchSystemTask` execution"""
-        runscript = self._create_runscript()
-        runscript.write()
-        self.pid = cexec(['qsub', runscript.path], cwd=self.directory)
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, runscript.path)
+        self.runscript = self._create_runscript()
+        self.runscript.write()
+        self.pid = cexec(['qsub', self.runscript.path], cwd=self.directory)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, self.runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""

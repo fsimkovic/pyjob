@@ -1,14 +1,34 @@
 __author__ = 'Felix Simkovic'
 
+import mock
 import os
 import pytest
+from pyjob.exception import PyJobError
+from pyjob.sge import SunGridEngineTask, SGEConfigParameter
 
-from pyjob.sge import SunGridEngineTask
+
+class MockSunGridEngineTask(SunGridEngineTask):
+
+    def get_sge_avail_configs(cls, param):
+        """Override :py:func:`~pyjob.ClusterTask.get_sge_avail_configs` for testing purposes"""
+
+        if SGEConfigParameter(param) == SGEConfigParameter.ENVIRONMENT:
+            config = ['mpi', 'openmpi', 'mpe']
+        elif SGEConfigParameter(param) == SGEConfigParameter.QUEUE:
+            config = ['low.q', 'medium.q', 'high.q']
+        else:
+            raise ValueError('Requested SGE parameter is not supported!')
+
+        cls._sge_avail_configs_by_env[param] = set(config)
+        return cls._sge_avail_configs_by_env[param]
 
 
 @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
 class TestCreateRunscript(object):
-    def test_1(self):
+
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_1(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -27,7 +47,9 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_2(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_2(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(3)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -54,7 +76,9 @@ class TestCreateRunscript(object):
         ]
         assert jobs == paths
 
-    def test_3(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_3(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(3)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -81,7 +105,9 @@ class TestCreateRunscript(object):
         ]
         assert jobs == paths
 
-    def test_4(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_4(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -100,7 +126,9 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_5(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_5(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -119,7 +147,9 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_6(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_6(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -139,7 +169,9 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_7(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_7(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -159,7 +191,9 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_8(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_8(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -179,7 +213,9 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_9(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_9(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -199,7 +235,9 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_10(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_10(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -219,7 +257,9 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_11(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_11(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -239,7 +279,9 @@ class TestCreateRunscript(object):
             paths[0],
         ]
 
-    def test_12(self):
+    @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
+    def test_12(self, check_requirements_mock):
+        check_requirements_mock.return_value = None
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
         [s.write() for s in scripts]
         paths = [s.path for s in scripts]
@@ -258,3 +300,19 @@ class TestCreateRunscript(object):
             '#$ -o ' + paths[0].replace('.py', '.log'),
             paths[0],
         ]
+
+    @mock.patch('pyjob.task.ClusterTask._ensure_exec_available')
+    def test_13(self, ensure_exec_mock):
+        ensure_exec_mock.return_value = None
+        scripts = [pytest.helpers.get_py_script(i, 1) for i in range(1)]
+        [s.write() for s in scripts]
+        paths = [s.path for s in scripts]
+
+        with pytest.raises(PyJobError):
+            task = MockSunGridEngineTask(paths, extra=['-l mem=100', '-r yes'], environment='dummy-environment',
+                                         queue='low.q')
+        with pytest.raises(PyJobError):
+            task = MockSunGridEngineTask(paths, extra=['-l mem=100', '-r yes'], environment='mpi',
+                                         queue='dummy-queue')
+
+        task = MockSunGridEngineTask(paths, extra=['-l mem=100', '-r yes'], environment='mpi', queue='medium.q')

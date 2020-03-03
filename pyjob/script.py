@@ -288,6 +288,17 @@ class Script(list):
             f_out.write(str(self))
         os.chmod(fname, 0o777)
 
+    def cleanup(self):
+        """Cleanup :attr:`~pyjob.script.Script.path` and :attr:`~pyjob.script.Script.log` files if they exist"""
+
+        if os.path.isfile(self.path):
+            os.remove(self.path)
+        if os.path.isfile(self.log):
+            os.remove(self.log)
+        # This bit is for cluster tasks
+        if os.path.isfile(self.path.replace('.script', '.jobs')):
+            os.remove(self.path.replace('.script', '.jobs'))
+
     @staticmethod
     def read(path):
         """Read a script file to construct a :obj:`~pyjob.script.Script`
