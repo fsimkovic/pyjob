@@ -83,30 +83,30 @@ class PortableBatchSystemTask(ClusterTask):
         self.runscript = self._create_runscript()
         self.runscript.write()
         self.pid = cexec(['qsub', self.runscript.path], cwd=self.directory)
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, self.runscript.path)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__qualname__, self.pid, self.runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""
         runscript = Script(directory=self.directory, prefix='pbs_', suffix='.script', stem=str(uuid.uuid1().int))
         runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -V')
-        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -N {}'.format(self.name))
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -N {self.name}')
         if self.directory:
-            cmd = '-w {}'.format(self.directory)
+            cmd = f'-w {self.directory}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.priority:
-            cmd = '-p {}'.format(self.priority)
+            cmd = f'-p {self.priority}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.queue:
-            cmd = '-q {}'.format(self.queue)
+            cmd = f'-q {self.queue}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.runtime:
-            cmd = '-l walltime={}'.format(self.get_time(self.runtime))
+            cmd = f'-l walltime={self.get_time(self.runtime)}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.shell:
-            cmd = '-S {}'.format(self.shell)
+            cmd = f'-S {self.shell}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.nprocesses:
-            cmd = '-n {}'.format(self.nprocesses)
+            cmd = f'-n {self.nprocesses}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.extra:
             cmd = ' '.join(map(str, self.extra))
@@ -116,13 +116,13 @@ class PortableBatchSystemTask(ClusterTask):
             jobsf = runscript.path.replace('.script', '.jobs')
             with open(jobsf, 'w') as f_out:
                 f_out.write('\n'.join(self.script))
-            cmd = '-t {}-{}%{}'.format(1, len(self.script), self.max_array_size)
+            cmd = f'-t 1-{len(self.script)}%{self.max_array_size}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -e {}'.format(logf))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -o {logf}')
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -e {logf}')
             runscript.extend(self.get_array_bash_extension(jobsf, 0))
         else:
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(self.log[0]))
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -e {}'.format(self.log[0]))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -o {self.log[0]}')
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -e {self.log[0]}')
             runscript.append(self.script[0])
         return runscript

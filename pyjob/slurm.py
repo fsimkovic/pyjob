@@ -69,27 +69,27 @@ class SlurmTask(ClusterTask):
         self.runscript.write()
         stdout = cexec(['sbatch', self.runscript.path], cwd=self.directory)
         self.pid = int(stdout.strip().split()[-1])
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, self.runscript.path)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__qualname__, self.pid, self.runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""
         runscript = Script(directory=self.directory, prefix='slurm_', suffix='.script', stem=str(uuid.uuid1().int))
         runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' --export=ALL')
-        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' --job-name={}'.format(self.name))
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' --job-name={self.name}')
         if self.dependency:
-            cmd = '--depend=afterok:{}'.format(':'.join(map(str, self.dependency)))
+            cmd = f'--depend=afterok:{":".join(map(str, self.dependency))}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.queue:
-            cmd = '-p {}'.format(self.queue)
+            cmd = f'-p {self.queue}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.nprocesses:
-            cmd = '-n {}'.format(self.nprocesses)
+            cmd = f'-n {self.nprocesses}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.directory:
-            cmd = '--workdir={}'.format(self.directory)
+            cmd = f'--workdir={self.directory}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.runtime:
-            cmd = '-t {}'.format(self.get_time(self.runtime))
+            cmd = f'-t {self.runtime}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.extra:
             cmd = ' '.join(map(str, self.extra))
@@ -99,11 +99,11 @@ class SlurmTask(ClusterTask):
             jobsf = runscript.path.replace('.script', '.jobs')
             with open(jobsf, 'w') as f_out:
                 f_out.write('\n'.join(self.script))
-            cmd = '--array={}-{}%{}'.format(1, len(self.script), self.max_array_size)
+            cmd = f'--array=1-{len(self.script)}%{self.max_array_size}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -o {logf}')
             runscript.extend(self.get_array_bash_extension(jobsf, 0))
         else:
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(self.log[0]))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -o {self.log[0]}')
             runscript.append(self.script[0])
         return runscript

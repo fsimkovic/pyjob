@@ -71,4 +71,4 @@ def TaskFactory(platform, *args, **kwargs):
         module, class_ = TASK_PLATFORMS[platform]
         return getattr(importlib.import_module(module), class_)(*args, **kwargs)
     else:
-        raise PyJobUnknownTaskPlatform('Unknown platform: %s' % platform)
+        raise PyJobUnknownTaskPlatform(f'Unknown platform: {platform}')

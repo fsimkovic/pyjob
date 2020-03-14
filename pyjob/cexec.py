@@ -108,7 +108,7 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
     """
     executable = which(cmd[0])
     if executable is None:
-        raise PyJobExecutableNotFoundError('Cannot find executable: %s' % cmd[0])
+        raise PyJobExecutableNotFoundError(f'Cannot find executable: {cmd[0]}')
     cmd[0] = executable
 
     logger.debug('Executing "%s"', ' '.join(cmd))
@@ -142,5 +142,6 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
             logger.debug("Ignoring non-zero returncode %d for '%s'", p.returncode, " ".join(cmd))
             return stdout
         else:
-            msg = "Execution of '{}' exited with non-zero return code ({})"
-            raise PyJobExecutionError(msg.format(' '.join(cmd), p.returncode))
+            raise PyJobExecutionError(
+                f"Execution of \'{' '.join(cmd)}\' exited with non-zero return code ({p.returncode})"
+            )

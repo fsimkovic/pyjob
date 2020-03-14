@@ -53,11 +53,7 @@ class ScriptProperty(enum.Enum):
         self.suffix = suffix
 
 
-if sys.platform.startswith('win'):
-    EXE_EXT = '.exe'
-else:
-    EXE_EXT = ''
-
+EXE_EXT = '.exe' if sys.platform.startswith('win') else ''
 SCRIPT_HEADER, SCRIPT_EXT = (ScriptProperty.SHELL.shebang, ScriptProperty.SHELL.suffix)
 
 
@@ -90,7 +86,7 @@ class ScriptCollector(object):
 
     def __repr__(self):
         """Representation function"""
-        return '{}(nscripts={})'.format(self.__class__.__name__, len(self))
+        return f'{self.__class__.__qualname__}(nscripts={len(self)})'
 
     @property
     def scripts(self):
@@ -182,6 +178,7 @@ class Script(list):
 
     def __init__(
         self,
+        *,
         shebang=ScriptProperty.SHELL.shebang,
         directory='.',
         prefix='tmp',
@@ -260,16 +257,6 @@ class Script(list):
         return os.path.join(self.directory, self.prefix + self.stem + self.suffix)
 
     @property
-    def shebang(self):
-        """:obj:`~pyjob.script.Script` shebang"""
-        return self._shebang
-
-    @shebang.setter
-    def shebang(self, value):
-        """:obj:`~pyjob.script.Script` shebang"""
-        self._shebang = value
-
-    @property
     def suffix(self):
         """:obj:`~pyjob.script.Script` file suffix"""
         return self._suffix
@@ -289,15 +276,11 @@ class Script(list):
         os.chmod(fname, 0o777)
 
     def cleanup(self):
-        """Cleanup :attr:`~pyjob.script.Script.path` and :attr:`~pyjob.script.Script.log` files if they exist"""
-
-        if os.path.isfile(self.path):
-            os.remove(self.path)
-        if os.path.isfile(self.log):
-            os.remove(self.log)
-        # This bit is for cluster tasks
-        if os.path.isfile(self.path.replace('.script', '.jobs')):
-            os.remove(self.path.replace('.script', '.jobs'))
+        """Cleanup :attr:`~pyjob.script.Script.path` and :attr:`~pyjob.script.Script.log` files."""
+        fnames = [self.path, self.log, self.path.replace('.script', '.jobs')]
+        for fname in fnames:
+            if os.path.isfile(fname):
+                os.remove(fname)
 
     @staticmethod
     def read(path):
@@ -349,7 +332,7 @@ class LocalScriptCreator(object):
 
     """
 
-    def __init__(self, func=None, iterable=None, processes=1):
+    def __init__(self, *, func=None, iterable=None, processes=1):
         """Instantiate a new :obj:`~pyjob.script.LocalScriptCreator`
 
         Parameters

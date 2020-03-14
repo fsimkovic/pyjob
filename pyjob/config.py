@@ -23,6 +23,8 @@
 __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
+from collections import UserDict
+from functools import wraps
 import logging
 import os
 import sys
@@ -30,11 +32,6 @@ import yaml
 
 from pyjob.exception import DictLockedError
 
-if sys.version_info.major < 3:
-    FileNotFoundError = IOError
-    from UserDict import UserDict
-else:
-    from collections import UserDict
 
 logger = logging.getLogger(__name__)
 
@@ -49,14 +46,14 @@ class ImmutableDictMixin(object):
         self._locked = False
 
     @staticmethod
-    def assert_lock(outer):
-        def inner(*args, **kwargs):
-            # Inside class args[0] == self
-            if args[0]._locked:
+    def assert_lock(fn):
+        @wraps(fn)
+        def wrapper(self, *args, **kwargs):
+            if self._locked:
                 raise DictLockedError('Dictionary locked, cannot override value')
-            return outer(*args, **kwargs)
+            return fn(self, *args, **kwargs)
 
-        return inner
+        return wrapper
 
 
 class PyJobConfig(UserDict, ImmutableDictMixin):
@@ -70,22 +67,23 @@ class PyJobConfig(UserDict, ImmutableDictMixin):
                 pass
             else:
                 raise RuntimeError('Cannot create configuration directory')
+
     file = os.path.join(_directory, 'pyjob.yml')
     if not os.path.isfile(file):
         open(file, 'w').close()
 
     @ImmutableDictMixin.assert_lock
     def __setitem__(self, key, value):
-        super(PyJobConfig, self).__setitem__(key, value)
+        super().__setitem__(key, value)
 
     @ImmutableDictMixin.assert_lock
     def setdefault(self, key, value=None):
-        super(PyJobConfig, self).setdefault(key, value=value)
+        super().setdefault(key, value=value)
         self.write()
 
     @ImmutableDictMixin.assert_lock
     def update(self, *args, **kwargs):
-        super(PyJobConfig, self).update(*args, **kwargs)
+        super().update(*args, **kwargs)
 
     def write(self):
         data = yaml.dump(dict(self), default_flow_style=False)
@@ -116,8 +114,7 @@ class PyJobConfig(UserDict, ImmutableDictMixin):
             raise FileNotFoundError('Cannot find YAML file')
         with open(yamlf, 'r') as f:
             data = yaml.safe_load(f)
-        if data is None:
-            data = {}
+        data = data or {}
         config = PyJobConfig(**data)
         config.dir = os.path.dirname(yamlf)
         config.file = yamlf
