@@ -45,11 +45,3 @@ class Pool(multiprocessing.pool.Pool):
     def __init__(self, *args, **kwargs):
         processes = kwargs.pop('processes') or config.get('processes') or None
         super(Pool, self).__init__(processes=processes, *args, **kwargs)
-
-    if sys.version_info.major < 3:
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, exc_type, exc_val, exc_tb):
-            self.terminate()

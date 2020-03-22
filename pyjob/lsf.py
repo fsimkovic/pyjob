@@ -85,31 +85,31 @@ class LoadSharingFacilityTask(ClusterTask):
         self.runscript.write()
         stdout = cexec(['bsub'], stdin=str(self.runscript), cwd=self.directory)
         self.pid = int(stdout.split()[1][1:-1])
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, self.runscript.path)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__qualname__, self.pid, self.runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""
         runscript = Script(directory=self.directory, prefix='lsf_', suffix='.script', stem=str(uuid.uuid1().int))
         if self.dependency:
-            cmd = '-w {}'.format(' && '.join(['deps(%s)' % str(d) for d in self.dependency]))
+            cmd = '-w {}'.format(' && '.join([f'deps({d})' for d in self.dependency]))
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.directory:
-            cmd = '-cwd {}'.format(self.directory)
+            cmd = f'-cwd {self.directory}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.priority:
-            cmd = '-sp {}'.format(self.priority)
+            cmd = f'-sp {self.priority}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.queue:
-            cmd = '-q {}'.format(self.queue)
+            cmd = f'-q {self.queue}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.runtime:
-            cmd = '-W {}'.format(self.runtime)
+            cmd = f'-W {self.runtime}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.shell:
-            cmd = '-L {}'.format(self.shell)
+            cmd = f'-L {self.shell}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.nprocesses:
-            cmd = '-R "span[ptile={}]"'.format(self.nprocesses)
+            cmd = f'-R "span[ptile={self.nprocesses}]"'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.extra:
             cmd = ' '.join(map(str, self.extra))
@@ -119,12 +119,12 @@ class LoadSharingFacilityTask(ClusterTask):
             jobsf = runscript.path.replace('.script', '.jobs')
             with open(jobsf, 'w') as f_out:
                 f_out.write('\n'.join(self.script))
-            cmd = '-J {}[{}-{}]%{}'.format(self.name, 1, len(self.script), self.max_array_size)
+            cmd = f'-J {self.name}[1-{len(self.script)}]%{self.max_array_size}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -o {logf}')
             runscript.extend(self.get_array_bash_extension(jobsf, 1))
         else:
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -J {}'.format(self.name))
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(self.log[0]))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -J {self.name}')
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -o {self.log[0]}')
             runscript.append(self.script[0])
         return runscript

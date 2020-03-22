@@ -123,13 +123,17 @@ class SunGridEngineTask(ClusterTask):
 
         sge_config_by_env = self.get_sge_avail_configs(SGEConfigParameter.ENVIRONMENT)
         if self.environment and self.environment not in sge_config_by_env:
-            raise PyJobError('Requested environment {} cannot be found. List of available environments: {}'
-                             ''.format(self.environment, sge_config_by_env))
+            raise PyJobError(
+                f'Requested environment {self.environment} cannot be found. '
+                f'List of available environments: {sge_config_by_env}'
+            )
 
         sge_config_by_queue = self.get_sge_avail_configs(SGEConfigParameter.QUEUE)
         if self.queue and self.queue not in sge_config_by_queue:
-            raise PyJobError('Requested queue {} cannot be found. List of available queues: {}'
-                             ''.format(self.environment, sge_config_by_queue))
+            raise PyJobError(
+                f'Requested queue {self.environment} cannot be found. '
+                f'List of available queues: {sge_config_by_queue}'
+            )
 
     def kill(self):
         """Immediately terminate the :obj:`~pyjob.sge.SunGridEngineTask`"""
@@ -150,7 +154,7 @@ class SunGridEngineTask(ClusterTask):
                     self.pid = int(line.split()[2].split(".")[0])
                 else:
                     self.pid = int(line.split()[2])
-        logger.debug('%s [%d] submission script is %s', self.__class__.__name__, self.pid, self.runscript.path)
+        logger.debug('%s [%d] submission script is %s', self.__class__.__qualname__, self.pid, self.runscript.path)
 
     def _create_runscript(self):
         """Utility method to create runscript"""
@@ -158,27 +162,27 @@ class SunGridEngineTask(ClusterTask):
         runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -V')
         runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -w e')
         runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -j yes')
-        runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -N {}'.format(self.name))
+        runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -N {self.name}')
         if self.dependency:
-            cmd = '-hold_jid {}'.format(','.join(map(str, self.dependency)))
+            cmd = f'-hold_jid {",".join(map(str, self.dependency))}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.priority:
-            cmd = '-p {}'.format(self.priority)
+            cmd = f'-p {self.priority}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.queue:
-            cmd = '-q {}'.format(self.queue)
+            cmd = f'-q {self.queue}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.runtime:
-            cmd = '-l h_rt={}'.format(self.get_time(self.runtime))
+            cmd = f'-l h_rt={self.get_time(self.runtime)}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.shell:
-            cmd = '-S {}'.format(self.shell)
+            cmd = f'-S {self.shell}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.nprocesses and self.environment:
-            cmd = '-pe {} {}'.format(self.environment, self.nprocesses)
+            cmd = f'-pe {self.environment} {self.nprocesses}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.directory:
-            cmd = '-wd {}'.format(self.directory)
+            cmd = f'-wd {self.directory}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
         if self.extra:
             cmd = ' '.join(map(str, self.extra))
@@ -188,11 +192,11 @@ class SunGridEngineTask(ClusterTask):
             jobsf = runscript.path.replace('.script', '.jobs')
             with open(jobsf, 'w') as f_out:
                 f_out.write('\n'.join(self.script))
-            cmd = '-t {}-{} -tc {}'.format(1, len(self.script), self.max_array_size)
+            cmd = f'-t 1-{len(self.script)} -tc {self.max_array_size}'
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' ' + cmd)
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(logf))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -o {logf}')
             runscript.extend(self.get_array_bash_extension(jobsf, 0))
         else:
-            runscript.append(self.__class__.SCRIPT_DIRECTIVE + ' -o {}'.format(self.log[0]))
+            runscript.append(self.__class__.SCRIPT_DIRECTIVE + f' -o {self.log[0]}')
             runscript.append(self.script[0])
         return runscript

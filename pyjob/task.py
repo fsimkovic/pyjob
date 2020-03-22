@@ -32,11 +32,10 @@ from pyjob import cexec, config
 from pyjob.exception import PyJobError, PyJobExecutableNotFoundError, PyJobTaskLockedError
 from pyjob.script import ScriptCollector
 
-ABC = abc.ABCMeta('ABC', (object,), {})
 logger = logging.getLogger(__name__)
 
 
-class Task(ABC):
+class Task(abc.ABC):
     """Abstract base class for executable tasks"""
 
     def __init__(self, script, *args, **kwargs):
@@ -54,7 +53,7 @@ class Task(ABC):
             self.script_collector = script
         else:
             self.script_collector = ScriptCollector(script)
-        # These arguments are universal to all Task entities
+
         self.directory = os.path.abspath(kwargs.get('directory') or config.get('directory') or '.')
         self.nprocesses = kwargs.get('processes') or config.get('processes') or 1
 
@@ -88,29 +87,26 @@ class Task(ABC):
 
     def __repr__(self):
         """Representation of the :obj:`~pyjob.task.Task`"""
-        return '{}(pid={})'.format(self.__class__.__name__, self.pid)
+        return f'{self.__class__.__qualname__}(pid={self.pid})'
 
     # ------------------ Abstract methods and properties ------------------
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def info(self):  # pragma: no cover
         """Abstract property to provide info about the :obj:`~pyjob.task.Task`"""
-        pass
 
     @abc.abstractmethod
     def close(self):  # pragma: no cover
         """Abstract method to end :obj:`~pyjob.task.Task`"""
-        pass
 
     @abc.abstractmethod
     def kill(self):  # pragma: no cover
         """Abstract method to forcefully terminate :obj:`~pyjob.task.Task`"""
-        pass
 
     @abc.abstractmethod
     def _run(self):  # pragma: no cover
         """Abstract property to start execution of the :obj:`~pyjob.task.Task`"""
-        pass
 
     # ------------------ Other task-specific general methods ------------------
 
@@ -145,7 +141,7 @@ class Task(ABC):
         """
         if isinstance(minutes, int) and minutes > 0:
             h, m = divmod(minutes, 60)
-            return '{0:02d}:{1:02d}:00'.format(h, m)
+            return f'{h:02d}:{m:02d}:00'
         else:
             raise PyJobError('Task runtime has to be a positive integer!')
 
@@ -165,7 +161,7 @@ class Task(ABC):
     def lock(self):
         """Lock this :obj:`~pyjob.task.Task`"""
         self.locked = True
-        logger.debug('Locked %s [%d]', self.__class__.__name__, self.pid)
+        logger.debug('Locked %s [%d]', self.__class__.__qualname__, self.pid)
 
     def run(self):
         """Start the execution of this :obj:`~pyjob.task.Task`
@@ -184,7 +180,7 @@ class Task(ABC):
             raise PyJobError('One or more executable scripts required prior to execution')
         self.script_collector.dump()
         self._run()
-        logger.debug('Started execution of %s [%d]', self.__class__.__name__, self.pid)
+        logger.debug('Started execution of %s [%d]', self.__class__.__qualname__, self.pid)
         self.lock()
 
     def wait(self, interval=30, monitor_f=None, success_f=None):
@@ -217,13 +213,13 @@ class Task(ABC):
 
         if check_success:
             msg = 'Checking for %s %d success with function %s'
-            logger.debug(msg, self.__class__.__name__, self.pid, success_f.__name__)
+            logger.debug(msg, self.__class__.__qualname__, self.pid, success_f.__name__)
 
         while not self.completed:
             if check_success:
                 for log in self.log:
                     if is_successful_run(log):
-                        logger.debug("%s %d succeeded, run log: %s", self.__class__.__name__, self.pid, log)
+                        logger.debug("%s %d succeeded, run log: %s", self.__class__.__qualname__, self.pid, log)
                         self.kill()
             callback()
             time.sleep(interval)
@@ -251,7 +247,6 @@ class ClusterTask(Task):
     @abc.abstractmethod
     def _create_runscript(self):
         """Utility method to create a :obj:`~pyjob.task.ClusterTask` runscript"""
-        pass
 
     @staticmethod
     def _ensure_exec_available(exe):
@@ -271,11 +266,10 @@ class ClusterTask(Task):
         try:
             cexec([exe])
         except PyJobExecutableNotFoundError:
-            raise PyJobError('Cannot find executable {}. Please ensure environment is set up correctly.'.format(exe))
+            raise PyJobError(f'Cannot find executable {exe}. Please ensure environment is set up correctly.')
 
     def _check_requirements(self):
         """Abstract method to check if the user input meets the requirements for the task execution"""
-        pass
 
     def close(self):
         """Close this :obj:`~pyjob.sge.ClusterTask` after completion"""
@@ -310,8 +304,9 @@ class ClusterTask(Task):
             raise ValueError('Valid job file required')
         if offset < 0:
             raise ValueError('Invalid offset')
+        job_array_index = self.__class__.JOB_ARRAY_INDEX
         if offset > 0:
-            script_def = 'script=$(awk "NR==$(({} + {}))" {})'.format(self.__class__.JOB_ARRAY_INDEX, offset, jobsf)
+            script_def = f'script=$(awk "NR==$(({job_array_index} + {offset}))" {jobsf})'
         else:
-            script_def = 'script=$(awk "NR=={}" {})'.format(self.__class__.JOB_ARRAY_INDEX, jobsf)
+            script_def = f'script=$(awk "NR=={job_array_index}" {jobsf})'
         return [script_def, 'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")', '$script > $log 2>&1']

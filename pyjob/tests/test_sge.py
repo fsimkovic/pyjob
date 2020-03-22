@@ -9,7 +9,6 @@ from pyjob.sge import SunGridEngineTask, SGEConfigParameter
 
 
 class MockSunGridEngineTask(SunGridEngineTask):
-
     def get_sge_avail_configs(cls, param):
         """Override :py:func:`~pyjob.ClusterTask.get_sge_avail_configs` for testing purposes"""
 
@@ -26,7 +25,6 @@ class MockSunGridEngineTask(SunGridEngineTask):
 
 @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
 class TestCreateRunscript(object):
-
     @mock.patch('pyjob.sge.SunGridEngineTask._check_requirements')
     def test_1(self, check_requirements_mock):
         check_requirements_mock.return_value = None
@@ -310,10 +308,10 @@ class TestCreateRunscript(object):
         paths = [s.path for s in scripts]
 
         with pytest.raises(PyJobError):
-            task = MockSunGridEngineTask(paths, extra=['-l mem=100', '-r yes'], environment='dummy-environment',
-                                         queue='low.q')
+            task = MockSunGridEngineTask(
+                paths, extra=['-l mem=100', '-r yes'], environment='dummy-environment', queue='low.q'
+            )
         with pytest.raises(PyJobError):
-            task = MockSunGridEngineTask(paths, extra=['-l mem=100', '-r yes'], environment='mpi',
-                                         queue='dummy-queue')
+            task = MockSunGridEngineTask(paths, extra=['-l mem=100', '-r yes'], environment='mpi', queue='dummy-queue')
 
         task = MockSunGridEngineTask(paths, extra=['-l mem=100', '-r yes'], environment='mpi', queue='medium.q')

@@ -24,6 +24,7 @@ __author__ = 'Felix Simkovic'
 __version__ = '1.0'
 
 import chardet.universaldetector
+from functools import wraps
 import os
 import sys
 import tempfile
@@ -152,17 +153,18 @@ def deprecate(version, msg=None):
 
     """
 
-    def deprecate_decorator(callable_):
-        def warn(*args, **kwargs):
-            message = "%s has been deprecated and will be removed in version %s!" % (callable_.__name__, version)
+    def outer(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            message = f"{callable.__qualname__} has been deprecated and will be removed in version {version}!"
             if msg:
-                message += " - %s" % msg
+                message += f" - {msg}"
             warnings.warn(message, DeprecationWarning)
-            return callable_(*args, **kwargs)
+            return fn(*args, **kwargs)
 
-        return warn
+        return wrapper
 
-    return deprecate_decorator
+    return outer
 
 
 def typecast(value):

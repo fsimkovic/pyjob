@@ -42,7 +42,7 @@ class Time(object):
         self._end_time = 0.0
 
     def __repr__(self):
-        return "{}(index={} time={}s)".format(self.__class__.__name__, self.index, self.time)
+        return f"{self.__class__.__qualname__}(index={self.index} time={self.time}s)"
 
     def __add__(self, other):
         """Add the lap times"""
@@ -66,11 +66,7 @@ class Time(object):
 
 
 class Lap(Time):
-    """Lap time"""
-
-    def __init__(self, index):
-        """Instantiate a new :obj:`~pyjob.stopwatch.Lap`"""
-        super(Lap, self).__init__(index)
+    pass
 
 
 class Interval(Time):
@@ -78,7 +74,7 @@ class Interval(Time):
 
     def __init__(self, index):
         """Instantiate a new :obj:`~pyjob.stopwatch.Interval`"""
-        super(Interval, self).__init__(index)
+        super().__init__(index)
 
         self._laps = []
         self._locked = False
@@ -162,7 +158,7 @@ class StopWatch(Time):
 
     def __init__(self):
         """Instantiate a new :obj:`~pyjob.stopwatch.StopWatch`"""
-        super(StopWatch, self).__init__(1)
+        super().__init__(1)
         self.reset()
 
     def __enter__(self):
@@ -191,7 +187,7 @@ class StopWatch(Time):
         return self._intervals[id]
 
     def __repr__(self):
-        return "{}(time={}s intervals={})".format(self.__class__.__name__, self.time, len(self._intervals))
+        return f"{self.__class__.__qualname__}(time={self.time}s intervals={len(self._intervals)})"
 
     @property
     def intervals(self):
@@ -203,8 +199,7 @@ class StopWatch(Time):
         """Take a lap snapshot"""
         if len(self._intervals) > 0 and self._intervals[-1]._running:
             return self._intervals[-1].lap
-        else:
-            logger.critical("Cannot add a lap, stopwatch not running!")
+        logger.critical("Cannot add a lap, stopwatch not running!")
 
     @property
     def nintervals(self):

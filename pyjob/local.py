@@ -43,7 +43,8 @@ class LocalTask(Task):
 
     def __init__(self, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.local.LocalTask`"""
-        super(LocalTask, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
         self.queue = multiprocessing.Queue()
         self.kill_switch = multiprocessing.Event()
         self.processes = []
