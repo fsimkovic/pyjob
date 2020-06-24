@@ -1,29 +1,3 @@
-# MIT License
-#
-# Copyright (c) 2017-18 Felix Simkovic
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-__author__ = 'Felix Simkovic'
-__contributors__ = ['Adam Simpkin']
-__version__ = '1.0'
-
 import enum
 import os
 import sys
@@ -39,21 +13,21 @@ class ScriptProperty(enum.Enum):
 
     # Tried to extend Enum but operation not allowed in Python3.7
     # https://docs.python.org/3/library/enum.html#restricted-subclassing-of-enumerations
-    if sys.platform.startswith('win'):
-        PERL = ('', '.pl')
-        PYTHON = ('', '.py')
-        SHELL = ('', '.bat')
+    if sys.platform.startswith("win"):
+        PERL = ("", ".pl")
+        PYTHON = ("", ".py")
+        SHELL = ("", ".bat")
     else:
-        PERL = ('#!/usr/bin/env perl', '.pl')
-        PYTHON = ('#!/usr/bin/env python', '.py')
-        SHELL = ('#!/bin/bash', '.sh')
+        PERL = ("#!/usr/bin/env perl", ".pl")
+        PYTHON = ("#!/usr/bin/env python", ".py")
+        SHELL = ("#!/bin/bash", ".sh")
 
     def __init__(self, shebang, suffix):
         self.shebang = shebang
         self.suffix = suffix
 
 
-EXE_EXT = '.exe' if sys.platform.startswith('win') else ''
+EXE_EXT = ".exe" if sys.platform.startswith("win") else ""
 SCRIPT_HEADER, SCRIPT_EXT = (ScriptProperty.SHELL.shebang, ScriptProperty.SHELL.suffix)
 
 
@@ -86,7 +60,7 @@ class ScriptCollector(object):
 
     def __repr__(self):
         """Representation function"""
-        return f'{self.__class__.__qualname__}(nscripts={len(self)})'
+        return f"{self.__class__.__qualname__}(nscripts={len(self)})"
 
     @property
     def scripts(self):
@@ -158,7 +132,7 @@ class ScriptCollector(object):
             for s in script:
                 self._save_script(s)
         else:
-            raise PyJobError('Unrecognised executable input')
+            raise PyJobError("Unrecognised executable input")
 
 
 class Script(list):
@@ -180,9 +154,9 @@ class Script(list):
         self,
         *,
         shebang=ScriptProperty.SHELL.shebang,
-        directory='.',
-        prefix='tmp',
-        stem='pyjob',
+        directory=".",
+        prefix="tmp",
+        stem="pyjob",
         suffix=ScriptProperty.SHELL.suffix,
     ):
         """Instantiate a new :obj:`~pyjob.script.Script`
@@ -210,10 +184,12 @@ class Script(list):
     def __add__(self, other):
         """Combine two :obj:`~pyjob.script.Script` instances"""
         if self.shebang != other.shebang:
-            raise TypeError('Invalid shebang combination')
+            raise TypeError("Invalid shebang combination")
         if self.suffix != other.suffix:
-            raise TypeError('Invalid suffix combination')
-        script = Script(stem=self.stem + '-' + other.stem, shebang=self.shebang, suffix=self.suffix)
+            raise TypeError("Invalid suffix combination")
+        script = Script(
+            stem=self.stem + "-" + other.stem, shebang=self.shebang, suffix=self.suffix
+        )
         script.content = [line for script in [self, other] for line in script]
         return script
 
@@ -222,7 +198,7 @@ class Script(list):
         content = self[:]
         if len(self.shebang) > 0:
             content.insert(0, self.shebang)
-        return '\n'.join(map(str, content))
+        return "\n".join(map(str, content))
 
     @property
     def content(self):
@@ -249,7 +225,7 @@ class Script(list):
     @property
     def log(self):
         """Path to the log of the the :obj:`~pyjob.script.Script`"""
-        return self.path.rsplit('.', 1)[0] + '.log'
+        return self.path.rsplit(".", 1)[0] + ".log"
 
     @property
     def path(self):
@@ -264,20 +240,20 @@ class Script(list):
     @suffix.setter
     def suffix(self, value):
         """:obj:`~pyjob.script.Script` file suffix"""
-        if value is None or len(value) < 1 or '.' not in value:
-            raise ValueError('Script suffix required!')
+        if value is None or len(value) < 1 or "." not in value:
+            raise ValueError("Script suffix required!")
         self._suffix = value
 
     def write(self):
         """Write the :obj:`~pyjob.script.Script` to :attr:`~pyjob.script.Script.path`"""
         fname = self.path
-        with open(fname, 'w') as f_out:
+        with open(fname, "w") as f_out:
             f_out.write(str(self))
         os.chmod(fname, 0o777)
 
     def cleanup(self):
         """Cleanup :attr:`~pyjob.script.Script.path` and :attr:`~pyjob.script.Script.log` files."""
-        fnames = [self.path, self.log, self.path.replace('.script', '.jobs')]
+        fnames = [self.path, self.log, self.path.replace(".script", ".jobs")]
         for fname in fnames:
             if os.path.isfile(fname):
                 os.remove(fname)
@@ -308,13 +284,13 @@ class Script(list):
         """
         directory, fname = os.path.split(path)
         fname, ext = os.path.splitext(fname)
-        script = Script(directory=directory, prefix='', stem=fname, suffix=ext)
-        with open(path, 'r') as f:
+        script = Script(directory=directory, prefix="", stem=fname, suffix=ext)
+        with open(path, "r") as f:
             lines = f.read().splitlines()
-        if len(lines) > 0 and lines[0][:2] == '#!':
+        if len(lines) > 0 and lines[0][:2] == "#!":
             script.shebang = lines.pop(0)
         else:
-            script.shebang = ''
+            script.shebang = ""
         script.extend(lines)
         return script
 

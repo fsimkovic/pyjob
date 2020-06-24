@@ -1,28 +1,3 @@
-# MIT License
-#
-# Copyright (c) 2017-18 Felix Simkovic
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-__author__ = 'Felix Simkovic'
-__version__ = '1.0'
-
 import logging
 import multiprocessing
 import os
@@ -48,8 +23,8 @@ class LocalTask(Task):
         self.queue = multiprocessing.Queue()
         self.kill_switch = multiprocessing.Event()
         self.processes = []
-        self.chdir = kwargs.get('chdir', False)
-        self.permit_nonzero = kwargs.get('permit_nonzero', False)
+        self.chdir = kwargs.get("chdir", False)
+        self.permit_nonzero = kwargs.get("permit_nonzero", False)
         self._killed = False
 
     @property
@@ -61,14 +36,14 @@ class LocalTask(Task):
     def nprocesses(self, nprocesses):
         """Setter for the number of concurrent :obj:`~pyjob.local.LocalProcess`"""
         if nprocesses > CPU_COUNT:
-            logger.warning('More processes requested than available CPUs')
+            logger.warning("More processes requested than available CPUs")
         self._nprocesses = nprocesses
 
     @property
     def info(self):
         """:obj:`~pyjob.local.LocalTask` information"""
         if any(proc.is_alive() for proc in self.processes):
-            return {'job_number': self.pid, 'status': 'Running'}
+            return {"job_number": self.pid, "status": "Running"}
         return {}
 
     def close(self):
@@ -120,7 +95,9 @@ class LocalTask(Task):
 class LocalProcess(multiprocessing.Process):
     """Extension to :obj:`multiprocessing.Process` for :obj:`~pyjob.local.LocalTask`"""
 
-    def __init__(self, queue, kill_switch, directory=None, permit_nonzero=False, chdir=False):
+    def __init__(
+        self, queue, kill_switch, directory=None, permit_nonzero=False, chdir=False
+    ):
         """Instantiate a :obj:`~pyjob.local.LocalProcess`
 
         Parameters
@@ -155,6 +132,8 @@ class LocalProcess(multiprocessing.Process):
                 directory = os.path.dirname(job)
             else:
                 directory = self.directory
-            log = os.path.splitext(job)[0] + '.log'
-            with open(log, 'w') as f:
-                cexec([job], cwd=directory, stdout=f, permit_nonzero=self.permit_nonzero)
+            log = os.path.splitext(job)[0] + ".log"
+            with open(log, "w") as f:
+                cexec(
+                    [job], cwd=directory, stdout=f, permit_nonzero=self.permit_nonzero
+                )

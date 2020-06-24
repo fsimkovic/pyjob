@@ -1,5 +1,3 @@
-__author__ = 'Felix Simkovic'
-
 import pytest
 
 from pyjob.local import CPU_COUNT
@@ -7,7 +5,7 @@ from pyjob.pool import Pool
 
 
 # https://docs.python.org/2/library/multiprocessing.html#windows
-@pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
+@pytest.mark.skipif(pytest.on_windows, reason="Deadlock on Windows")
 class TestPool(object):
     def test_1(self):
         with Pool(processes=1) as pool:

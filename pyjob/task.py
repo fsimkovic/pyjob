@@ -1,35 +1,14 @@
-# MIT License
-#
-# Copyright (c) 2017-18 Felix Simkovic
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-__author__ = 'Felix Simkovic'
-__version__ = '1.0'
-
 import abc
 import logging
 import os
 import time
 
 from pyjob import cexec, config
-from pyjob.exception import PyJobError, PyJobExecutableNotFoundError, PyJobTaskLockedError
+from pyjob.exception import (
+    PyJobError,
+    PyJobExecutableNotFoundError,
+    PyJobTaskLockedError,
+)
 from pyjob.script import ScriptCollector
 
 logger = logging.getLogger(__name__)
@@ -54,8 +33,10 @@ class Task(abc.ABC):
         else:
             self.script_collector = ScriptCollector(script)
 
-        self.directory = os.path.abspath(kwargs.get('directory') or config.get('directory') or '.')
-        self.nprocesses = kwargs.get('processes') or config.get('processes') or 1
+        self.directory = os.path.abspath(
+            kwargs.get("directory") or config.get("directory") or "."
+        )
+        self.nprocesses = kwargs.get("processes") or config.get("processes") or 1
 
     def __del__(self):
         """Exit function at instance deletion"""
@@ -87,7 +68,7 @@ class Task(abc.ABC):
 
     def __repr__(self):
         """Representation of the :obj:`~pyjob.task.Task`"""
-        return f'{self.__class__.__qualname__}(pid={self.pid})'
+        return f"{self.__class__.__qualname__}(pid={self.pid})"
 
     # ------------------ Abstract methods and properties ------------------
 
@@ -141,9 +122,9 @@ class Task(abc.ABC):
         """
         if isinstance(minutes, int) and minutes > 0:
             h, m = divmod(minutes, 60)
-            return f'{h:02d}:{m:02d}:00'
+            return f"{h:02d}:{m:02d}:00"
         else:
-            raise PyJobError('Task runtime has to be a positive integer!')
+            raise PyJobError("Task runtime has to be a positive integer!")
 
     def add_script(self, script):
         """Add further scripts to this :obj:`~pyjob.task.Task`
@@ -155,13 +136,13 @@ class Task(abc.ABC):
 
         """
         if self.locked:
-            raise PyJobTaskLockedError('This task is locked!')
+            raise PyJobTaskLockedError("This task is locked!")
         self.script_collector.add(script)
 
     def lock(self):
         """Lock this :obj:`~pyjob.task.Task`"""
         self.locked = True
-        logger.debug('Locked %s [%d]', self.__class__.__qualname__, self.pid)
+        logger.debug("Locked %s [%d]", self.__class__.__qualname__, self.pid)
 
     def run(self):
         """Start the execution of this :obj:`~pyjob.task.Task`
@@ -175,12 +156,16 @@ class Task(abc.ABC):
 
         """
         if self.locked:
-            raise PyJobTaskLockedError('This task is locked!')
+            raise PyJobTaskLockedError("This task is locked!")
         if len(self.script_collector) < 1:
-            raise PyJobError('One or more executable scripts required prior to execution')
+            raise PyJobError(
+                "One or more executable scripts required prior to execution"
+            )
         self.script_collector.dump()
         self._run()
-        logger.debug('Started execution of %s [%d]', self.__class__.__qualname__, self.pid)
+        logger.debug(
+            "Started execution of %s [%d]", self.__class__.__qualname__, self.pid
+        )
         self.lock()
 
     def wait(self, interval=30, monitor_f=None, success_f=None):
@@ -212,14 +197,19 @@ class Task(abc.ABC):
         callback = monitor_f if is_callable_fn(monitor_f) else lambda: None
 
         if check_success:
-            msg = 'Checking for %s %d success with function %s'
+            msg = "Checking for %s %d success with function %s"
             logger.debug(msg, self.__class__.__qualname__, self.pid, success_f.__name__)
 
         while not self.completed:
             if check_success:
                 for log in self.log:
                     if is_successful_run(log):
-                        logger.debug("%s %d succeeded, run log: %s", self.__class__.__qualname__, self.pid, log)
+                        logger.debug(
+                            "%s %d succeeded, run log: %s",
+                            self.__class__.__qualname__,
+                            self.pid,
+                            log,
+                        )
                         self.kill()
             callback()
             time.sleep(interval)
@@ -231,16 +221,22 @@ class ClusterTask(Task):
     def __init__(self, *args, **kwargs):
         """Instantiate a new :obj:`~pyjob.task.ClusterTask`"""
         super(ClusterTask, self).__init__(*args, **kwargs)
-        self.dependency = kwargs.get('dependency', [])
-        self.max_array_size = kwargs.get('max_array_size') or config.get('max_array_size') or len(self.script)
-        self.priority = kwargs.get('priority', None)
-        self.queue = kwargs.get('queue') or config.get('queue')
-        self.environment = kwargs.get('environment') or config.get('environment') or 'mpi'
-        self.runtime = kwargs.get('runtime') or config.get('runtime')
-        self.shell = kwargs.get('shell') or config.get('shell')
-        self.name = kwargs.get('name') or config.get('name') or 'pyjob'
-        self.extra = kwargs.get('extra', [])
-        self.cleanup = kwargs.get('cleanup') or config.get('cleanup') or False
+        self.dependency = kwargs.get("dependency", [])
+        self.max_array_size = (
+            kwargs.get("max_array_size")
+            or config.get("max_array_size")
+            or len(self.script)
+        )
+        self.priority = kwargs.get("priority", None)
+        self.queue = kwargs.get("queue") or config.get("queue")
+        self.environment = (
+            kwargs.get("environment") or config.get("environment") or "mpi"
+        )
+        self.runtime = kwargs.get("runtime") or config.get("runtime")
+        self.shell = kwargs.get("shell") or config.get("shell")
+        self.name = kwargs.get("name") or config.get("name") or "pyjob"
+        self.extra = kwargs.get("extra", [])
+        self.cleanup = kwargs.get("cleanup") or config.get("cleanup") or False
         self.runscript = None
         self._check_requirements()
 
@@ -266,7 +262,9 @@ class ClusterTask(Task):
         try:
             cexec([exe])
         except PyJobExecutableNotFoundError:
-            raise PyJobError(f'Cannot find executable {exe}. Please ensure environment is set up correctly.')
+            raise PyJobError(
+                f"Cannot find executable {exe}. Please ensure environment is set up correctly."
+            )
 
     def _check_requirements(self):
         """Abstract method to check if the user input meets the requirements for the task execution"""
@@ -301,12 +299,18 @@ class ClusterTask(Task):
 
         """
         if jobsf is None or not os.path.isfile(jobsf):
-            raise ValueError('Valid job file required')
+            raise ValueError("Valid job file required")
         if offset < 0:
-            raise ValueError('Invalid offset')
+            raise ValueError("Invalid offset")
         job_array_index = self.__class__.JOB_ARRAY_INDEX
         if offset > 0:
-            script_def = f'script=$(awk "NR==$(({job_array_index} + {offset}))" {jobsf})'
+            script_def = (
+                f'script=$(awk "NR==$(({job_array_index} + {offset}))" {jobsf})'
+            )
         else:
             script_def = f'script=$(awk "NR=={job_array_index}" {jobsf})'
-        return [script_def, 'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")', '$script > $log 2>&1']
+        return [
+            script_def,
+            'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")',
+            "$script > $log 2>&1",
+        ]

@@ -1,29 +1,3 @@
-# MIT License
-#
-# Copyright (c) 2017-18 Felix Simkovic
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-__author__ = 'Felix Simkovic'
-__contibutors__ = ['Jens Thomas']
-__version__ = '1.0'
-
 import logging
 import os
 import signal
@@ -108,22 +82,22 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
     """
     executable = which(cmd[0])
     if executable is None:
-        raise PyJobExecutableNotFoundError(f'Cannot find executable: {cmd[0]}')
+        raise PyJobExecutableNotFoundError(f"Cannot find executable: {cmd[0]}")
     cmd[0] = executable
 
-    logger.debug('Executing "%s"', ' '.join(cmd))
+    logger.debug('Executing "%s"', " ".join(cmd))
 
-    if os.name == 'nt':
-        kwargs.setdefault('bufsize', 0)
-        kwargs.setdefault('shell', 'False')
+    if os.name == "nt":
+        kwargs.setdefault("bufsize", 0)
+        kwargs.setdefault("shell", "False")
 
-    kwargs.setdefault('cwd', os.getcwd())
-    kwargs.setdefault('stdout', subprocess.PIPE)
-    kwargs.setdefault('stderr', subprocess.STDOUT)
+    kwargs.setdefault("cwd", os.getcwd())
+    kwargs.setdefault("stdout", subprocess.PIPE)
+    kwargs.setdefault("stderr", subprocess.STDOUT)
 
-    stdinstr = kwargs.get('stdin', None)
+    stdinstr = kwargs.get("stdin", None)
     if stdinstr and isinstance(stdinstr, str):
-        kwargs['stdin'] = subprocess.PIPE
+        kwargs["stdin"] = subprocess.PIPE
 
     try:
         p = subprocess.Popen(cmd, **kwargs)
@@ -139,9 +113,11 @@ def cexec(cmd, permit_nonzero=False, **kwargs):
         if p.returncode == 0:
             return stdout
         elif permit_nonzero:
-            logger.debug("Ignoring non-zero returncode %d for '%s'", p.returncode, " ".join(cmd))
+            logger.debug(
+                "Ignoring non-zero returncode %d for '%s'", p.returncode, " ".join(cmd)
+            )
             return stdout
         else:
             raise PyJobExecutionError(
-                f"Execution of \'{' '.join(cmd)}\' exited with non-zero return code ({p.returncode})"
+                f"Execution of '{' '.join(cmd)}' exited with non-zero return code ({p.returncode})"
             )

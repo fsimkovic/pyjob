@@ -1,5 +1,3 @@
-__author__ = 'Felix Simkovic'
-
 import os
 import pytest
 import sys
@@ -9,7 +7,7 @@ from pyjob.exception import PyJobError, PyJobTaskLockedError
 from pyjob.local import CPU_COUNT, LocalTask
 
 
-@pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
+@pytest.mark.skipif(pytest.on_windows, reason="Deadlock on Windows")
 class TestLocalTaskTermination(object):
     def test_terminate_1(self):
         scripts = [pytest.helpers.get_py_script(i, 10000) for i in range(4)]
@@ -51,7 +49,7 @@ class TestLocalTaskTermination(object):
         innerf()
         pytest.helpers.unlink(files)
 
-    @pytest.mark.skip(reason='Unstable test')
+    @pytest.mark.skip(reason="Unstable test")
     def test_terminate_5(self):
         scripts = [pytest.helpers.get_py_script(i, 1000000) for i in range(10)]
         with LocalTask(scripts, processes=min(CPU_COUNT, 2)) as task:
@@ -109,7 +107,7 @@ class TestLocalTaskTermination(object):
         assert all_found
 
 
-@pytest.mark.skipif(pytest.on_windows, reason='Deadlock on Windows')
+@pytest.mark.skipif(pytest.on_windows, reason="Deadlock on Windows")
 class TestLocalPerformance(object):
     def test_performance_1(self):
         scripts = [pytest.helpers.get_py_script(i, 1000) for i in range(4)]

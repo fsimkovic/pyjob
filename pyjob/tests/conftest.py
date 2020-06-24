@@ -1,5 +1,3 @@
-__author__ = 'Felix Simkovic'
-
 import inspect
 import os
 import pytest
@@ -14,9 +12,9 @@ pyjob.config = {}
 
 from pyjob.script import Script
 
-pytest_plugins = ['helpers_namespace']
+pytest_plugins = ["helpers_namespace"]
 
-pytest.on_windows = sys.platform.startswith('win')
+pytest.on_windows = sys.platform.startswith("win")
 
 
 @pytest.helpers.register
@@ -33,13 +31,18 @@ def fibonacci(n):
 
 @pytest.helpers.register
 def get_py_script(i, target):
-    script = Script(shebang='#!{}'.format(sys.executable), prefix='pyjob', stem='test{}'.format(i), suffix='.py')
+    script = Script(
+        shebang="#!{}".format(sys.executable),
+        prefix="pyjob",
+        stem="test{}".format(i),
+        suffix=".py",
+    )
     script.extend(inspect.getsource(fibonacci).splitlines())
     script.pop(0)  # remove decorator
     script.extend(
         [
             "if __name__ == '__main__':",
-            '\ttarget = {}'.format(target),
+            "\ttarget = {}".format(target),
             "\tprint('{}th fib is: {}'.format(target, fibonacci(target)))",
         ]
     )
@@ -55,4 +58,4 @@ def unlink(paths):
 
 @pytest.helpers.register
 def randomstr(n=5):
-    return ''.join(random.choice(string.ascii_lowercase) for _ in range(n))
+    return "".join(random.choice(string.ascii_lowercase) for _ in range(n))

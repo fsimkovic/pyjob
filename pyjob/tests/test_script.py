@@ -1,5 +1,3 @@
-__author__ = 'Felix Simkovic'
-
 import os
 import pytest
 import tempfile
@@ -53,11 +51,11 @@ class TestScriptCollector(object):
 
     def test_8(self):
         with pytest.raises(ValueError):
-            ScriptCollector(['test'])
+            ScriptCollector(["test"])
 
     def test_9(self):
         with pytest.raises(IOError):
-            ScriptCollector(['test.sh'])
+            ScriptCollector(["test.sh"])
 
     def test_10(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
@@ -107,60 +105,64 @@ class TestScriptCollector(object):
 
     def test_17(self):
         with pytest.raises(ValueError):
-            Script(suffix='')
+            Script(suffix="")
 
     def test_18(self):
         with pytest.raises(ValueError):
-            Script(suffix='x')
+            Script(suffix="x")
 
     def test_19(self):
         with pytest.raises(ValueError):
-            Script(suffix=',x')
+            Script(suffix=",x")
 
     def test_20(self):
         script = Script()
-        script.append('test line')
-        script.content = ['what the hell']
-        assert script == ['what the hell']
+        script.append("test line")
+        script.content = ["what the hell"]
+        assert script == ["what the hell"]
 
     def test_21(self):
         script = Script()
-        script.append('test line')
-        content = ['what the hell']
+        script.append("test line")
+        content = ["what the hell"]
         script.content = content
-        assert script == ['what the hell']
+        assert script == ["what the hell"]
         assert script is not content
 
 
 class TestScriptRead(object):
     def test_read_1(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.py')
+        fh = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".py")
         fh.write('#!/usr/bin/env python\nprint("PyJob is cool!")\n')
         fh.close()
         script = Script.read(fh.name)
-        assert script.shebang == '#!/usr/bin/env python'
+        assert script.shebang == "#!/usr/bin/env python"
         assert script.content == ['print("PyJob is cool!")']
         pytest.helpers.unlink([fh.name])
 
     def test_read_2(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.py')
+        fh = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".py")
         fh.write('print("PyJob is cool!")\n')
         fh.close()
         script = Script.read(fh.name)
-        assert script.shebang == ''
+        assert script.shebang == ""
         assert script.content == ['print("PyJob is cool!")']
         pytest.helpers.unlink([fh.name])
 
     def test_read_3(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
+        fh = tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=ScriptProperty.SHELL.suffix
+        )
         fh.close()
         script = Script.read(fh.name)
-        assert script.shebang == ''
+        assert script.shebang == ""
         assert script.content == []
         pytest.helpers.unlink([fh.name])
 
     def test_read_4(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
+        fh = tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=ScriptProperty.SHELL.suffix
+        )
         fh.write(ScriptProperty.SHELL.shebang)
         fh.close()
         script = Script.read(fh.name)
@@ -168,35 +170,43 @@ class TestScriptRead(object):
         assert script.content == []
         pytest.helpers.unlink([fh.name])
 
-    @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
+    @pytest.mark.skipif(pytest.on_windows, reason="Unavailable on Windows")
     def test_read_5(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
-        fh.write('\n' + ScriptProperty.SHELL.shebang)
+        fh = tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=ScriptProperty.SHELL.suffix
+        )
+        fh.write("\n" + ScriptProperty.SHELL.shebang)
         fh.close()
         script = Script.read(fh.name)
-        assert script.shebang == ''
-        assert script.content == ['', ScriptProperty.SHELL.shebang]
+        assert script.shebang == ""
+        assert script.content == ["", ScriptProperty.SHELL.shebang]
         pytest.helpers.unlink([fh.name])
 
     def test_read_6(self):
-        fh = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=ScriptProperty.SHELL.suffix)
-        fh.write('\n' + '')
+        fh = tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=ScriptProperty.SHELL.suffix
+        )
+        fh.write("\n" + "")
         fh.close()
         script = Script.read(fh.name)
-        assert script.shebang == ''
-        assert script.content == ['']
+        assert script.shebang == ""
+        assert script.content == [""]
         pytest.helpers.unlink([fh.name])
 
-    @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
+    @pytest.mark.skipif(pytest.on_windows, reason="Unavailable on Windows")
     def test_read_7(self):
         fh = tempfile.NamedTemporaryFile(
-            mode='w', dir='.', delete=True, prefix='pyjob', suffix=ScriptProperty.SHELL.suffix
+            mode="w",
+            dir=".",
+            delete=True,
+            prefix="pyjob",
+            suffix=ScriptProperty.SHELL.suffix,
         )
         script = Script.read(fh.name)
         fh.close()
         assert script.directory == os.getcwd()
-        assert script.prefix == ''
-        assert script.stem[:5] == 'pyjob'
+        assert script.prefix == ""
+        assert script.stem[:5] == "pyjob"
         assert script.suffix == ScriptProperty.SHELL.suffix
 
 
@@ -206,7 +216,7 @@ class TestIsValidScriptPath(object):
         fh.close()
         assert not is_valid_script_path(fh.name)
 
-    @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
+    @pytest.mark.skipif(pytest.on_windows, reason="Unavailable on Windows")
     def test_is_valid_script_path_2(self):
         fh = tempfile.NamedTemporaryFile(delete=True)
         assert not is_valid_script_path(fh.name)
@@ -222,25 +232,25 @@ class TestIsValidScriptPath(object):
 class TestScriptProperty(object):
     def test_1(self):
         if pytest.on_windows:
-            assert ScriptProperty.PERL.shebang == ''
+            assert ScriptProperty.PERL.shebang == ""
         else:
-            assert ScriptProperty.PERL.shebang == '#!/usr/bin/env perl'
-        assert ScriptProperty.PERL.suffix == '.pl'
+            assert ScriptProperty.PERL.shebang == "#!/usr/bin/env perl"
+        assert ScriptProperty.PERL.suffix == ".pl"
 
     def test_2(self):
         if pytest.on_windows:
-            assert ScriptProperty.PYTHON.shebang == ''
+            assert ScriptProperty.PYTHON.shebang == ""
         else:
-            assert ScriptProperty.PYTHON.shebang == '#!/usr/bin/env python'
-        assert ScriptProperty.PYTHON.suffix == '.py'
+            assert ScriptProperty.PYTHON.shebang == "#!/usr/bin/env python"
+        assert ScriptProperty.PYTHON.suffix == ".py"
 
     def test_3(self):
         if pytest.on_windows:
-            assert ScriptProperty.SHELL.shebang == ''
-            assert ScriptProperty.SHELL.suffix == '.bat'
+            assert ScriptProperty.SHELL.shebang == ""
+            assert ScriptProperty.SHELL.suffix == ".bat"
         else:
-            assert ScriptProperty.SHELL.shebang == '#!/bin/bash'
-            assert ScriptProperty.SHELL.suffix == '.sh'
+            assert ScriptProperty.SHELL.shebang == "#!/bin/bash"
+            assert ScriptProperty.SHELL.suffix == ".sh"
 
 
 class TestLocalScriptCreator(object):
@@ -249,15 +259,23 @@ class TestLocalScriptCreator(object):
 
     @staticmethod
     def example_function(option):
-        cmd = ['echo {}'.format(option)]
+        cmd = ["echo {}".format(option)]
         script = Script(directory=os.getcwd())
         for c in cmd:
             script.append(c)
         return script
 
-    @pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
+    @pytest.mark.skipif(pytest.on_windows, reason="Unavailable on Windows")
     def test_1(self):
         nproc = 2
         options = [1, 2, 3, 4, 5]
-        script_creator = LocalScriptCreator(func=self, iterable=options, processes=nproc)
-        assert script_creator.collector.scripts == [['echo 1'], ['echo 2'], ['echo 3'], ['echo 4'], ['echo 5']]
+        script_creator = LocalScriptCreator(
+            func=self, iterable=options, processes=nproc
+        )
+        assert script_creator.collector.scripts == [
+            ["echo 1"],
+            ["echo 2"],
+            ["echo 3"],
+            ["echo 4"],
+            ["echo 5"],
+        ]
