@@ -1,4 +1,4 @@
-name: Integration Pipeline
+name: Build
 
 on: [push]
 
@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: [3.6, 3.7, 3.8]
     steps:
     - uses: actions/checkout@master
@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install -U setuptools
+        python -m pip install .
     - name: Run tests
       run: python setup.py test
   
@@ -34,7 +34,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+        python -m pip install .
         python -m pip install codecov coverage pytest pytest-cov pytest-pep8 pytest-helpers-namespace
     - name: Generate coverage report
       run: |

@@ -1,3 +1,13 @@
+[build-system]
+requires = ["setuptools", "wheel", "pytest-runner"]
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 target-version = ['py37']
+
+[tool.pytest.ini_options]
+addopts = -vv --pep8 --pyargs pyjob
+pep8maxlinelength = 88
+pep8ignore = E402
+markers =
+    pep8: workaround for https://bitbucket.org/pytest-dev/pytest-pep8/issues/23/

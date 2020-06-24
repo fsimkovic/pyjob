@@ -1,18 +1,18 @@
 import inspect
 import os
-import pytest
 import random
 import string
 import sys
 
-# reset the configuration file to avoid potential collusion
 import pyjob
-
 pyjob.config = {}
 
 from pyjob.script import Script
 
 pytest_plugins = ["helpers_namespace"]
+
+
+import pytest
 
 pytest.on_windows = sys.platform.startswith("win")
 
