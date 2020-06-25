@@ -6,8 +6,7 @@ build-backend = "setuptools.build_meta"
 target-version = ['py37']
 
 [tool.pytest.ini_options]
-addopts = -vv --pep8 --pyargs pyjob
-pep8maxlinelength = 88
-pep8ignore = E402
-markers =
-    pep8: workaround for https://bitbucket.org/pytest-dev/pytest-pep8/issues/23/
+addopts = "-vv --pep8 --cov=pyjob --cov-report=xml --pyargs pyjob"
+pep8maxlinelength = "88"
+pep8ignore = "E402"
+arkers = "pep8: workaround for https://bitbucket.org/pytest-dev/pytest-pep8/issues/23/"
