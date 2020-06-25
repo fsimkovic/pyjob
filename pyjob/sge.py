@@ -1,7 +1,7 @@
-from enum import Enum
+import logging
 import re
 import uuid
-import logging
+from enum import Enum
 
 from pyjob.cexec import cexec
 from pyjob.exception import PyJobError, PyJobExecutableNotFoundError

@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 
-from pyjob import TaskFactory, config, __version__
+from pyjob import TaskFactory, __version__, config
 from pyjob.factory import TASK_PLATFORMS
 from pyjob.misc import typecast
 

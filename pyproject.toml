@@ -3,10 +3,33 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
-target-version = ['py36']
+line-length = 88
+target-version = ["py36"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+include_trailing_comma = "True"
+line_length = 88
+multi_line_output = 3
+skip = "conftest.py,docs/conf.py"
+known_first_party = "chardet,pytest,sphinx,yaml"
 
 [tool.pytest.ini_options]
 addopts = "-vv --pep8 --cov=pyjob --cov-report=xml --pyargs pyjob"
 pep8maxlinelength = "88"
 pep8ignore = "E402"
 arkers = "pep8: workaround for https://bitbucket.org/pytest-dev/pytest-pep8/issues/23/"
+

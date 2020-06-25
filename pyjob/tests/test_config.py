@@ -1,7 +1,7 @@
 import os
-import pytest
 import sys
 
+import pytest
 from pyjob.config import PyJobConfig
 from pyjob.exception import DictLockedError
 

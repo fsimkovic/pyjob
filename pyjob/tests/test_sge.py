@@ -1,9 +1,9 @@
 import os
-import pytest
 from unittest import mock
 
+import pytest
 from pyjob.exception import PyJobError
-from pyjob.sge import SunGridEngineTask, SGEConfigParameter
+from pyjob.sge import SGEConfigParameter, SunGridEngineTask
 
 
 class MockSunGridEngineTask(SunGridEngineTask):

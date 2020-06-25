@@ -1,7 +1,7 @@
 import os
-import pytest
 from unittest import mock
 
+import pytest
 from pyjob.slurm import SlurmTask
 
 

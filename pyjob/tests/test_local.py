@@ -1,8 +1,8 @@
 import os
-import pytest
 import sys
 import time
 
+import pytest
 from pyjob.exception import PyJobError, PyJobTaskLockedError
 from pyjob.local import CPU_COUNT, LocalTask
 

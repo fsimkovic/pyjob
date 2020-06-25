@@ -1,10 +1,10 @@
 import importlib
 import os
-import pytest
 from unittest import mock
 
+import pytest
 from pyjob.exception import PyJobUnknownTaskPlatform
-from pyjob.factory import TaskFactory, TASK_PLATFORMS
+from pyjob.factory import TASK_PLATFORMS, TaskFactory
 
 
 @mock.patch("pyjob.lsf.LoadSharingFacilityTask._check_requirements")

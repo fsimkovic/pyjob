@@ -1,7 +1,7 @@
 import os
-import pytest
 import sys
 
+import pytest
 from pyjob.cexec import cexec
 from pyjob.exception import PyJobExecutableNotFoundError, PyJobExecutionError
 

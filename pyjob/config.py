@@ -1,12 +1,11 @@
-from collections import UserDict
-from functools import wraps
 import logging
 import os
 import sys
+from collections import UserDict
+from functools import wraps
+
 import yaml
-
 from pyjob.exception import DictLockedError
-
 
 logger = logging.getLogger(__name__)
 

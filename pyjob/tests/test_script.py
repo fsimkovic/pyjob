@@ -1,13 +1,15 @@
 import os
-import pytest
 import tempfile
 
+import pytest
 from pyjob.exception import PyJobError
-from pyjob.script import Script
-from pyjob.script import ScriptCollector
-from pyjob.script import ScriptProperty
-from pyjob.script import LocalScriptCreator
-from pyjob.script import is_valid_script_path
+from pyjob.script import (
+    LocalScriptCreator,
+    Script,
+    ScriptCollector,
+    ScriptProperty,
+    is_valid_script_path,
+)
 
 
 class TestScriptCollector(object):

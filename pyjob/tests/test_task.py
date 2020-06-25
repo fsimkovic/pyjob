@@ -1,9 +1,9 @@
 import os
-import pytest
 
+import pytest
 from pyjob.exception import PyJobError, PyJobTaskLockedError
 from pyjob.script import ScriptCollector
-from pyjob.task import Task, ClusterTask
+from pyjob.task import ClusterTask, Task
 
 
 class MockTask(Task):

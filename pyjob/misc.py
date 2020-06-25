@@ -1,10 +1,10 @@
-import chardet.universaldetector
-from functools import wraps
 import os
 import sys
 import tempfile
 import warnings
+from functools import wraps
 
+from chardet.universaldetector import UniversalDetector
 from pyjob.exception import PyJobError
 
 
@@ -27,7 +27,7 @@ def decode(byte_s):
        Unable to infer string encoding
 
     """
-    detector = chardet.universaldetector.UniversalDetector()
+    detector = UniversalDetector()
     for line in byte_s.splitlines():
         detector.feed(line)
         if detector.done:

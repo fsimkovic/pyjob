@@ -3,7 +3,7 @@ import time
 import uuid
 
 from pyjob.cexec import cexec
-from pyjob.exception import PyJobExecutableNotFoundError, PyJobError
+from pyjob.exception import PyJobError, PyJobExecutableNotFoundError
 from pyjob.script import Script
 from pyjob.task import ClusterTask
 

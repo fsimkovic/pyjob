@@ -1,5 +1,4 @@
 import pytest
-
 from pyjob.local import CPU_COUNT
 from pyjob.pool import Pool
 
