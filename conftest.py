@@ -2,9 +2,11 @@ import inspect
 import os
 import random
 import string
+import platform
 import sys
 
 import pyjob
+
 pyjob.config = {}
 
 from pyjob.script import Script
@@ -14,7 +16,9 @@ pytest_plugins = ["helpers_namespace"]
 
 import pytest
 
-pytest.on_windows = sys.platform.startswith("win")
+system = platform.system()
+pytest.on_osx = system == "Darwin"
+pytest.on_windows = system == "Windows"
 
 
 @pytest.helpers.register
