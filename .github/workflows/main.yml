@@ -25,11 +25,11 @@ jobs:
       run: |
         python setup.py test
 
-  unittests_osx:
+  unittests:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [osx-latest]
+        os: [macos-latest]
         python-version: [3.6, 3.7]
 
     steps:
