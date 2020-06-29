@@ -25,7 +25,7 @@ jobs:
       run: |
         python setup.py test
 
-  unittests:
+  unittests_macos:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
