@@ -1,35 +1,10 @@
-# MIT License
-#
-# Copyright (c) 2017-18 Felix Simkovic
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-__author__ = 'Felix Simkovic'
-__version__ = '1.0'
-
-import chardet.universaldetector
-from functools import wraps
 import os
 import sys
 import tempfile
 import warnings
+from functools import wraps
 
+from chardet.universaldetector import UniversalDetector
 from pyjob.exception import PyJobError
 
 
@@ -52,15 +27,15 @@ def decode(byte_s):
        Unable to infer string encoding
 
     """
-    detector = chardet.universaldetector.UniversalDetector()
+    detector = UniversalDetector()
     for line in byte_s.splitlines():
         detector.feed(line)
         if detector.done:
             break
     detector.close()
-    if detector.result['confidence'] < 0.98:
-        raise PyJobError('Unable to infer string encoding')
-    return byte_s.decode(detector.result['encoding'])
+    if detector.result["confidence"] < 0.98:
+        raise PyJobError("Unable to infer string encoding")
+    return byte_s.decode(detector.result["encoding"])
 
 
 def deprecate(version, msg=None):
@@ -179,10 +154,10 @@ def typecast(value):
         iterator = range(len(value)) if isinstance(value, list) else value
         for i in iterator:
             value[i] = typecast(value[i])
-    elif value == 'None':
+    elif value == "None":
         return None
-    elif value in ('False', 'True'):
-        return True if value == 'True' else False
+    elif value in ("False", "True"):
+        return True if value == "True" else False
     else:
         for type_fn in (int, float, str):
             try:

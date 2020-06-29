@@ -1,5 +1,3 @@
-__author__ = "Felix Simkovic"
-
 import time
 import unittest
 

@@ -1,2 +1,0 @@
-chardet >=3.0.4
-pyyaml >= 3.13

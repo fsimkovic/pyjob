@@ -1,11 +1,9 @@
-__author__ = 'Felix Simkovic'
-
 import os
-import pytest
 
+import pytest
 from pyjob.exception import PyJobError, PyJobTaskLockedError
 from pyjob.script import ScriptCollector
-from pyjob.task import Task, ClusterTask
+from pyjob.task import ClusterTask, Task
 
 
 class MockTask(Task):
@@ -24,8 +22,8 @@ class MockTask(Task):
 
 
 class MockClusterTask(ClusterTask, MockTask):
-    JOB_ARRAY_INDEX = '$TEST'
-    SCRIPT_DIRECTIVE = '#TEST'
+    JOB_ARRAY_INDEX = "$TEST"
+    SCRIPT_DIRECTIVE = "#TEST"
 
     def _create_runscript(self):
         pass
@@ -47,8 +45,8 @@ class TestTask(object):
         assert task.log == []
 
     def test_2(self):
-        task = MockTask(None, directory='..')
-        assert task.directory == os.path.abspath('..')
+        task = MockTask(None, directory="..")
+        assert task.directory == os.path.abspath("..")
         assert task.pid is None
         assert not task.completed
         assert task.nprocesses == 1
@@ -105,14 +103,14 @@ class TestTask(object):
     def test_8(self):
         script = pytest.helpers.get_py_script(0, 1)
         task = MockTask(script)
-        assert task.log == [script.path.replace('.py', '.log')]
+        assert task.log == [script.path.replace(".py", ".log")]
         pytest.helpers.unlink(task.script)
 
     def test_9(self):
         scripts = [pytest.helpers.get_py_script(i, 1) for i in range(2)]
         [s.write() for s in scripts]
         task = MockTask([s.path for s in scripts])
-        assert task.log == [s.replace('.py', '.log') for s in task.script]
+        assert task.log == [s.replace(".py", ".log") for s in task.script]
         pytest.helpers.unlink(task.script)
 
     def test_10(self):
@@ -169,27 +167,27 @@ class TestTask(object):
         assert task.log == []
 
 
-@pytest.mark.skipif(pytest.on_windows, reason='Unavailable on Windows')
+@pytest.mark.skipif(pytest.on_windows, reason="Unavailable on Windows")
 class TestClusterTask(object):
     def test_get_array_bash_extension_1(self):
         task = MockClusterTask(None)
-        fname = 'test.jobs'
-        open(fname, 'w')
+        fname = "test.jobs"
+        open(fname, "w")
         assert task.get_array_bash_extension(fname, 0) == [
             'script=$(awk "NR==$TEST" test.jobs)',
             'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")',
-            '$script > $log 2>&1',
+            "$script > $log 2>&1",
         ]
         pytest.helpers.unlink([fname])
 
     def test_get_array_bash_extension_2(self):
         task = MockClusterTask(None)
-        fname = 'test.jobs'
-        open(fname, 'w')
+        fname = "test.jobs"
+        open(fname, "w")
         assert task.get_array_bash_extension(fname, 1) == [
             'script=$(awk "NR==$(($TEST + 1))" test.jobs)',
             'log=$(echo $script | sed "s/\\.${script##*.}/\\.log/")',
-            '$script > $log 2>&1',
+            "$script > $log 2>&1",
         ]
         pytest.helpers.unlink([fname])
 
@@ -201,12 +199,12 @@ class TestClusterTask(object):
     def test_get_array_bash_extension_4(self):
         task = MockClusterTask(None)
         with pytest.raises(ValueError):
-            task.get_array_bash_extension('/some/file', 0)
+            task.get_array_bash_extension("/some/file", 0)
 
     def test_get_array_bash_extension_5(self):
         task = MockClusterTask(None)
-        fname = 'test.jobs'
-        open(fname, 'w')
+        fname = "test.jobs"
+        open(fname, "w")
         with pytest.raises(ValueError):
             task.get_array_bash_extension(fname, -1)
         pytest.helpers.unlink([fname])
@@ -214,8 +212,8 @@ class TestClusterTask(object):
     def test_ensure_exec_available_1(self):
         task = MockClusterTask(None)
         with pytest.raises(PyJobError):
-            task._ensure_exec_available('qstat')
+            task._ensure_exec_available("qstat")
 
     def test_ensure_exec_available_2(self):
         task = MockClusterTask(None)
-        task._ensure_exec_available('ls')
+        task._ensure_exec_available("ls")
