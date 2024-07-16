@@ -71,7 +71,7 @@ class SlurmTask(ClusterTask):
             cmd = f"-n {self.nprocesses}"
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + " " + cmd)
         if self.directory:
-            cmd = f"--workdir={self.directory}"
+            cmd = f"--chdir={self.directory}"
             runscript.append(self.__class__.SCRIPT_DIRECTIVE + " " + cmd)
         if self.runtime:
             cmd = f"-t {self.runtime}"
